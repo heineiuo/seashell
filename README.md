@@ -5,7 +5,7 @@ Create socket pool to require denpendent services easily.
 
 ## Install
 ```
-npm install servicehub
+npm install seashell
 ```
 
 ## LICENSE
