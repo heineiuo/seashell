@@ -3,12 +3,6 @@
   "version": "0.1.0",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "./lib/index.js",
-  "bin": {
-    "servicehub": "./bin/servicehub"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:heineiuo/seashell"
@@ -28,20 +22,5 @@
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
     "watch": "^0.17.1"
-  },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-filter": "^4.0.0",
-    "gulp-json-omit": "^1.0.2",
-    "gulp-uglify": "^1.5.3",
-    "gulp-webpack": "^1.5.0",
-    "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1",
-    "webpack-node-externals": "^1.0.0",
-    "webpack-stream": "^3.1.0"
-    "format-json": "^1.0.3",
-    "meow": "^3.7.0",
-    "nedb": "^1.8.0",
-    "socket.io": "^1.4.5"
   }
 }
