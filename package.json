@@ -16,9 +16,7 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
-    "format-json": "^1.0.3",
     "glob": "^7.0.3",
-    "meow": "^3.7.0",
     "nedb": "^1.8.0",
     "socket.io": "^1.4.5",
     "watch": "^0.17.1"

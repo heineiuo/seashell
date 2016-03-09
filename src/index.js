@@ -207,5 +207,5 @@ io.on('connection', function(socket){
 
 })
 
-
-io.listen(3000)
+console.log('listening on port '+process.env.port||3300)
+io.listen(process.env.port||3300)
