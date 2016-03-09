@@ -1,0 +1,29 @@
+{
+  "name": "servicehub",
+  "version": "0.1.0",
+  "description": "Create socket pool to `require` denpendent services easily.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.youkuohao.com:ykhservice/servicehub"
+  },
+  "keywords": [
+    "servicehub"
+  ],
+  "author": "@heineiuo",
+  "license": "MIT",
+  "dependencies": {
+    "format-json": "^1.0.3",
+    "meow": "^3.7.0",
+    "nedb": "^1.8.0",
+    "socket.io": "^1.4.5"
+  },
+  "devDependencies": {
+    "gulp-webpack": "^1.5.0",
+    "webpack": "^1.12.14",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
