@@ -125,13 +125,6 @@ io.on('connection', function(socket){
       appSecret: data.appSecret
     }
 
-    glob('data/service/**/*.json', {}, function (err, files) {
-      if (err) throw err
-      files.forEach(function (item, index) {
-        console.log(item, index)
-      })
-    })
-
     Service.findOne({
       appId: insertData.appId,
       appSecret: insertData.appSecret
