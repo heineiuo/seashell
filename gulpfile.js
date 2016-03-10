@@ -35,13 +35,13 @@ gulp.task('webpack', function() {
       }
     }))
     .pipe(uglify())
-    .pipe(gulp.dest('dist/'))
+    .pipe(gulp.dest('dist'))
 })
 
 gulp.task('copy', function () {
   return gulp.src('package.json')
     .pipe(jsonomit('devDependencies'))
-    .pipe(gulp.dest('dist/'))
+    .pipe(gulp.dest('dist'))
 })
 
-gulp.task('release', ['webpack', 'release'])
+gulp.task('release', ['webpack', 'copy'])
