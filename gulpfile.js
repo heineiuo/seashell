@@ -3,6 +3,7 @@ var webpack = require('webpack-stream')
 var fs = require('fs')
 var path = require("path")
 var uglify = require("gulp-uglify")
+var jsonomit = require('gulp-json-omit')
 var nodeExternals = require('webpack-node-externals')
 
 function customIgnoreNodeModules(){
@@ -39,6 +40,7 @@ gulp.task('webpack', function() {
 
 gulp.task('copy', function () {
   return gulp.src('package.json')
+    .pipe(jsonomit('devDependencies'))
     .pipe(gulp.dest('dist/'))
 })
 
