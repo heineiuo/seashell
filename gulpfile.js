@@ -5,24 +5,7 @@ var path = require("path")
 var uglify = require("gulp-uglify")
 var jsonomit = require('gulp-json-omit')
 var nodeExternals = require('webpack-node-externals')
-
-function customIgnoreNodeModules(){
-
-  var data = fs.readFileSync('package.json', 'utf-8')
-  var devDependencies = JSON.parse(data).devDependencies
-
-  var nodeModules = {}
-  fs.readdirSync('node_modules')
-    .filter(function(x) {
-      // 除.bin目录以外的目录
-      return ['.bin'].indexOf(x) === -1;
-    })
-    .forEach(function(moduleName) {
-      if (typeof devDependencies[moduleName] == 'undefined') {
-        nodeModules[moduleName] = 'commonjs ' + moduleName
-      }
-    })
-}
+var filter = require('gulp-filter')
 
 gulp.task('webpack', function() {
   return gulp.src('src/index.js')
@@ -35,13 +18,14 @@ gulp.task('webpack', function() {
       }
     }))
     .pipe(uglify())
-    .pipe(gulp.dest('dist'))
+    .pipe(gulp.dest('packages/seashell/lib'))
 })
 
-gulp.task('copy', function () {
-  return gulp.src('package.json')
-    .pipe(jsonomit('devDependencies'))
-    .pipe(gulp.dest('dist'))
+gulp.task('copy-pkg', function () {
+  return gulp.src(['package.json'])
+    .pipe(filter(['*.json']))
+    .pipe(jsonomit(['devDependencies', 'bin', 'scripts']))
+    .pipe(gulp.dest('packages/seashell'))
 })
 
-gulp.task('release', ['webpack', 'copy'])
+gulp.task('default', ['webpack', 'copy-pkg'])

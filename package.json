@@ -1,17 +1,22 @@
 {
-  "name": "servicehub",
+  "name": "seashell",
   "version": "0.1.0",
   "description": "Create socket pool to `require` denpendent services easily.",
-  "main": "dist/hub.js",
+  "main": "./lib/index.js",
+  "bin": {
+    "servicehub": "./bin/servicehub"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git@git.youkuohao.com:ykhservice/servicehub"
+    "url": "git@github.com:heineiuo/seashell"
   },
   "keywords": [
-    "servicehub"
+    "servicehub",
+    "microservice",
+    "seashell"
   ],
   "author": "@heineiuo",
   "license": "MIT",
@@ -21,10 +26,12 @@
     "node-uuid": "^1.4.7",
     "sha.js": "^2.4.5",
     "socket.io": "^1.4.5",
+    "socket.io-client": "^1.4.5",
     "watch": "^0.17.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-filter": "^4.0.0",
     "gulp-json-omit": "^1.0.2",
     "gulp-uglify": "^1.5.3",
     "gulp-webpack": "^1.5.0",
