@@ -1,0 +1,23 @@
+{
+  "name": "seashell-cli",
+  "version": "0.1.0",
+  "description": "Create socket pool to `require` denpendent services easily.",
+  "main": "./lib/index.js",
+  "bin": {
+    "servicehub": "./bin/servicehub"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.youkuohao.com:ykhservice/servicehub-cli"
+  },
+  "keywords": [
+    "servicehub"
+  ],
+  "author": "@heineiuo",
+  "license": "MIT",
+  "dependencies": {
+  }
+}
