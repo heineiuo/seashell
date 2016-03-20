@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "./lib/index.js",
   "bin": {
@@ -38,7 +38,7 @@
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
     "webpack-node-externals": "^1.0.0",
-    "webpack-stream": "^3.1.0"
+    "webpack-stream": "^3.1.0",
     "format-json": "^1.0.3",
     "meow": "^3.7.0",
     "nedb": "^1.8.0",

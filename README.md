@@ -11,15 +11,15 @@ Create socket pool to require denpendent services easily.
 
 Use cli tool:
 ```shell
-npm install seashell-cli -g
-mkdir service; cd service; seashell init
-npm install
-node server
+$ npm install seashell-cli -g
+$ mkdir service; cd service; seashell init
+$ npm install
+$ node server
 ```
 
 Or add to project manally:
 ```javascript
-npm install seashell --save
+$ npm install seashell --save
 
 // create server.js
 var seashell = require('seashell')
