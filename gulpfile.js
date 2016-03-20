@@ -14,6 +14,7 @@ gulp.task('webpack', function() {
       target: 'node',
       externals: nodeExternals(),
       output: {
+        libraryTarget: "commonjs",
         filename: "index.js"
       }
     }))
