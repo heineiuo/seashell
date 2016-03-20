@@ -10,7 +10,7 @@ Create socket pool to require denpendent services easily.
 ## Install
 
 Use cli tool:
-```
+```shell
 npm install seashell-cli -g
 mkdir service; cd service; seashell init
 npm install
@@ -18,7 +18,7 @@ node server
 ```
 
 Or add to project manally:
-```
+```javascript
 npm install seashell --save
 
 // create server.js
