@@ -26,6 +26,11 @@ var seashell = require('seashell')
 seashell.Server()
 ```
 
+## DONATE
+
+[![Hansel's Gratipay][https://img.shields.io/gratipay/heineiuo.svg]][https://gratipay.com/~heineiuo/]
+
+
 ## LICENSE
 
 MIT License.

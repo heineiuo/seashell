@@ -28,4 +28,9 @@ gulp.task('copy-pkg', function () {
     .pipe(gulp.dest('packages/seashell'))
 })
 
-gulp.task('default', ['webpack', 'copy-pkg'])
+gulp.task('copy-all',['copy-pkg'],  function () {
+  return gulp.src([ 'README.md'])
+    .pipe(gulp.dest('packages/seashell'))
+})
+
+gulp.task('default', ['webpack', 'copy-all'])
