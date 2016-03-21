@@ -1,12 +1,8 @@
 {
   "name": "seashell-build",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "private": true,
   "description": "Create socket pool to `require` denpendent services easily.",
-  "main": "./lib/index.js",
-  "bin": {
-    "servicehub": "./bin/servicehub"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

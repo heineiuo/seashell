@@ -16,7 +16,7 @@ Run each script in `demo` dir, and browser `localhost:3001`.
 Use cli tool:
 ```shell
 $ npm install seashell-cli -g
-$ mkdir service; cd service; seashell init
+$ mkdir service; cd service; seashell -i
 $ npm install
 $ node server
 ```
