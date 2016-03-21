@@ -51,7 +51,7 @@ var Server = function (opts) {
       serviceData.socketId = null
       serviceData.online = 0
       if (!checkServiceFormat(serviceData)) throw Error('Service Defination Format Error')
-      Service.update({appId: appId}, serviceData,{}, function (err, doc) {
+      Service.update({appId: appId}, {$set: serviceData},{}, function (err, doc) {
         if (err) throw err
       })
     })
@@ -120,8 +120,11 @@ var Server = function (opts) {
     socket.on('register', function (data) {
       console.log('register')
       console.log(data)
+      console.log(socket.id)
+      if (!socket.id) throw new Error('socket.id undefined!')
 
       var insertData = {
+        online: 1,
         appId: data.appId,
         socketId: socket.id,
         appSecret: data.appSecret
@@ -133,8 +136,9 @@ var Server = function (opts) {
       }, function (err, doc) {
         if (err) throw err
         if (!doc) return socket.emit('registerResponse', {error: "fail"})
-        Service.update({appId: insertData.appId}, insertData, {}, function (err, doc) {
-          if (err) throw err
+        Service.update({appId: insertData.appId}, {$set: insertData}, {}, function (err, doc) {
+          if (err) return socket.emit('registerResponse', {error: "fail"})
+          socket.emit('registerResponse', {success: 1})
         })
       })
 
@@ -159,12 +163,12 @@ var Server = function (opts) {
         data.appId = doc.appId
 
         Service.findOne({
+          online: 1,
           appName: importAppName,
-          online: 1
         }, function (err, doc) {
           //var targetSocket = io.sockets.socket(doc.socketId)
           //var targetSocket = io.clients[doc.socketId]
-          if(err) throw err
+          if (err) throw err
           if (!doc) {
             data.result = {
               error: "no target service avileable!"
@@ -200,18 +204,18 @@ var Server = function (opts) {
 
     socket.on('disconnect', function(){
       console.log(socket.id+' disconnected')
-      Service.update({socketId: socket.id}, {
+      Service.update({socketId: socket.id}, {$set: {
         socketId: null,
         online: 0
-      }, {}, function (err, numRemoved) {
+      }}, {}, function (err, numRemoved) {
         console.log(err, numRemoved)
       })
     })
 
   })
 
-  console.log('listening on port '+(process.env.port||3300))
-  io.listen(process.env.port||3300)
+  console.log('listening on port '+(opts.port||process.env.port||3300))
+  io.listen(opts.port||process.env.port||3300)
 
 }
 

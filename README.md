@@ -7,6 +7,10 @@
 
 Create socket pool to require denpendent services easily.
 
+## DEMO
+
+Run each script in `demo` dir, and browser `localhost:3001`.
+
 ## Install
 
 Use cli tool:
@@ -25,6 +29,7 @@ $ npm install seashell --save
 var seashell = require('seashell')
 seashell.Server()
 ```
+
 
 ## DONATE
 

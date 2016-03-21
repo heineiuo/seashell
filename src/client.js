@@ -19,14 +19,14 @@ var register = function(ioUrl, options, callback){
     socketWrap.socket.emit('register', options)
   })
   socketWrap.socket.on('registerResponse', function (data) {
-    if (typeof callback == 'function') callback(data)
+    if (typeof callback == 'function') callback(data.error, data)
   })
   socketWrap.socket.on('export', function (data) {
     importEmitterStack[data.callbackId].emit('event', data)
   })
   socketWrap.socket.on('import', function (data) {
     exportActionStack[data.actionName](data, function (responseData) {
-      socketWrap.emit('export', {
+      socketWrap.socket.emit('export', {
         appId: data.appId,
         callbackId: data.callbackId,
         data: responseData
