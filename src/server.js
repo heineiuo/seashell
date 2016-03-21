@@ -140,8 +140,10 @@ var Server = function (opts) {
 
     })
 
+    /**
+     * 请求方
+     */
     socket.on('import', function (data) {
-      console.log('import/require/request')
       var importAppName = data.importAppName
       console.log('import:'+importAppName)
       if (!data.callbackId) throw Error('Import Lost Prams Id: [callbackId]')
@@ -176,16 +178,22 @@ var Server = function (opts) {
       })
     })
 
-    socket.on('export', function (data) {
+    /**
+     * 处理方处理结果 -> 请求方
+     * @return result.appId 请求方的识别号
+     * @return result.callbackId 请求方的请求识别号
+     * @return result.data 真实结果
+     */
+    socket.on('export', function (result) {
       console.log('export/reply')
-      var callbackId = data.calllbackId
-      if (!data.callbackId) throw Error('Export Lost Prams Id: [callbackId]')
-
-      console.log(data)
-      Service.findOne({appId: data.appId}, function (err, doc) {
+      if (!result.appId) throw Error('Export Lost Params: [appId]')
+      if (!result.callbackId) throw Error('Export Lost Params: [callbackId]')
+      var data = result.data
+      Service.findOne({appId: result.appId}, function (err, doc) {
+        if (err) throw err
         //var targetSocket = io.clients[doc.socketId]
         var targetSocket = io.sockets.connected[doc.socketId]
-        targetSocket.emit('export', data)
+        if (targetSocket) targetSocket.emit('export', result)
       })
     })
 

@@ -3,6 +3,8 @@ var util = require('util')
 
 var socketWrap = module.exports = {}
 var importEmitterStack = {}
+var exportActionStack = {}
+
 var MyEmitter = function(){
   EventEmitter.call(this)
 }
@@ -22,9 +24,19 @@ var register = function(ioUrl, options, callback){
   socketWrap.socket.on('export', function (data) {
     importEmitterStack[data.callbackId].emit('event', data)
   })
+  socketWrap.socket.on('import', function (data) {
+    exportActionStack[data.actionName](data, function (responseData) {
+      socketWrap.emit('export', {
+        appId: data.appId,
+        callbackId: data.callbackId,
+        data: responseData
+      })
+    })
+  })
   socketWrap.socket.on('disconnect', function () {
     console.log('disconnected')
   })
+
 }
 
 /**
@@ -46,10 +58,11 @@ var request = function(serviceName, data, callback){
 }
 
 
-socketWrap.connect = register
-socketWrap.register = register
-socketWrap.request = request
-socketWrap.import = request
+var exportService = function (actionName, action) {
+  exportActionStack[actionName] = action
+}
 
 
-
+socketWrap.connect = socketWrap.register = register
+socketWrap.request = socketWrap.import = request
+socketWrap.exportService = exportService
