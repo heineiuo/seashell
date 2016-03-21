@@ -121,7 +121,10 @@ var Server = function (opts) {
       console.log('register')
       console.log(data)
       console.log(socket.id)
-      if (!socket.id) throw new Error('socket.id undefined!')
+      if (!socket.id) {
+        console.log('[EXCEPTION] LOST SOCKET ID')
+        return socket.emit('registerResponse', {error: "EXCEPTION_ERROR"})
+      }
 
       var insertData = {
         online: 1,
@@ -134,10 +137,10 @@ var Server = function (opts) {
         appId: insertData.appId,
         appSecret: insertData.appSecret
       }, function (err, doc) {
-        if (err) throw err
-        if (!doc) return socket.emit('registerResponse', {error: "fail"})
+        if (err) return socket.emit('registerResponse', {error: "EXCEPTION_ERROR"})
+        if (!doc) return socket.emit('registerResponse', {error: "PERMISSION_DENIED"})
         Service.update({appId: insertData.appId}, {$set: insertData}, {}, function (err, doc) {
-          if (err) return socket.emit('registerResponse', {error: "fail"})
+          if (err) return socket.emit('registerResponse', {error: "EXCEPTION_ERROR"})
           socket.emit('registerResponse', {success: 1})
         })
       })
@@ -147,20 +150,30 @@ var Server = function (opts) {
     /**
      * 请求方
      */
-    socket.on('import', function (data) {
-      var importAppName = data.importAppName
-      console.log('import:'+importAppName)
-      if (!data.callbackId) throw Error('Import Lost Prams Id: [callbackId]')
+    socket.on('import', function (request) {
+      console.log('import:'+request.importAppName)
+
+      var importAppName = request.importAppName
+      var response = {
+        callbackId: request.callbackId,
+        data: {}
+      }
+      if (!request.callbackId) {
+        response.data = {error: 'LOST_CALLBACKID'}
+        return socket.emit('export', response)
+      }
       Service.findOne({socketId: socket.id}, function (err, doc) {
-        if(err) throw err
+        if(err) {
+          response.data = {error: 'EXCEPTION_ERROR'}
+          return socket.emit('export', response)
+        }
 
         if (!doc) {
-          data.result = {
-            error: "service not registered!"
-          }
-          return socket.emit('export', data)
+          response.data = {error: "YOUR_SERVICE_UNREGISTERED"}
+          return socket.emit('export', response)
         }
-        data.appId = doc.appId
+
+        response.appId = request.appId = doc.appId
 
         Service.findOne({
           online: 1,
@@ -168,15 +181,16 @@ var Server = function (opts) {
         }, function (err, doc) {
           //var targetSocket = io.sockets.socket(doc.socketId)
           //var targetSocket = io.clients[doc.socketId]
-          if (err) throw err
-          if (!doc) {
-            data.result = {
-              error: "no target service avileable!"
-            }
-            return socket.emit('export', data)
+          if (err) {
+            response.data = {error: 'EXCEPTION_ERROR'}
+            return socket.emit('export', response)
           }
-          var targetSocket = io.sockets.connected[doc.socketId]
-          targetSocket.emit('import', data)
+          if (!doc) {
+            response.data = {error: "TARGET_SERVICE_OFFLINE"}
+            return socket.emit('export', response)
+          }
+
+          io.sockets.connected[doc.socketId].emit('import', request)
         })
 
       })
@@ -184,32 +198,31 @@ var Server = function (opts) {
 
     /**
      * 处理方处理结果 -> 请求方
-     * @return result.appId 请求方的识别号
-     * @return result.callbackId 请求方的请求识别号
-     * @return result.data 真实结果
+     * @return response.appId 请求方的识别号
+     * @return response.callbackId 请求方的请求识别号
+     * @return response.data 真实结果
      */
-    socket.on('export', function (result) {
+    socket.on('export', function (response) {
       console.log('export/reply')
-      if (!result.appId) throw Error('Export Lost Params: [appId]')
-      if (!result.callbackId) throw Error('Export Lost Params: [callbackId]')
-      var data = result.data
-      Service.findOne({appId: result.appId}, function (err, doc) {
+
+      if (!response.appId) throw new Error('Export Lost Params: [appId]')
+      if (!response.callbackId) throw new Error('Export Lost Params: [callbackId]')
+      Service.findOne({appId: response.appId}, function (err, doc) {
         if (err) throw err
-        //var targetSocket = io.clients[doc.socketId]
         var targetSocket = io.sockets.connected[doc.socketId]
-        if (targetSocket) targetSocket.emit('export', result)
+        if (targetSocket) targetSocket.emit('export', response)
       })
     })
 
-
+    /**
+     * 断开连接
+     */
     socket.on('disconnect', function(){
       console.log(socket.id+' disconnected')
       Service.update({socketId: socket.id}, {$set: {
         socketId: null,
         online: 0
-      }}, {}, function (err, numRemoved) {
-        console.log(err, numRemoved)
-      })
+      }}, {}, console.log)
     })
 
   })

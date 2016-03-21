@@ -1,6 +1,6 @@
 {
   "name": "seashell-build",
-  "version": "0.2.2",
+  "version": "0.2.x",
   "private": true,
   "description": "Create socket pool to `require` denpendent services easily.",
   "scripts": {
