@@ -6,7 +6,7 @@ function createSha256(tobeHash){
   return sha256.update(tobeHash, 'uft-8').digest('hex')
 }
 
-function createService(){
+function createService(callback){
 
   var service = {}
   service.appId = uuid.v4()
@@ -15,10 +15,11 @@ function createService(){
 
   var data = JSON.stringify(service, null, 2)
 
-  fs.writeFile('data/service/'+service.appId+'.json', data, 'UTF-8', console.log)
+  fs.writeFile('data/service/'+service.appId+'.json', data, 'UTF-8', callback)
 
 }
 
 require('mkdirp').sync('data/service')
-createService()
+
+module.exports = createService
 

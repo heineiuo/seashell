@@ -1,6 +1,7 @@
 {
-  "name": "seashell",
+  "name": "seashell-build",
   "version": "0.2.0",
+  "private": true,
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "./lib/index.js",
   "bin": {
@@ -23,25 +24,26 @@
   "dependencies": {
     "glob": "^7.0.3",
     "nedb": "^1.8.0",
-    "node-uuid": "^1.4.7",
-    "sha.js": "^2.4.5",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
     "watch": "^0.17.1"
   },
   "devDependencies": {
+    "node-uuid": "^1.4.7",
+    "sha.js": "^2.4.5",
+    "commander": "^2.9.0",
+    "format-json": "^1.0.3",
     "gulp": "^3.9.1",
     "gulp-filter": "^4.0.0",
     "gulp-json-omit": "^1.0.2",
     "gulp-uglify": "^1.5.3",
     "gulp-webpack": "^1.5.0",
+    "meow": "^3.7.0",
+    "nedb": "^1.8.0",
+    "socket.io": "^1.4.5",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.14.1",
     "webpack-node-externals": "^1.0.0",
-    "webpack-stream": "^3.1.0",
-    "format-json": "^1.0.3",
-    "meow": "^3.7.0",
-    "nedb": "^1.8.0",
-    "socket.io": "^1.4.5"
+    "webpack-stream": "^3.1.0"
   }
 }

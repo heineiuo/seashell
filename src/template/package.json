@@ -1,0 +1,10 @@
+{
+  "name": "seashell-instance",
+  "private": true,
+  "main": "index.js",
+  "author": "@heineiuo",
+  "license": "MIT",
+  "dependencies": {
+    "seashell": "^0.2.0"
+  }
+}
