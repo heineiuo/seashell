@@ -151,7 +151,7 @@ var Server = function (opts) {
      * 请求方
      */
     socket.on('import', function (request) {
-      console.log('import:'+request.importAppName)
+      console.log('import:'+JSON.stringify(request))
 
       var importAppName = request.importAppName
       var response = {
@@ -190,7 +190,12 @@ var Server = function (opts) {
             return socket.emit('export', response)
           }
 
-          io.sockets.connected[doc.socketId].emit('import', request)
+          try {
+            io.sockets.connected[doc.socketId].emit('import', request)
+          } catch(e){
+            response.data = {error: 'EXCEPTION_ERROR'}
+            return socket.emit('export', response)
+          }
         })
 
       })

@@ -7,7 +7,7 @@
 
 Create socket pool to require denpendent services easily.
 
-## DEMO
+## Demo
 
 Run each script in `demo` dir, and browser `localhost:3001`.
 
@@ -30,8 +30,11 @@ var seashell = require('seashell')
 seashell.Server()
 ```
 
+## Todo
 
-## DONATE
+* Provide Promise usage.
+
+## Donate
 
 [![Hansel's Gratipay](https://img.shields.io/gratipay/heineiuo.svg)](https://gratipay.com/~heineiuo/)
 

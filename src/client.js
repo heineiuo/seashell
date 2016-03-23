@@ -37,6 +37,7 @@ var register = function(ioUrl, options, callback){
     importEmitterStack[response.callbackId].emit('importResponse', response)
   })
   socketWrap.socket.on('import', function (request) {
+    console.log('handle request: '+JSON.stringify(request))
     exportActionStack[request.actionName](request, function (responseData) {
       socketWrap.socket.emit('export', {
         appId: request.appId,
@@ -67,6 +68,7 @@ var request = function(serviceName, data, callback){
   })
   data.importAppName = serviceName
   data.callbackId = callbackId
+  console.log('start request servicehub, data: '+JSON.stringify(data))
   socketWrap.socket.emit('import', data)
 }
 
