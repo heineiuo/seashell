@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "./lib/seashell.js",
   "repository": {

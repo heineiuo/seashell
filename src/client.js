@@ -1,84 +1,105 @@
-var EventEmitter = require('events')
-var util = require('util')
+const Emitter = require('./Emitter')
+const md5 = require('./md5')
 
-var socketWrap = module.exports = {
-  isStarted: false,
-  isOnline: false
-}
-var importEmitterStack = {}
-var exportActionStack = {}
+const Client = function () {
 
-var md5 = function (tobeHash) {
-  return require('crypto')
-    .createHash('md5')
-    .update(tobeHash)
-    .digest('hex')
-}
+  const importEmitterStack = {}
+  const exportActionStack = {}
 
-var MyEmitter = function(){
-  EventEmitter.call(this)
-}
+  const client = {
+    isStarted: false,
+    isOnline: false
+  }
 
-util.inherits(MyEmitter, EventEmitter)
+  client.connect = function (opts, callback) {
 
-var register = function(ioUrl, options, callback){
-  socketWrap.isStarted = true
-  socketWrap.socket = require('socket.io-client')(ioUrl)
-  socketWrap.socket.on('connect', function () {
-    console.log('connected')
-    console.log('start register')
-    socketWrap.online = true
-    socketWrap.socket.emit('register', options)
-  })
-  socketWrap.socket.on('registerResponse', function (data) {
-    if (typeof callback == 'function') callback(data.error, data)
-  })
-  socketWrap.socket.on('export', function (response) {
-    importEmitterStack[response.callbackId].emit('importResponse', response)
-  })
-  socketWrap.socket.on('import', function (request) {
-    console.log('handle request: '+JSON.stringify(request))
-    exportActionStack[request.actionName](request, function (responseData) {
-      socketWrap.socket.emit('export', {
-        appId: request.appId,
-        callbackId: request.callbackId,
-        data: responseData
+    client.isStarted = true
+
+    console.log(opts)
+
+    const socket = client.socket = require('socket.io-client')(opts.url)
+
+    socket.on('connect', function () {
+      console.log('connected')
+      console.log('start register')
+      client.online = true
+      socket.emit('register', opts.key)
+    })
+    socket.on('export', function (response) {
+      importEmitterStack[response.callbackId].emit('importResponse', response)
+    })
+    socket.on('import', function (request) {
+      console.log('handle request: '+JSON.stringify(request))
+      exportActionStack[request.actionName](request, function (responseData) {
+        socket.emit('export', {
+          appId: request.appId,
+          callbackId: request.callbackId,
+          data: responseData
+        })
       })
     })
-  })
-  socketWrap.socket.on('disconnect', function () {
-    socketWrap.online = false
-    console.log('disconnected')
-  })
+    socket.on('disconnect', function () {
+      client.online = false
+      console.log('disconnected')
+    })
+    //
+    //
+    //if (typeof callback == 'function') {
+    //  socket.on('registerResponse', function (data) {
+    //    callback(data.error, data)
+    //  })
+    //} else {
+    //  var called = false
+    //  return new Promise(function (resolve, reject) {
+    //    socket.on('registerResponse', function (data) {
+    //      called = true
+    //      if (data.error) {
+    //        reject(data)
+    //      } else {
+    //        resolve(data)
+    //      }
+    //    })
+    //  })
+    //}
+  }
+
+  /**
+   * import
+   */
+  client.import = function(serviceName, data, callback){
+    if (!client.online) return callback({error: "YOUR_SERVICE_IS_OFFLINE"})
+    var callbackId = md5(String(Math.random()+Date.now()))
+    importEmitterStack[callbackId] = new Emitter()
+    //console.log(importEmitterStack[callbackId])
+
+    data.importAppName = serviceName
+    data.callbackId = callbackId
+    console.log('start request servicehub, data: '+JSON.stringify(data))
+    client.socket.emit('import', data)
+
+    if(typeof callback!='function'){
+      return new Promise(function (resolve, reject) {
+        importEmitterStack[callbackId].on('importResponse', function (response) {
+          resolve(response)
+          delete importEmitterStack[callbackId]
+          return null
+        })
+      })
+    } else {
+      importEmitterStack[callbackId].on('importResponse', function (response) {
+        callback(response)
+        delete importEmitterStack[callbackId]
+        return null
+      })
+    }
+  }
+
+  client.exportService = function (actionName, action) {
+    exportActionStack[actionName] = action
+  }
+
+  return client
 
 }
 
-/**
- * import
- */
-var request = function(serviceName, data, callback){
-  if (!socketWrap.online) return callback({error: "YOUR_SERVICE_IS_OFFLINE"})
-  var callbackId = md5(String(Math.random()+Date.now()))
-  importEmitterStack[callbackId] = new MyEmitter()
-  //console.log(importEmitterStack[callbackId])
-  importEmitterStack[callbackId].on('importResponse', function (response) {
-    callback(response)
-    delete importEmitterStack[callbackId]
-    return null
-  })
-  data.importAppName = serviceName
-  data.callbackId = callbackId
-  console.log('start request servicehub, data: '+JSON.stringify(data))
-  socketWrap.socket.emit('import', data)
-}
-
-
-var exportService = function (actionName, action) {
-  exportActionStack[actionName] = action
-}
-
-socketWrap.isOnline = function () {return socketWrap.isOnline}
-socketWrap.isStarted = function () {return socketWrap.isStarted}
-socketWrap.connect = socketWrap.register = register
-socketWrap.request = socketWrap.import = request
-socketWrap.exportService = exportService
+module.exports = Client()

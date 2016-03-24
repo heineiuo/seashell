@@ -33,6 +33,8 @@ seashell.Server()
 ## Todo
 
 * Provide Promise usage.
+- [ ] connect
+- [x] import
 
 ## Donate
 

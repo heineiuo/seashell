@@ -22,7 +22,7 @@ gulp.task('seashell-webpack', function() {
         filename: "seashell.js"
       }
     }))
-    .pipe(uglify())
+    //.pipe(uglify())
     .pipe(gulp.dest('build/release/seashell/lib'))
 })
 
