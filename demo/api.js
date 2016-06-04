@@ -1,13 +1,16 @@
 var app = require('express')()
 var http = require('http').Server(app)
-var seashell = require('../src')
+var seashell = require('../src/seashell')
 
 app.use(function(req, res, next){
   if (seashell.socket) return next()
-  seashell.connect('ws://127.0.0.1:3000', {
-    "appId": "01b257a9-08af-475d-a686-e8eab6026c1c",
-    "appName": "api",
-    "appSecret": "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8"
+  seashell.connect({
+    "url": 'ws://127.0.0.1:3000',
+    "key": {
+      "appId": "01b257a9-08af-475d-a686-e8eab6026c1c",
+      "appName": "api",
+      "appSecret": "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8"
+    }
   }, function (err) {
     if (!err) return next()
     console.log(err)

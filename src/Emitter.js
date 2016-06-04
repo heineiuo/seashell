@@ -1,10 +1,10 @@
 const EventEmitter = require('events')
 const util = require('util')
 
-const MyEmitter = function(){
+const Emitter = function(){
   EventEmitter.call(this)
 }
 
-util.inherits(MyEmitter, EventEmitter)
+util.inherits(Emitter, EventEmitter)
 
-module.exports = MyEmitter
+module.exports = Emitter

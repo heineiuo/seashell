@@ -4,6 +4,7 @@ var fs = require('fs')
 var mkdirp = require('mkdirp')
 var watch = require('watch')
 var Datastore = require('nedb')
+var io = require('socket.io')()
 
 var Server = function (opts) {
 
@@ -107,7 +108,6 @@ var Server = function (opts) {
    *
    ****************/
 
-  var io = require('socket.io')()
 
   io.on('connection', function(socket){
     //var io = socket.server

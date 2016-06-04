@@ -1,7 +1,0 @@
-cli
-node_modules
-.idea
-packages
-gulpfile.js
-.gitignore
-npm-debug.log

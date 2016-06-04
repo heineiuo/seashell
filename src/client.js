@@ -78,7 +78,7 @@ const Client = function () {
     client.socket.emit('import', data)
 
     if(typeof callback!='function'){
-      return new Promise(function (resolve, reject) {
+      return new Promise( (resolve, reject)=>{
         importEmitterStack[callbackId].on('importResponse', function (response) {
           resolve(response)
           delete importEmitterStack[callbackId]
