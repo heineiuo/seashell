@@ -1,5 +1,5 @@
-var seashell = require('../src/seashell')
+import {Hub} from '../src'
 
-seashell.Server({
-  port: 3000
-})
+const hub = new Hub()
+
+hub.start()

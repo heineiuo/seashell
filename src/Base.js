@@ -1,11 +1,8 @@
 import defaults from 'lodash.defaults'
 
 class Base {
-  private state = {
 
-  }
-
-  private setState = (nextState)=>{
+  setState = (nextState)=>{
     this.state = defaults(nextState, this.state)
   }
 

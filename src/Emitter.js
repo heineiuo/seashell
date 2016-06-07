@@ -7,4 +7,4 @@ const Emitter = function(){
 
 util.inherits(Emitter, EventEmitter)
 
-module.exports = Emitter
+export default Emitter

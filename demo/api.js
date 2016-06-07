@@ -1,40 +1,46 @@
-var app = require('express')()
-var http = require('http').Server(app)
-var seashell = require('../src/seashell')
+const app = require('express')()
+const http = require('http').Server(app)
 
-app.use(function(req, res, next){
-  if (seashell.socket) return next()
-  seashell.connect({
-    "url": 'ws://127.0.0.1:3000',
+import {App} from '../src'
+
+const seashellMiddleware = (conf)=>{
+  const seashell = new App()
+  seashell.connect(conf.seashell)
+  return (req, res, next) => {
+    res.locals.seashell = seashell
+    next()
+  }
+}
+
+
+app.use(seashellMiddleware({
+  "seashell": {
+    "url": 'ws://127.0.0.1:3311',
     "key": {
       "appId": "01b257a9-08af-475d-a686-e8eab6026c1c",
       "appName": "api",
       "appSecret": "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8"
     }
-  }, function (err) {
-    if (!err) return next()
-    console.log(err)
-    res.write("service unavailable now, fresh page again.")
-    res.end()
-  })
-})
-
-app.use(function(req, res, next){
-  var data = {
-    foo: "bar",
-    actionName: 'example'
   }
+}))
 
-  seashell.import('account', data, function(err, data){
-    if (err) {
-      res.write(JSON.stringify(err))
-      return res.end()
+app.use('/api', async (req, res, next) => {
+
+  const {seashell} = res.locals
+  try {
+    const example = {
+      actionName: 'example',
+      foo: "bar"
     }
-    console.log(data)
-    res.write(JSON.stringify(data))
-    res.end()
-  })
-
+    var time = [Date.now()]
+    const response = await seashell.request('account', example)
+    time.push(Date.now())
+    const data = response.data
+    data.timeused = `${time[1] - time[0]}ms`
+    res.json(data)
+  } catch(e) {
+    res.end(JSON.stringify(e))
+  }
 })
 
 http.listen(3001, function () {
