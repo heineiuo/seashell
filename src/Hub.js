@@ -75,7 +75,7 @@ class Hub extends Base {
    */
   removeServiceByFilePath = async (filePath) => {
     const {Service} = this.state
-    var appId = path.basename(filePath, '.json')
+    const appId = path.basename(filePath, '.json')
     await Service.remove({appId: appId}, {})
   }
 
@@ -101,7 +101,7 @@ class Hub extends Base {
   handleRequest = async (socket, request)=>{
     const {Service, io} = this.state
     console.log('import:'+JSON.stringify(request))
-    var response = {
+    const response = {
       callbackId: request.callbackId,
       data: {}
     }
@@ -109,7 +109,7 @@ class Hub extends Base {
     try {
       if (!request.callbackId) throw new Error('LOST_CALLBACKID')
 
-      var importAppName = request.importAppName
+      const importAppName = request.importAppName
       const doc = await Service.findOne({socketId: socket.id})
       response.appId = request.appId = doc.appId
       const service = await Service.findOne({
@@ -119,7 +119,9 @@ class Hub extends Base {
       if (!service) throw new Error("TARGET_SERVICE_OFFLINE")
       io.sockets.connected[service.socketId]
         .emit('PLEASE_HANDLE_THIS_REQUEST', request)
-      console.log(`hub emit client ${importAppName} to handle request ${request.actionName}`)
+      console.log(`
+         hub emit client ${importAppName} to handle request ${request.actionName}
+      `)
     } catch(e){
       console.log(e)
       response.data = {error: e}
@@ -143,7 +145,7 @@ class Hub extends Base {
         throw new Error('Export Lost Params: [callbackId]')
 
       const doc = await Service.findOne({appId: response.appId})
-      var targetSocket = io.sockets.connected[doc.socketId]
+      const targetSocket = io.sockets.connected[doc.socketId]
       if (targetSocket)
         targetSocket.emit('YOUR_REQUEST_HAS_RESPONSE', response)
     } catch(e){
