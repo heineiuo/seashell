@@ -1,63 +1,54 @@
 import uuid from 'uuid'
 import SocketIOClient from 'socket.io-client'
-import Base from './Base'
+import Router from './Router'
 import Emitter from './Emitter'
 
-class App extends Base {
+class App extends Router {
 
   state = {
+    /**
+     * 是否启动
+     */
     isStarted: false,
+    /**
+     * 是否已经连接上hub
+     */
     isOnline: false,
+    /**
+     * 是否已经注册, 只有注册后才能调用其他service
+     */
     isRegistered: false,
-    importEmitterStack: {},
-    exportActionStack: {}
-  }
 
-  /**
-   * middleware
-   * todo
-   * @param pathname
-   * @param middleware
-   */
-  use = (pathname, middleware) => {
-    const {exportActionStack} = this.state
-    exportActionStack[pathname] = (request) => {
-      return new Promise(async (resolve, reject)=>{
-        try {
-          resolve(middleware(request))
-        } catch(e){
-          reject(e)
-        }
-      })
-    }
+    importEmitterStack: {}
   }
 
   /**
    * receive & handle message from hub
-   * @param request
+   * @param req
    */
-  handleRequest = async (request) => {
-    console.log('handle request: '+JSON.stringify(request))
-    const {exportActionStack, socket} = this.state
-    const response = {
-      appId: request.appId,
-      callbackId: request.callbackId
+  handleRequest = async (req) => {
+    const {socket} = this.state
+    const {handleLoop} = this
+    console.log('handle request: '+JSON.stringify(req))
+    const res = {
+      headers: {
+        appId: req.headers.appId,
+        callbackId: req.headers.callbackId
+      },
+      end: () => {
+        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', res)
+      }
     }
-
-    try {
-      const data = await exportActionStack[request.actionName](request)
-      response.data = data
-    } catch(e){
-      response.data = {error: e}
+    const next = (err, req, res, index) => {
+      handleLoop(err, req, res, next, index)
     }
-
-    socket.emit('I_HAVE_HANDLE_THIS_REQUEST', response)
+    next(null, req, res, 0)
   }
 
 
   /**
    * push a request to MQ hub.
-   * @param serviceName
+   * @param url `/${appname}/${originUrl}`
    * @param data
    * @returns {Promise}
    *
@@ -65,23 +56,53 @@ class App extends Base {
    * push a event callback to importEmitterStack every request
    * listening on `RESPONSE` event and return data
    */
-  request = (serviceName, data) => {
-    const {socket, importEmitterStack} = this.state
+  request = (url, data) => {
+    const {socket, importEmitterStack, appId} = this.state
     return new Promise( (resolve, reject)=>{
       try {
         if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE")
+        /**
+         * parse url, create req object
+         */
         const callbackId = uuid.v4()
+        const req = {
+          body: data,
+          headers: {
+            appId: appId,
+            callbackId: callbackId
+          }
+        }
+        const s = url.search('/')
+        if ( s < 0 ) {
+          req.headers.importAppName = url
+          req.headers.originUrl = '/'
+        } else {
+          const sUrl = s==0?url.substr(1):url
+          let ss = sUrl.search('/')
+          req.headers.importAppName = sUrl.substring(0, ss)
+          req.headers.originUrl = sUrl.substring(ss)
+        }
+
+
+        console.log(`Start request servicehub, data: ${JSON.stringify(req)}`)
+
+        /**
+         * set callback
+         * @type {Emitter}
+         */
         importEmitterStack[callbackId] = new Emitter()
-        data.importAppName = serviceName
-        data.callbackId = callbackId
-        console.log(`Start request servicehub, data: ${JSON.stringify(data)}`)
-        importEmitterStack[callbackId].on('RESPONSE', (response) => {
-          resolve(response)
+        importEmitterStack[callbackId].on('RESPONSE', (res) => {
+          resolve(res)
           delete importEmitterStack[callbackId]
           return null
         })
-        socket.emit('I_HAVE_A_REQUEST', data)
+
+        /**
+         * send request
+         */
+        socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
+        console.log(e)
         reject(e)
       }
     })
@@ -101,6 +122,7 @@ class App extends Base {
     const socket = SocketIOClient(opts.url)
     this.setState({
       opts: opts,
+      appId: opts.key.appId,
       isStarted: true,
       socket: socket
     })
@@ -131,10 +153,11 @@ class App extends Base {
      * handle response
      * response should have `callbackId` key.
      */
-    socket.on('YOUR_REQUEST_HAS_RESPONSE', (response) => {
+    socket.on('YOUR_REQUEST_HAS_RESPONSE', (res) => {
       const {importEmitterStack} = this.state
-      importEmitterStack[response.callbackId].emit('RESPONSE', response)
-      delete importEmitterStack[response.callbackId]
+      const {callbackId} = res.headers
+      importEmitterStack[callbackId].emit('RESPONSE', res)
+      delete importEmitterStack[callbackId]
       app.setState({
         importEmitterStack: importEmitterStack
       })

@@ -11,9 +11,9 @@ app.connect({
   }
 })
 
-app.use('example', (requestData) => {
-  return {
+app.use('/example', (req, res, next) => {
+  res.body = {
     username: "哈哈"
   }
+  res.end()
 })
-

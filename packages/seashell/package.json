@@ -1,8 +1,8 @@
 {
   "name": "seashell",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Create socket pool to `require` denpendent services easily.",
-  "main": "./lib/seashell.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:heineiuo/seashell"
@@ -15,10 +15,22 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
-    "glob": "^7.0.3",
+    "babel-runtime": "~6.9.2",
+    "commander": "^2.9.0",
+    "format-json": "^1.0.3",
+    "fs-promise": "~0.5.0",
+    "lodash.defaults": "~4.0.1",
+    "lodash.defaultsdeep": "~4.4.0",
+    "meow": "^3.7.0",
+    "mkdirp": "~0.5.1",
     "nedb": "^1.8.0",
+    "nedb-promise": "~2.0.0",
+    "sha.js": "^2.4.5",
+    "thunkify": "~2.1.2",
+    "watch": "^0.17.1",
+    "uuid": "~2.0.2",
     "socket.io": "^1.4.5",
-    "socket.io-client": "^1.4.5",
-    "watch": "^0.17.1"
+    "glob-promise": "~1.0.6",
+    "socket.io-client": "^1.4.5"
   }
 }

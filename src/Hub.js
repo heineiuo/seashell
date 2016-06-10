@@ -98,34 +98,44 @@ class Hub extends Base {
    * 2. validate service permission
    * 3. pipe request to target service
    */
-  handleRequest = async (socket, request)=>{
+  handleRequest = async (socket, req)=>{
     const {Service, io} = this.state
-    console.log('import:'+JSON.stringify(request))
-    const response = {
-      callbackId: request.callbackId,
-      data: {}
+    console.log('import:'+JSON.stringify(req))
+
+    if (!req.headers.callbackId) throw new Error('LOST_CALLBACKID')
+
+    const res = {
+      headers: {
+        callbackId: req.headers.callbackId
+      },
+      body: {}
     }
 
     try {
-      if (!request.callbackId) throw new Error('LOST_CALLBACKID')
 
-      const importAppName = request.importAppName
+      const importAppName = req.headers.importAppName
+      /**
+       * 验证请求是否合法
+       */
       const doc = await Service.findOne({socketId: socket.id})
-      response.appId = request.appId = doc.appId
-      const service = await Service.findOne({
-        online: 1,
-        appName: importAppName,
-      })
+      if (!doc) throw new Error('PERMISSION_DENIED')
+      /**
+       * 验证目标app是否在线
+       */
+      const service = await Service.findOne({online: 1, appName: importAppName})
       if (!service) throw new Error("TARGET_SERVICE_OFFLINE")
+      /**
+       * 发包给目标app
+       */
       io.sockets.connected[service.socketId]
-        .emit('PLEASE_HANDLE_THIS_REQUEST', request)
+        .emit('PLEASE_HANDLE_THIS_REQUEST', req)
       console.log(`
-         hub emit client ${importAppName} to handle request ${request.actionName}
+         hub emit client '${importAppName}' to handle request '${req.headers.originUrl}'
       `)
     } catch(e){
       console.log(e)
-      response.data = {error: e}
-      return socket.emit('YOUR_REQUEST_HAS_RESPONSE', response)
+      res.body = {error: e}
+      return socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
     }
   }
 
@@ -135,19 +145,23 @@ class Hub extends Base {
    * @return response.callbackId `callbackId`
    * @return response.data `response body`
    */
-  handleResponse = async (socket, response) => {
+  handleResponse = async (socket, res) => {
     const {Service, io} = this.state
 
     try {
-      if (!response.appId)
+      if (!res.headers.appId)
         throw new Error('Export Lost Params: [appId]')
-      if (!response.callbackId)
+      if (!res.headers.callbackId)
         throw new Error('Export Lost Params: [callbackId]')
 
-      const doc = await Service.findOne({appId: response.appId})
+      /**
+       * 根据appId找到socket
+       * 如果目标在线, 发送消息
+       */
+      const doc = await Service.findOne({appId: res.headers.appId})
       const targetSocket = io.sockets.connected[doc.socketId]
       if (targetSocket)
-        targetSocket.emit('YOUR_REQUEST_HAS_RESPONSE', response)
+        targetSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
     } catch(e){
       console.error(e)
     }

@@ -26,18 +26,17 @@ app.use(seashellMiddleware({
 
 app.use('/api', async (req, res, next) => {
 
+  console.log('/api')
   const {seashell} = res.locals
   try {
     const example = {
-      actionName: 'example',
       foo: "bar"
     }
     var time = [Date.now()]
-    const response = await seashell.request('account', example)
+    const response = await seashell.request('/account/example', example)
     time.push(Date.now())
-    const data = response.data
-    data.timeused = `${time[1] - time[0]}ms`
-    res.json(data)
+    response.body.timeused = `${time[1] - time[0]}ms`
+    res.json(response)
   } catch(e) {
     res.end(JSON.stringify(e))
   }
