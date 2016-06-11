@@ -7,10 +7,17 @@ class Router extends Base {
 
   /**
    * use
-   * @param pathname String
-   * @param middleware Function
    */
-  use = (pathname, middleware) => {
+  use = function() {
+    var pathname, middleware
+    if (arguments.length == 1) {
+      pathname = ''
+      middleware = arguments[0]
+    } else {
+      pathname = arguments[0]
+      middleware = arguments[1]
+    }
+
     const {exportActionStack} = this
     const item = {
       path: pathname,
@@ -25,9 +32,8 @@ class Router extends Base {
     exportActionStack.push(item)
   }
 
-  handleLoop = (err, req, res, _next, _index) => {
+  handleLoop = (err, req, res, _next, _index, _pathname) => {
     const {exportActionStack} = this
-
 
     /**
      * 开始执行
@@ -54,20 +60,20 @@ class Router extends Base {
 
       var middleware = exportActionStack[index]
 
+      console.log(middleware)
+
       /**
        * 错误处理中间件
        * 检查是否有错误要处理
        * 有错误: 跳过普通中间件, 找到错误处理中间件处理错误
        * 没错误: 跳过错误中间件
        */
-      console.log('seashell: handle err')
       if (middleware.isErrorHandle && err) return run('error', middleware)
       if (err) return next(err)
 
       /**
        * 路由中间件
        */
-      console.log('seashell: handle router')
       if (middleware.router) return run('router', middleware)
 
       /**
@@ -75,9 +81,10 @@ class Router extends Base {
        * 不匹配: 直接next
        * 匹配: run()
        */
-      console.log('seashell: handle normal')
       if (typeof middleware.path != 'undefined') {
-        if (middleware.path != req.headers.originUrl) return next()
+        console.log(`middleware.baseUrl ${middleware.baseUrl}`)
+        if (middleware.path != _pathname)
+          return next()
         run(null, middleware)
       }
 
@@ -86,13 +93,25 @@ class Router extends Base {
        */
       function run(type, middleware){
         console.log('run')
+        console.log(type)
         try{
-          if (type == 'error') return middleware.fn(err, req, res, next)
-          if (type == 'router') return middleware.router.handleLoop(err, req, res, next, index)
+          if (type == 'error') {
+            console.log(err)
+            if (middleware.router) return next(err)
+            return middleware.fn(err, req, res, next)
+          }
+
+          if (type == 'router') {
+            const nextPathname = _pathname.substr(middleware.path.length)
+            return middleware.router
+              .handleLoop(err, req, res, next, index, nextPathname)
+          }
+
           return middleware.fn(req, res, next)
         } catch(e){
           console.log(e)
-          if (e) next(e)
+          console.log(e.stack)
+          next(e)
         }
       }
     }

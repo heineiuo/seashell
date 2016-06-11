@@ -33,7 +33,7 @@ app.use('/api', async (req, res, next) => {
       foo: "bar"
     }
     var time = [Date.now()]
-    const response = await seashell.request('/account/example', example)
+    const response = await seashell.request('/account/api/example/b', example)
     time.push(Date.now())
     response.body.timeused = `${time[1] - time[0]}ms`
     res.json(response)

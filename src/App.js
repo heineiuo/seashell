@@ -28,21 +28,26 @@ class App extends Router {
    */
   handleRequest = async (req) => {
     const {socket} = this.state
-    const {handleLoop} = this
+    const {handleLoop, exportActionStack} = this
     console.log('handle request: '+JSON.stringify(req))
     const res = {
       headers: {
         appId: req.headers.appId,
         callbackId: req.headers.callbackId
       },
+      body: {},
       end: () => {
         socket.emit('I_HAVE_HANDLE_THIS_REQUEST', res)
       }
     }
-    const next = (err, req, res, index) => {
-      handleLoop(err, req, res, next, index)
+    const next = (err, req, res, index, pathname) => {
+      if (index < exportActionStack.length) {
+        return handleLoop(err, req, res, next, index, pathname)
+      }
+      res.body.error = 'NOT_FOUND'
+      res.end()
     }
-    next(null, req, res, 0)
+    next(null, req, res, 0, req.headers.originUrl)
   }
 
 
@@ -103,6 +108,7 @@ class App extends Router {
         socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
         console.log(e)
+        console.log(e.stack)
         reject(e)
       }
     })

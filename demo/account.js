@@ -1,6 +1,26 @@
-import {App} from '../src'
+import {App, Router} from '../src'
 
 const app = new App()
+const router = new Router()
+const router2 = new Router()
+
+
+router.use('/a', (req, res, next) => {
+  res.body = {
+    username: "哈哈"
+  }
+  res.end()
+})
+
+router.use('/b', (req, res, next) => {
+  res.body = {
+    username: "bbbbb"
+  }
+  res.end()
+})
+
+router2.use('/example', router)
+
 
 app.connect({
   "url": 'ws://127.0.0.1:3311',
@@ -11,9 +31,4 @@ app.connect({
   }
 })
 
-app.use('/example', (req, res, next) => {
-  res.body = {
-    username: "哈哈"
-  }
-  res.end()
-})
+app.use('/api', router2)
