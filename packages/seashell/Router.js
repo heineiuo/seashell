@@ -171,7 +171,8 @@ var Router = function (_Base) {
          * 匹配: run()
          */
         if (typeof middleware.path != 'undefined') {
-          if (_pathname.indexOf(middleware.path) === -1) return next();
+          // if (_pathname.indexOf(middleware.path) === -1)
+          if (middleware.path != '' && _pathname != middleware.path) return next();
           run(null, middleware);
         }
       }
