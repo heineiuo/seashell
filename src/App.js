@@ -29,7 +29,7 @@ class App extends Router {
   handleRequest = async (req) => {
     const {socket} = this.state
     const {handleLoop, exportActionStack} = this
-    console.log('handle request: '+JSON.stringify(req))
+    console.log(`[seashell] handle request: ${JSON.stringify(req)}`)
     const res = {
       headers: {
         appId: req.headers.appId,
@@ -41,11 +41,7 @@ class App extends Router {
       }
     }
     const next = (err, req, res, index, pathname) => {
-      if (index < exportActionStack.length) {
-        return handleLoop(err, req, res, next, index, pathname)
-      }
-      res.body.error = 'NOT_FOUND'
-      res.end()
+      return handleLoop(err, req, res, next, index, pathname)
     }
     next(null, req, res, 0, req.headers.originUrl)
   }
@@ -89,7 +85,7 @@ class App extends Router {
         }
 
 
-        console.log(`Start request servicehub, data: ${JSON.stringify(req)}`)
+        console.log(`[seashell] Start request servicehub, data: ${JSON.stringify(req)}`)
 
         /**
          * set callback
@@ -107,8 +103,7 @@ class App extends Router {
          */
         socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
-        console.log(e)
-        console.log(e.stack)
+        console.log(`[seashell] ${e.stack||e}`)
         reject(e)
       }
     })
@@ -122,7 +117,7 @@ class App extends Router {
    */
   connect = (opts={}) => {
     if (this.state.isStarted) return false
-    console.log(opts)
+    console.log(`[seashell] connection options: ${JSON.stringify(opts)}`)
     const app = this
     const {handleRequest} = this
     const socket = SocketIOClient(opts.url)
@@ -134,8 +129,8 @@ class App extends Router {
     })
 
     socket.on('connect', () => {
-      console.log('connected')
-      console.log('start register')
+      console.log(`[seashell] connected`)
+      console.log(`[seashell] register`)
       app.setState({isOnline: true})
 
       /**
@@ -178,7 +173,7 @@ class App extends Router {
      * listing disconnect event
      */
     socket.on('disconnect', () => {
-      console.log('disconnected')
+      console.log(`[seashell] disconnected`)
       app.setState({isOnline: false})
     })
   }

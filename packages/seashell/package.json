@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "index.js",
   "repository": {

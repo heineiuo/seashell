@@ -54,13 +54,11 @@ class Router extends Base {
        * 404 检查
        */
       if(index >= exportActionStack.length) {
-        if (err) console.error(err)
+        if (err) console.log(`[seashell] unhandled error: ${err.stack||err}`)
         return _next(err, req, res, _next, _index)
       }
 
       var middleware = exportActionStack[index]
-
-      console.log(middleware)
 
       /**
        * 错误处理中间件
@@ -82,7 +80,6 @@ class Router extends Base {
        * 匹配: run()
        */
       if (typeof middleware.path != 'undefined') {
-        console.log(`middleware.baseUrl ${middleware.baseUrl}`)
         if (middleware.path != _pathname)
           return next()
         run(null, middleware)
@@ -91,12 +88,9 @@ class Router extends Base {
       /**
        * 中间件执行
        */
-      function run(type, middleware){
-        console.log('run')
-        console.log(type)
-        try{
+      async function run(type, middleware){
+        try {
           if (type == 'error') {
-            console.log(err)
             if (middleware.router) return next(err)
             return middleware.fn(err, req, res, next)
           }
@@ -107,10 +101,10 @@ class Router extends Base {
               .handleLoop(err, req, res, next, index, nextPathname)
           }
 
-          return middleware.fn(req, res, next)
+          return await middleware.fn(req, res, next)
+
         } catch(e){
-          console.log(e)
-          console.log(e.stack)
+          console.log(`[seashell] catch error: ${e.stack||e}`)
           next(e)
         }
       }
