@@ -77,6 +77,8 @@ var Router = function (_Base) {
 
         /**
          * 中间件执行
+         * @param type 中间件类型
+         * @param middleware
          */
 
         var run = function () {
@@ -89,49 +91,41 @@ var Router = function (_Base) {
                     _context.prev = 0;
 
                     if (!(type == 'error')) {
-                      _context.next = 5;
+                      _context.next = 3;
                       break;
                     }
 
-                    if (!middleware.router) {
-                      _context.next = 4;
-                      break;
-                    }
-
-                    return _context.abrupt('return', next(err));
-
-                  case 4:
                     return _context.abrupt('return', middleware.fn(err, req, res, next));
 
-                  case 5:
+                  case 3:
                     if (!(type == 'router')) {
-                      _context.next = 8;
+                      _context.next = 6;
                       break;
                     }
 
                     nextPathname = _pathname.substr(middleware.path.length);
                     return _context.abrupt('return', middleware.router.handleLoop(err, req, res, next, index, nextPathname));
 
-                  case 8:
-                    _context.next = 10;
+                  case 6:
+                    _context.next = 8;
                     return middleware.fn(req, res, next);
 
-                  case 10:
+                  case 8:
                     return _context.abrupt('return', _context.sent);
 
-                  case 13:
-                    _context.prev = 13;
+                  case 11:
+                    _context.prev = 11;
                     _context.t0 = _context['catch'](0);
 
-                    console.log('[seashell] catch error: ' + (_context.t0.stack || _context.t0));
+                    // console.log(`[seashell] catch error: ${e.stack||e}`)
                     next(_context.t0);
 
-                  case 17:
+                  case 14:
                   case 'end':
                     return _context.stop();
                 }
               }
-            }, _callee, this, [[0, 13]]);
+            }, _callee, this, [[0, 11]]);
           }));
 
           return function run(_x, _x2) {
@@ -148,7 +142,7 @@ var Router = function (_Base) {
          * 404 检查
          */
         if (index >= exportActionStack.length) {
-          if (err) console.log('[seashell] unhandled error: ' + (err.stack || err));
+          // if (err) console.log(`[seashell] unhandled error: ${err.stack||err}`)
           return _next(err, req, res, _next, _index);
         }
 
@@ -160,7 +154,10 @@ var Router = function (_Base) {
          * 有错误: 跳过普通中间件, 找到错误处理中间件处理错误
          * 没错误: 跳过错误中间件
          */
-        if (middleware.isErrorHandle && err) return run('error', middleware);
+        if (middleware.isErrorHandle) {
+          if (err) return run('error', middleware);
+          return next();
+        }
         if (err) return next(err);
 
         /**
@@ -174,7 +171,7 @@ var Router = function (_Base) {
          * 匹配: run()
          */
         if (typeof middleware.path != 'undefined') {
-          if (middleware.path != _pathname) return next();
+          if (_pathname.indexOf(middleware.path) === -1) return next();
           run(null, middleware);
         }
       }

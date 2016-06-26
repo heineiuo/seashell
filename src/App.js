@@ -37,7 +37,10 @@ class App extends Router {
       },
       body: {},
       end: () => {
-        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', res)
+        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
+          headers: res.headers,
+          body: res.body
+        })
       }
     }
     const next = (err, req, res, index, pathname) => {

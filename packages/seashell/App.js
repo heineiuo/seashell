@@ -83,7 +83,10 @@ var App = function (_Router) {
                   },
                   body: {},
                   end: function end() {
-                    socket.emit('I_HAVE_HANDLE_THIS_REQUEST', res);
+                    socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
+                      headers: res.headers,
+                      body: res.body
+                    });
                   }
                 };
 

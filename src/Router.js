@@ -54,7 +54,7 @@ class Router extends Base {
        * 404 检查
        */
       if(index >= exportActionStack.length) {
-        if (err) console.log(`[seashell] unhandled error: ${err.stack||err}`)
+        // if (err) console.log(`[seashell] unhandled error: ${err.stack||err}`)
         return _next(err, req, res, _next, _index)
       }
 
@@ -66,7 +66,10 @@ class Router extends Base {
        * 有错误: 跳过普通中间件, 找到错误处理中间件处理错误
        * 没错误: 跳过错误中间件
        */
-      if (middleware.isErrorHandle && err) return run('error', middleware)
+      if (middleware.isErrorHandle) {
+        if (err) return run('error', middleware)
+        return next()
+      }
       if (err) return next(err)
 
       /**
@@ -80,18 +83,19 @@ class Router extends Base {
        * 匹配: run()
        */
       if (typeof middleware.path != 'undefined') {
-        if (middleware.path != _pathname)
+        if (_pathname.indexOf(middleware.path) === -1)
           return next()
         run(null, middleware)
       }
 
       /**
        * 中间件执行
+       * @param type 中间件类型
+       * @param middleware
        */
       async function run(type, middleware){
         try {
           if (type == 'error') {
-            if (middleware.router) return next(err)
             return middleware.fn(err, req, res, next)
           }
 
@@ -104,7 +108,7 @@ class Router extends Base {
           return await middleware.fn(req, res, next)
 
         } catch(e){
-          console.log(`[seashell] catch error: ${e.stack||e}`)
+          // console.log(`[seashell] catch error: ${e.stack||e}`)
           next(e)
         }
       }
