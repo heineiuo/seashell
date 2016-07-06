@@ -60,7 +60,8 @@ class App extends Router {
    * push a event callback to importEmitterStack every request
    * listening on `RESPONSE` event and return data
    */
-  request = (url, data) => {
+  request = (url, data={}) => {
+    if (typeof data != 'object') throw '[seashell] request data must be an object.'
     const {socket, importEmitterStack, appId} = this.state
     return new Promise( (resolve, reject)=>{
       try {
@@ -86,7 +87,6 @@ class App extends Router {
           req.headers.importAppName = sUrl.substring(0, ss)
           req.headers.originUrl = sUrl.substring(ss)
         }
-
 
         console.log(`[seashell] Start request servicehub, data: ${JSON.stringify(req)}`)
 

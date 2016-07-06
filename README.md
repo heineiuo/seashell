@@ -1,42 +1,146 @@
-#Seashell
+# Seashell
 
 [![Join the chat at https://gitter.im/heineiuo/seashell](https://badges.gitter.im/heineiuo/seashell.svg)](https://gitter.im/heineiuo/seashell?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-
 [![npm version](https://img.shields.io/npm/v/seashell.svg?style=flat-square)](https://www.npmjs.com/package/seashell)
 [![NPM Status](http://img.shields.io/npm/dm/seashell.svg?style=flat-square)](https://www.npmjs.org/package/seashell)
 [![Build Status](http://img.shields.io/travis/heineiuo/seashell/master.svg?style=flat-square)](https://travis-ci.org/heineiuo/seashell)
 
-Create socket pool to require denpendent services easily.
+A message queue for node.js and javascript.
+
+---
+
+
+## get started
+
+```javascript
+$ npm install seashell --save
+
+// create hub.js
+import {Hub} from 'seashell'
+
+const hub = new Hub()
+hub.start()
+
+// create app.js
+import {App, Router} from 'seashell'
+
+const config = {
+  url: "ws://127.0.0.1:3311",
+  key: {
+    appId: "", // see example in demo/service
+    appName: "",
+    appSecret: ""
+  }
+}
+app.connect(config)
+
+```
+
+## class
+
+use class to create instance.
+
+### Router
+
+```
+const router = new Router()
+```
+
+### App
+
+*App extends from Router*
+
+```
+const app = new App()
+```
+
+### Hub
+
+```
+const hub = new Hub()
+```
+
+## API
+
+### router.use(path, (req, res, next)=>{})
+
+```
+router.use('/', (req, res, next) => {
+    console.log(req.body)
+    next() // will run next middleware
+})
+
+router.use('/', (req, res, next) => {)
+    res.body = {hello: 'world'} // res.body will sending to request client
+    res.end() // tell app to stop middleware and send response data
+}
+```
+
+### router.use(router)
+```
+const router = new Router()
+router.use('abc', (req, res, next)=>{
+    res.body = {success: 1}
+    res.end()
+})
+
+const router2 = new Router()
+
+router2.use('test', router)
+
+
+// now , clients can request 'SERVICENAME/test/abc' and
+got response '{"success": 1}'
+
+```
+
+### app.use(router)
+
+just like `router.use`
+
+### app.connect(options)
+
+```
+app.connect({
+    // options here
+})
+```
+
+### app.request(url, requestBody)
+
+### hub.start()
+
+```
+const hub = new Hub()
+hub.start()
+
+// now, clients can connect hub on port 3311(default port)
+
+
+```
 
 ## Demo
 
 Run each script in `demo` dir, and browser `localhost:3001`.
 
-## Install
 
-Use cli tool:
+
+
+## Use cli tool
+
 ```shell
 $ npm install seashell-cli -g
-$ mkdir service; cd service; seashell -i
-$ npm install
-$ node server
+$ seashell -k // will create a key like example in demo/service.
 ```
 
-Or add to project manally:
-```javascript
-$ npm install seashell --save
-
-// create server.js
-var seashell = require('seashell')
-seashell.Server()
-```
 
 ## Todo
 
-* Provide Promise usage.
-- [ ] connect
-- [x] import
+- [x] Promise
+- [x] connect
+- [x] request
+- [ ] log
+- [ ] custom hub port
 
 ## Donate
 
