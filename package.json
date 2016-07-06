@@ -3,7 +3,7 @@
   "private": true,
   "description": "Create socket pool to `require` denpendent services easily.",
   "scripts": {
-    "build": "babel src --ignore=src/cli --out-dir packages/seashell",
+    "build": "node scripts/webpack --build=index --compress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

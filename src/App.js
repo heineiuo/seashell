@@ -37,7 +37,10 @@ class App extends Router {
       },
       body: {},
       end: () => {
-        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', res)
+        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
+          headers: res.headers,
+          body: res.body
+        })
       }
     }
     const next = (err, req, res, index, pathname) => {
@@ -57,7 +60,8 @@ class App extends Router {
    * push a event callback to importEmitterStack every request
    * listening on `RESPONSE` event and return data
    */
-  request = (url, data) => {
+  request = (url, data={}) => {
+    if (typeof data != 'object') throw '[seashell] request data must be an object.'
     const {socket, importEmitterStack, appId} = this.state
     return new Promise( (resolve, reject)=>{
       try {
@@ -83,7 +87,6 @@ class App extends Router {
           req.headers.importAppName = sUrl.substring(0, ss)
           req.headers.originUrl = sUrl.substring(ss)
         }
-
 
         console.log(`[seashell] Start request servicehub, data: ${JSON.stringify(req)}`)
 

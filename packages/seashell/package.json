@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.4.2",
+  "version": "0.4.5",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "index.js",
   "repository": {
@@ -15,7 +15,6 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
-    "babel-runtime": "~6.9.2",
     "commander": "^2.9.0",
     "format-json": "^1.0.3",
     "fs-promise": "~0.5.0",
