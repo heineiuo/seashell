@@ -5,3 +5,5 @@ ignore
 /data/*
 /dist/*
 build/*
+.DS_Store
+Thumb.db
