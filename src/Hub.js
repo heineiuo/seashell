@@ -118,12 +118,12 @@ class Hub extends Base {
        * 验证请求是否合法
        */
       const doc = await Service.findOne({socketId: socket.id})
-      if (!doc) throw new Error('PERMISSION_DENIED')
+      if (!doc) throw 'PERMISSION_DENIED'
       /**
        * 验证目标app是否在线
        */
       const service = await Service.findOne({online: 1, appName: importAppName})
-      if (!service) throw new Error("TARGET_SERVICE_OFFLINE")
+      if (!service) throw "TARGET_SERVICE_OFFLINE"
       /**
        * 发包给目标app
        */
@@ -134,7 +134,7 @@ class Hub extends Base {
       `)
     } catch(e){
       console.log(e)
-      res.body = {error: e}
+      res.body = {error: typeof e == 'string'?e:'HUB_EXCEPTION_ERROR'}
       return socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
     }
   }

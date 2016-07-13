@@ -4,6 +4,7 @@ var sha256 = require('sha.js')('sha256')
 var fs = require('fs-extra')
 var path = require('path')
 var version = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'))).version
+var createSecret = require('../utils/secret')
 
 program
   .version(version)
@@ -11,6 +12,7 @@ program
   .option('-k, --keygen [appName]', 'Create an auth file', appName)
   .option('-i, --init', 'Create an instance')
   .option('-p, --path', 'keygen path', targetPath)
+  .option('-l, --list', 'List all services', listServices)
   .parse(process.argv);
 
 module.exports = function () {
@@ -24,21 +26,15 @@ function appName(val) {
   return val
 }
 
+function listServices(program) {
+
+}
+
 function targetPath(val) {
   return val
 }
 
-function init(program) {
-  console.log('Start init...')
-  fs.copy(path.join(__dirname, '../template'), process.cwd(), function (err) {
-    if (err) throw (err)
-    console.log('Init success')
-  })
-}
 
-function createSha256(tobeHash){
-  return sha256.update(tobeHash, 'uft-8').digest('hex')
-}
 
 function createService(program, callback){
   console.log('Creating auth file...')
@@ -46,7 +42,7 @@ function createService(program, callback){
   var targetPath = program.targetPath || process.cwd()
   service.appId = uuid.v4()
   service.appName = program.appName || 'unnamed'
-  service.appSecret = createSha256(Date.now()+Math.random())
+  service.appSecret = createSecret()
 
   var data = JSON.stringify(service, null, 2)
 

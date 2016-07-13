@@ -1,8 +1,6 @@
 const webpack = require('webpack')
 const path = require('path')
-const express = require('express')
 const fs = require('fs')
-const request = require('request')
 const argv = require('./argv')
 const packageFile = JSON.parse(fs.readFileSync('package.json', 'UTF-8'))
 const nodeExternals = require('webpack-node-externals')
