@@ -4,6 +4,7 @@
   "description": "Create socket pool to `require` denpendent services easily.",
   "scripts": {
     "build": "node scripts/webpack --build=index --compress",
+    "build-cli": "node scripts/webpack --build=cli --compress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -2,7 +2,7 @@
   "name": "seashell-cli",
   "version": "0.1.0",
   "description": "seashell cli tool",
-  "main": "./lib/cli.js",
+  "main": "./cli.js",
   "bin": {
     "seashell": "./bin/seashell"
   },

@@ -1,3 +1,6 @@
+
+const createPackage = () => {
+  return `
 {
   "name": "seashell-instance",
   "private": true,
@@ -5,6 +8,10 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
-    "seashell": "^0.2.0"
+    "seashell": "~0.4.7"
   }
 }
+  `
+}
+
+export default createPackage

@@ -176,9 +176,21 @@ class App extends Router {
      * listing disconnect event
      */
     socket.on('disconnect', () => {
-      console.log(`[seashell] disconnected`)
+      console.log(`[seashell] lost connection`)
       app.setState({isOnline: false})
     })
+  }
+
+  /**
+   * disconnect with server
+   * @returns {boolean}
+   */
+  disconnect = () => {
+    if (this.state.isStarted) {
+      const {socket} = this.state
+      socket.disconnect()
+    }
+    console.log(`[seashell] disconnected`)
   }
 }
 

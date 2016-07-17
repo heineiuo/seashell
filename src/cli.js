@@ -4,7 +4,7 @@ var sha256 = require('sha.js')('sha256')
 var fs = require('fs-extra')
 var path = require('path')
 var version = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'))).version
-var createSecret = require('../utils/secret')
+var createSecret = require('utils/secret')
 
 program
   .version(version)
@@ -13,7 +13,7 @@ program
   .option('-i, --init', 'Create an instance')
   .option('-p, --path', 'keygen path', targetPath)
   .option('-l, --list', 'List all services', listServices)
-  .parse(process.argv);
+  .parse(process.argv)
 
 module.exports = function () {
 
