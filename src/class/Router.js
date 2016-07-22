@@ -1,5 +1,5 @@
 import Base from './Base'
-import errHandleChecker from './errHandleChecker'
+import errHandleChecker from '../utils/errHandleChecker'
 
 class Router extends Base {
 
