@@ -1,7 +1,7 @@
 var program = require('commander')
-var uuid = require('node-uuid')
+var uuid = require('uuid')
 var sha256 = require('sha.js')('sha256')
-var fs = require('fs-extra')
+var fs = require('fs-promise')
 var path = require('path')
 var version = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'))).version
 var createSecret = require('utils/secret')

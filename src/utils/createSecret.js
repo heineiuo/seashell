@@ -1,8 +1,7 @@
-const createHash = require('sha.js')
-const sha256 = createHash('sha256')
+import crypto from 'crypto'
 
 const createSecret = () => {
-  return sha256.update(`${Date.now()}${Math.random()}`, 'utf8').digest('hex')
+  return crypto.randomBytes(512)
 }
 
 export default createSecret
