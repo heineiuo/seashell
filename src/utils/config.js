@@ -17,4 +17,4 @@ const configFile = JSON.parse(fs.readFileSync(configPath))
 
 console.log(configPath, configFile)
 
-module.exports = module.exports.default = Object.assign(configFile, argv)
+export default Object.assign({}, configFile, argv)

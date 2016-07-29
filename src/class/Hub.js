@@ -1,7 +1,7 @@
+import SocketIO from 'socket.io'
 import Base from './Base'
 import admin from '../admin'
 import config from '../utils/config'
-import SocketIO from 'socket.io'
 import * as Service from '../db/service'
 import * as Socket from '../db/socket'
 
@@ -32,11 +32,18 @@ class Hub extends Base {
        */
       const resService = await Service.getServiceWithBalance(importAppName)
       if (!resService) throw "TARGET_SERVICE_OFFLINE"
+
+      console.log(`[seashell] ${reqService} --> ${req.headers.originUrl}`)
+
+      /**
+       * 如果请求的是admin, 则直接调用admin接口
+       */
+      if (importAppName == 'admin') return this.handleAdminRequest(socket, req)
       /**
        * 发包给目标app
        */
       io.sockets.connected[resService.socketId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
-      console.log(`[seashell] ${reqService} --> ${req.headers.originUrl}`)
+
     } catch(e) {
       console.log(e)
       const res = {
@@ -52,6 +59,21 @@ class Hub extends Base {
         `[seashell] request failed because ${req.body.error}`
       )
     }
+  }
+
+  /**
+   * 处理admin操作的请求
+   * @param socket
+   * @param req
+   */
+  handleAdminRequest = async (socket, req) => {
+    const res = {
+      headers: {
+        callbackId: req.headers.callbackId
+      },
+      body: {}
+    }
+    socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
   }
 
   /**
@@ -188,11 +210,6 @@ class Hub extends Base {
        */
       console.log(`listening on port ${config.port}`)
       io.listen(config.port)
-
-      admin.connect({
-        url: `ws://127.0.0.1:${config.port}`,
-        key: config.adminKey
-      })
 
     } catch(e){
       console.log(e.stack||e)
