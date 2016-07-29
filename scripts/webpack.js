@@ -106,6 +106,7 @@ const webpackClientConfigs = {
 
 const allWebpackConfigs = _.assign(webpackClientConfigs, {
   index: webpackServerConfigCreator('index'),
+  client: webpackServerConfigCreator('client'),
   cli: webpackServerConfigCreator('cli')
 })
 

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node scripts/webpack --build=index --compress",
     "build-cli": "node scripts/webpack --build=cli --compress",
+    "build-cient": "node scripts/webpack --build=client --compress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
