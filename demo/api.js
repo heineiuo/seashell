@@ -1,7 +1,7 @@
+import {App} from '../src/client'
+
 const app = require('express')()
 const http = require('http').Server(app)
-
-import {App} from '../src'
 
 const seashellMiddleware = (conf)=>{
   const seashell = new App()
@@ -17,8 +17,8 @@ app.use(seashellMiddleware({
   "seashell": {
     "url": 'ws://127.0.0.1:3311',
     "key": {
-      "appId": "01b257a9-08af-475d-a686-e8eab6026c1c",
-      "appName": "api",
+      "appId": "ad8ba8f5-a472-4bc0-8008-5eb464ad26da",
+      "appName": "admin-client",
       "appSecret": "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8"
     }
   }
@@ -38,7 +38,7 @@ app.use('/api', async (req, res, next) => {
     response.body.timeused = `${time[1] - time[0]}ms`
     res.json(response)
   } catch(e) {
-    res.end(JSON.stringify(e))
+    res.end(e.stack || e)
   }
 })
 

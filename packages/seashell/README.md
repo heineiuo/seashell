@@ -25,7 +25,7 @@ Or add to project manally:
 ```javascript
 $ npm install seashell --save
 
-// create server.js
+// create hub.js
 var seashell = require('seashell')
 seashell.Server()
 ```

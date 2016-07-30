@@ -1,4 +1,4 @@
-import {Hub} from '../src'
+import { Hub } from '../src'
 const hub = new Hub()
 
 hub.start()

@@ -1,11 +1,25 @@
 const webpack = require('webpack')
 const path = require('path')
 const fs = require('fs')
-const argv = require('./argv')
-const packageFile = JSON.parse(fs.readFileSync('package.json', 'UTF-8'))
 const nodeExternals = require('webpack-node-externals')
-const _ = require('lodash')
+const argv = {}
 
+const webpackLoaderExclude = (list) => {
+  return new RegExp('(node_modules\/)(?!'+list.join('|')+')')
+}
+
+const getValue = (equalIndex, val) => {
+  var value = val.substring(equalIndex+1)
+  return value==''?true:value
+}
+
+process.argv.forEach((val, index, array) => {
+  if (val.substring(0, 2)=='--'){
+    var equalIndex = val.indexOf('=')
+    if (equalIndex<0) equalIndex = val.length
+    argv[val.substring(2, equalIndex)] = getValue(equalIndex,val)
+  }
+})
 
 /******************
  *
@@ -77,7 +91,7 @@ const webpackServerConfigCreator = (serverName) => {
       loaders: [
         {
           test: /(\.js|\.jsx)$/,
-          exclude: /(node_modules)/,
+          exclude: webpackLoaderExclude([]),
           loader: 'babel',
           query: {
             presets:['es2015','stage-0'],
@@ -104,7 +118,7 @@ const webpackServerConfigCreator = (serverName) => {
 const webpackClientConfigs = {
 }
 
-const allWebpackConfigs = _.assign(webpackClientConfigs, {
+const allWebpackConfigs = Object.assign({}, webpackClientConfigs, {
   index: webpackServerConfigCreator('index'),
   client: webpackServerConfigCreator('client'),
   cli: webpackServerConfigCreator('cli')

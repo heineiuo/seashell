@@ -2,8 +2,7 @@ import SocketIO from 'socket.io'
 import Base from './Base'
 import admin from '../admin'
 import config from '../utils/config'
-import * as Service from '../db/service'
-import * as Socket from '../db/socket'
+import * as Service from '../db/db'
 
 class Hub extends Base {
   state = {}
@@ -25,15 +24,13 @@ class Hub extends Base {
       /**
        * 验证请求是否合法
        */
-      const reqService = await Service.getServiceBySocketId(socket.id)
-      if (!reqService) throw 'PERMISSION_DENIED'
+      const reqService = await Service.getAppBySocketId(socket.id)
       /**
        * 验证目标app是否在线
        */
-      const resService = await Service.getServiceWithBalance(importAppName)
-      if (!resService) throw "TARGET_SERVICE_OFFLINE"
+      const resServiceId = await Service.getResSocketIdWithBalance(importAppName)
 
-      console.log(`[seashell] ${reqService} --> ${req.headers.originUrl}`)
+      console.log(`[seashell] ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`)
 
       /**
        * 如果请求的是admin, 则直接调用admin接口
@@ -42,7 +39,8 @@ class Hub extends Base {
       /**
        * 发包给目标app
        */
-      io.sockets.connected[resService.socketId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
+      console.log(`发包给目标app: ${resServiceId}`)
+      io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
 
     } catch(e) {
       console.log(e)
@@ -56,24 +54,36 @@ class Hub extends Base {
       }
       socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
       console.log(
-        `[seashell] request failed because ${req.body.error}`
+        `[seashell] request failed because ${e}`
       )
     }
   }
 
   /**
    * 处理admin操作的请求
-   * @param socket
+   * @param reqSocket
    * @param req
    */
-  handleAdminRequest = async (socket, req) => {
+  handleAdminRequest = async (reqSocket, req) => {
+    const { handleLoop } = admin
+    console.log(`[seashell] handle admin request: ${JSON.stringify(req)}`)
     const res = {
       headers: {
+        appId: req.headers.appId,
         callbackId: req.headers.callbackId
       },
-      body: {}
+      body: {},
+      end: () => {
+        reqSocket.emit('YOUR_REQUEST_HAS_RESPONSE', {
+          headers: res.headers,
+          body: res.body
+        })
+      }
     }
-    socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
+    const next = (err, req, res, index, pathname) => {
+      return handleLoop(err, req, res, next, index, pathname)
+    }
+    next(null, req, res, 0, req.headers.originUrl)
   }
 
   /**
@@ -83,7 +93,7 @@ class Hub extends Base {
    * @return response.data `response body`
    */
   handleResponse = async (socket, res) => {
-    const {Service, io} = this.state
+    const {io} = this.state
 
     try {
       if (!res.headers.appId) throw new Error('Export Lost Params: [appId]')
@@ -93,21 +103,20 @@ class Hub extends Base {
        * 根据appId找到socket
        * 如果目标在线, 发送消息
        */
-      const reqService = await Service.findOne({appId: res.headers.appId})
-      const reqSocket = io.sockets.connected[reqService.socketId]
-      if (reqSocket) {
-        reqSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
-        console.log(
-          `[seashell] ${reqService} <-- ${res.headers.originUrl},` +
-          ` total spend ${Date.now() - res.headers.__SEASHELL_START}ms`
-        )
-      } else {
-        // todo add to task, when socket connected again, send res again.
-        console.log(`[seashell] reqSocket offline`)
-      }
+      const reqSocket = await Service.getSocketByAppId(res.headers.appId)
+      console.log(reqSocket)
+      io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res)
+      console.log(
+        `[seashell] ${reqSocket.appName} <-- ${res.headers.originUrl},` +
+        ` total spend ${Date.now() - res.headers.__SEASHELL_START}ms`
+      )
 
-    } catch(e){
-      console.error(e)
+    } catch(e) {
+      if (e == 'REQUEST_SOCKET_OFFLINE') {
+        // todo add to task, when socket connected again, send res again.
+        return console.log(`[seashell] reqSocket offline`)
+      }
+      console.log(e.stack||e)
     }
   }
 
@@ -118,33 +127,24 @@ class Hub extends Base {
    * @returns {Emitter|Namespace|Socket|*}
    */
   handleRegister = async (socket, data) => {
-    const {Service} = this.state
     try {
-      if (!socket.id) throw new Error('LOST_SOCKET_ID')
+      if (!socket.id) throw 'LOST_SOCKET_ID'
 
       const insertData = {
-        online: 1,
+        appName: data.appName,
         appId: data.appId,
-        socketId: socket.id,
         appSecret: data.appSecret
       }
 
-      const verifiedService = await Service.findOne({
-        appId: insertData.appId,
-        appSecret: insertData.appSecret
-      })
-
-      if (!verifiedService) throw new Error("PERMISSION_DENIED")
-      await Service.update({appId: insertData.appId}, {$set: insertData}, {})
-
-      console.log(`[seashell] register success, data: ${data}`)
-      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1})
+      const socketData = await Service.bindAppToSocket(socket.id, insertData)
+      console.log(`[seashell] register success, data: ${JSON.stringify(data)}`)
+      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData})
     } catch(e){
       console.log(`[seashell] register failed, data: ${data}`)
-      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error: e})
+      const error = typeof e == 'string'? e : 'EXCEPTION_ERROR'
+      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error})
     }
   }
-
 
   /****************
    *
@@ -161,16 +161,17 @@ class Hub extends Base {
        * Create a socket instance
        */
       const io = SocketIO()
-
-      Hub.setState({
-        io: io
-      })
+      Hub.setState({io})
 
       /**
        * empty old registered services
        */
-      await Socket.emptySocket()
+      await Service.emptySocket()
 
+      /**
+       * import preset services
+       */
+      await Promise.all(config.presets.map(Service.importServiceFromConfig))
       /**
        * handle socket connection
        */
@@ -193,7 +194,7 @@ class Hub extends Base {
           const deleteSocket = async (socketId, retry=0) => {
             try {
               console.log(`[seashell] ${socketId} disconnected`)
-              await Socket.deleteSocket(socketId)
+              await Service.deleteSocket(socketId)
             } catch(e){
               if (retry < 3) {
                 retry ++
@@ -211,7 +212,7 @@ class Hub extends Base {
       console.log(`listening on port ${config.port}`)
       io.listen(config.port)
 
-    } catch(e){
+    } catch(e) {
       console.log(e.stack||e)
       throw e
     }

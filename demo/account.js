@@ -1,5 +1,4 @@
-import {App, Router} from '../src'
-
+import { App, Router } from '../src/client'
 const app = new App()
 const router = new Router()
 const router2 = new Router()
@@ -21,6 +20,7 @@ router.use('/b', (req, res, next) => {
 
 router2.use('/example', router)
 
+app.use('/api', router2)
 
 app.connect({
   "url": 'ws://127.0.0.1:3311',
@@ -31,4 +31,3 @@ app.connect({
   }
 })
 
-app.use('/api', router2)
