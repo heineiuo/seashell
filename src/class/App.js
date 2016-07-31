@@ -2,6 +2,7 @@ import uuid from 'uuid'
 import SocketIOClient from 'socket.io-client'
 import Router from './Router'
 import Emitter from './Emitter'
+import { SeashellChalk } from '../utils/chalk'
 
 class App extends Router {
 
@@ -29,12 +30,9 @@ class App extends Router {
   handleRequest = async (req) => {
     const {socket} = this.state
     const {handleLoop, exportActionStack} = this
-    console.log(`[seashell] handle request: ${JSON.stringify(req)}`)
+    console.log(`${SeashellChalk} handle request: ${JSON.stringify(req)}`)
     const res = {
-      headers: {
-        appId: req.headers.appId,
-        callbackId: req.headers.callbackId
-      },
+      headers: req.headers,
       body: {},
       end: () => {
         socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
@@ -61,7 +59,7 @@ class App extends Router {
    * listening on `RESPONSE` event and return data
    */
   request = (url, data={}) => {
-    if (typeof data != 'object') throw '[seashell] request data must be an object.'
+    if (typeof data != 'object') throw `${SeashellChalk} request data must be an object.`
     const {socket, importEmitterStack, appId} = this.state
     return new Promise( (resolve, reject)=>{
       try {
@@ -88,7 +86,7 @@ class App extends Router {
           req.headers.originUrl = sUrl.substring(ss)
         }
 
-        console.log(`[seashell] Start request servicehub, data: ${JSON.stringify(req)}`)
+        console.log(`${SeashellChalk} Start request servicehub, data: ${JSON.stringify(req)}`)
 
         /**
          * set callback
@@ -106,7 +104,7 @@ class App extends Router {
          */
         socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
-        console.log(`[seashell] ${e.stack||e}`)
+        console.log(`${SeashellChalk} ${e.stack||e}`)
         reject(e)
       }
     })
@@ -120,7 +118,7 @@ class App extends Router {
    */
   connect = (opts={}) => {
     if (this.state.isStarted) return false
-    console.log(`[seashell] connection options: ${JSON.stringify(opts)}`)
+    console.log(`${SeashellChalk} connection options: ${JSON.stringify(opts)}`)
     const app = this
     const {handleRequest} = this
     const socket = SocketIOClient(opts.url)
@@ -132,8 +130,8 @@ class App extends Router {
     })
 
     socket.on('connect', () => {
-      console.log(`[seashell] connected`)
-      console.log(`[seashell] register`)
+      console.log(`${SeashellChalk} connected`)
+      console.log(`${SeashellChalk} register`)
       app.setState({isOnline: true})
 
       /**
@@ -176,7 +174,7 @@ class App extends Router {
      * listing disconnect event
      */
     socket.on('disconnect', () => {
-      console.log(`[seashell] lost connection`)
+      console.log(`${SeashellChalk} lost connection`)
       app.setState({isOnline: false})
     })
   }
@@ -190,7 +188,7 @@ class App extends Router {
       const {socket} = this.state
       socket.disconnect()
     }
-    console.log(`[seashell] disconnected`)
+    console.log(`${SeashellChalk} disconnected`)
   }
 }
 

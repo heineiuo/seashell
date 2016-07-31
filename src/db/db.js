@@ -139,14 +139,13 @@ export const getResSocketIdWithBalance = (importAppName) => {
   return new Promise(async (resolve, reject) => {
     try {
       const group = await dbPromise.get(`group_${importAppName}`, {valueEncoding: 'json'})
-      console.log(group)
       if (group.length == 0) throw 'TARGET_SERVICE_OFFLINE'
       if (group.length == 1) return resolve(group[0].socketId)
       return resolve(group[0].socketId)
 
     } catch(e){
       if (typeof e == 'string') return reject(e)
-      console.log(e)
+      console.log(e.stack||e)
       reject('GET_SOCKET_FAIL')
     }
   })

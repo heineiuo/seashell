@@ -3,6 +3,7 @@ import Base from './Base'
 import admin from '../admin'
 import config from '../utils/config'
 import * as Service from '../db/db'
+import { SeashellChalk } from '../utils/chalk'
 
 class Hub extends Base {
   state = {}
@@ -30,7 +31,7 @@ class Hub extends Base {
        */
       const resServiceId = await Service.getResSocketIdWithBalance(importAppName)
 
-      console.log(`[seashell] ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`)
+      console.log(`${SeashellChalk} ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`)
 
       /**
        * 如果请求的是admin, 则直接调用admin接口
@@ -39,11 +40,10 @@ class Hub extends Base {
       /**
        * 发包给目标app
        */
-      console.log(`发包给目标app: ${resServiceId}`)
       io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
 
     } catch(e) {
-      console.log(e)
+      console.log(e.stack||e)
       const res = {
         headers: {
           callbackId: req.headers.callbackId
@@ -54,7 +54,7 @@ class Hub extends Base {
       }
       socket.emit('YOUR_REQUEST_HAS_RESPONSE', res)
       console.log(
-        `[seashell] request failed because ${e}`
+        `${SeashellChalk} request failed because ${e}`
       )
     }
   }
@@ -66,7 +66,7 @@ class Hub extends Base {
    */
   handleAdminRequest = async (reqSocket, req) => {
     const { handleLoop } = admin
-    console.log(`[seashell] handle admin request: ${JSON.stringify(req)}`)
+    console.log(`${SeashellChalk} handle admin request: ${JSON.stringify(req)}`)
     const res = {
       headers: {
         appId: req.headers.appId,
@@ -104,17 +104,16 @@ class Hub extends Base {
        * 如果目标在线, 发送消息
        */
       const reqSocket = await Service.getSocketByAppId(res.headers.appId)
-      console.log(reqSocket)
       io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res)
       console.log(
-        `[seashell] ${reqSocket.appName} <-- ${res.headers.originUrl},` +
+        `${SeashellChalk} ${reqSocket.appName} <-- ${res.headers.importAppName}${res.headers.originUrl},` +
         ` total spend ${Date.now() - res.headers.__SEASHELL_START}ms`
       )
 
     } catch(e) {
       if (e == 'REQUEST_SOCKET_OFFLINE') {
         // todo add to task, when socket connected again, send res again.
-        return console.log(`[seashell] reqSocket offline`)
+        return console.log(`${SeashellChalk} reqSocket offline`)
       }
       console.log(e.stack||e)
     }
@@ -137,10 +136,10 @@ class Hub extends Base {
       }
 
       const socketData = await Service.bindAppToSocket(socket.id, insertData)
-      console.log(`[seashell] register success, data: ${JSON.stringify(data)}`)
+      console.log(`${SeashellChalk} register success, data: ${JSON.stringify(data)}`)
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData})
     } catch(e){
-      console.log(`[seashell] register failed, data: ${data}`)
+      console.log(`${SeashellChalk} register failed, data: ${data}`)
       const error = typeof e == 'string'? e : 'EXCEPTION_ERROR'
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error})
     }
@@ -176,7 +175,7 @@ class Hub extends Base {
        * handle socket connection
        */
       io.on('connection',(socket) => {
-        console.log(`[seashell] new connection ${socket.id}`)
+        console.log(`${SeashellChalk} new connection ${socket.id}`)
         socket.on('REGISTER', (data) => {
           Hub.handleRegister(socket, data)
         })
@@ -193,7 +192,7 @@ class Hub extends Base {
         socket.on('disconnect', () => {
           const deleteSocket = async (socketId, retry=0) => {
             try {
-              console.log(`[seashell] ${socketId} disconnected`)
+              console.log(`${SeashellChalk} ${socketId} disconnected`)
               await Service.deleteSocket(socketId)
             } catch(e){
               if (retry < 3) {
