@@ -197,7 +197,7 @@ class Hub extends Base {
             } catch(e){
               if (retry < 3) {
                 retry ++
-                deleteSocket(retry)
+                deleteSocket(socketId, retry)
               }
             }
           }
