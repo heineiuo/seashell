@@ -32,16 +32,13 @@ export const emptySocket = () => {
         }
 
         try {
-
           const allAppMetaGroup = await Promise.all(list.map(group => {
             return dbPromise.get(`group_${group}`, {valueEncoding: 'json'})
           }))
           const allAppMeta = allAppMetaGroup.reduce((previous, current) => previous.concat(current), [])
           const allSocketIds = allAppMeta.map(app => app.socketId).filter(val => typeof val == 'string')
           await Promise.all(allSocketIds.map(socketId => dbPromise.del(`socket_${socketId}`)))
-
           resolve()
-
         } catch(e){
           if (typeof e == 'string') return reject(e)
           console.log(e.stack||e)
