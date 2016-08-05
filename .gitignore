@@ -7,4 +7,4 @@ ignore
 build/*
 .DS_Store
 Thumb.db
-demo/data/db/service/*
+examples/data/db/service/*
