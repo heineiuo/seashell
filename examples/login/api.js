@@ -1,4 +1,4 @@
-import {App} from '../src/client'
+import {App} from '../../src/client'
 
 const app = require('express')()
 const http = require('http').Server(app)

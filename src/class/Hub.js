@@ -1,9 +1,20 @@
 import SocketIO from 'socket.io'
 import Base from './Base'
 import admin from '../admin'
-import config from '../utils/config'
 import * as Service from '../db/db'
 import { SeashellChalk } from '../utils/chalk'
+
+/**
+ * hub's default config
+ * {
+ *   port: number, // socket.io listing port
+ *   presets: Array // preset services
+ * }
+ */
+const defaultConfig = {
+  port: 3311,
+  presets: []
+}
 
 class Hub extends Base {
   state = {}
@@ -150,7 +161,7 @@ class Hub extends Base {
    * INIT Service
    *
    **************/
-  start = async () => {
+  start = async (config=defaultConfig) => {
     if (this.state.isStarted) return false
     const Hub = this
 

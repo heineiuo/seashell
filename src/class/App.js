@@ -110,6 +110,12 @@ class App extends Router {
     })
   }
 
+  /**
+   * request stream
+   */
+  requestStream = () => {
+    // todo
+  }
 
   /**
    * connect to MQ hub.

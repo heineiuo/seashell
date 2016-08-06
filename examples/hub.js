@@ -1,4 +1,7 @@
 import { Hub } from '../src'
-const hub = new Hub()
+import fs from 'fs'
 
-hub.start()
+const hub = new Hub()
+const config = JSON.parse(fs.readFileSync('./data/config/config.json'))
+
+hub.start(config)
