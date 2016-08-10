@@ -5,7 +5,7 @@ import levelup from 'levelup'
 
 const db = levelup('./data/db/service', { valueEncoding: 'json' })
 const dbPromise = promisify(db)
-
+dbPromise.find = require('../utils/find')(db)
 
 /**
  * group_list: ['account', 'file']
@@ -46,6 +46,17 @@ export const emptySocket = () => {
         }
       })
 
+  })
+}
+
+export const getAllAppMeta = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const list = await dbPromise.find({prefix: 'service_'})
+      resolve(list)
+    } catch(e){
+      reject(e)
+    }
   })
 }
 

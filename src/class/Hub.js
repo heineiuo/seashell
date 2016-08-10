@@ -37,10 +37,6 @@ class Hub extends Base {
        * 验证请求是否合法
        */
       const reqService = await Service.getAppBySocketId(socket.id)
-      /**
-       * 验证目标app是否在线
-       */
-      const resServiceId = await Service.getResSocketIdWithBalance(importAppName)
 
       console.log(`${SeashellChalk} ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`)
 
@@ -48,6 +44,12 @@ class Hub extends Base {
        * 如果请求的是admin, 则直接调用admin接口
        */
       if (importAppName == 'admin') return this.handleAdminRequest(socket, req)
+
+      /**
+       * 验证目标app是否在线
+       */
+      const resServiceId = await Service.getResSocketIdWithBalance(importAppName)
+
       /**
        * 发包给目标app
        */

@@ -1,0 +1,21 @@
+{
+  "name": "seashell-client-node",
+  "version": "0.1.0",
+  "description": "Seashell client for node.js.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:heineiuo/seashell"
+  },
+  "keywords": [
+    "micro service",
+    "seashell"
+  ],
+  "author": "@heineiuo",
+  "license": "MIT",
+  "dependencies": {
+    "uuid": "~2.0.2",
+    "socket.io-client": "^1.4.5",
+    "chalk": "^1.1.3"
+  }
+}
