@@ -2,9 +2,10 @@ node_modules
 .idea
 npm-debug.log
 ignore
-/data/*
-/dist/*
+data/*
+dist/*
 build/*
+!build/README.md
 .DS_Store
 Thumb.db
 examples/data/db/service/*
