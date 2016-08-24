@@ -9,9 +9,9 @@ dbPromise.find = require('../utils/find')(db)
 
 /**
  * group_list: ['account', 'file']
- * group_file [{appId: 'fdada', socketId, status: 'adfad'}, {...}]
+ * group_account [{appId: 'fdada', socketId, status: 1}, {...}]
  * socket_jkfdlahgklh23hkhfahdf: {
- *  appId: 'aaa',
+ *  appId: 'aaa-123-fda-123',
  *  appName: 'account',
  *  permission: ['admin'],
  *  socketId: 'ccc'
@@ -66,8 +66,18 @@ export const getAllAppMeta = () => {
 export const deleteSocket = (socketId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const removed = await dbPromise.del(`socket_${socketId}`)
-      // todo remove from group
+      const socketInfo = await dbPromise.get(`socket_${socketId}`)
+      await dbPromise.del(`socket_${socketId}`)
+      const group = await dbPromise.get(`group_${socketInfo.appName}`)
+      const nextGroup = group.map(item => {
+        if (item.appId == socketInfo.appId) {
+          item.socketId = ''
+          item.status = 0
+        }
+        return item
+      })
+      await dbPromise.put(`group_${socketInfo.appName}`, nextGroup)
+      resolve(1)
     } catch(e){
       reject(e)
     }
@@ -147,10 +157,13 @@ export const getResSocketIdWithBalance = (importAppName) => {
   return new Promise(async (resolve, reject) => {
     try {
       const group = await dbPromise.get(`group_${importAppName}`, {valueEncoding: 'json'})
-      if (group.length == 0) throw 'TARGET_SERVICE_OFFLINE'
-      if (group.length == 1) return resolve(group[0].socketId)
-      return resolve(group[0].socketId)
-
+      const onlineItems = group.filter(service => service.status == 1)
+      if (onlineItems.length == 0) throw 'TARGET_SERVICE_OFFLINE'
+      if (onlineItems.length == 1) return resolve(onlineItems[0].socketId)
+      const ts = String(Date.now())
+      const randomNumber = Number(ts[ts.length - 1])
+      const randomIndex = Math.floor(randomNumber * onlineItems.length / 10)
+      return resolve(group[randomIndex].socketId)
     } catch(e){
       if (typeof e == 'string') return reject(e)
       console.log(e.stack||e)
