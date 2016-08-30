@@ -1,6 +1,6 @@
 {
   "name": "seashell-client-node",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Seashell client for node.js.",
   "main": "index.js",
   "repository": {

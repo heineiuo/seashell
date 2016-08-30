@@ -29,8 +29,9 @@ class App extends Router {
    */
   handleRequest = async (req) => {
     const {socket} = this.state
-    const {handleLoop, exportActionStack} = this
+    const {handleLoop} = this
     console.log(`${SeashellChalk} handle request: ${JSON.stringify(req)}`)
+    Object.assign(req, {params: {}})
     const res = {
       headers: req.headers,
       body: {},

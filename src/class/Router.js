@@ -1,5 +1,6 @@
 import Base from './Base'
 import errHandleChecker from '../utils/errHandleChecker'
+import patternCompile from '../utils/patternCompile'
 
 class Router extends Base {
 
@@ -32,6 +33,14 @@ class Router extends Base {
     exportActionStack.push(item)
   }
 
+  /**
+   * @param err
+   * @param req
+   * @param res
+   * @param _next
+   * @param _index
+   * @param _pathname remained path. this will be shooter when enter a router
+   */
   handleLoop = (err, req, res, _next, _index, _pathname) => {
     const {exportActionStack} = this
 
@@ -83,8 +92,14 @@ class Router extends Base {
        * 匹配: run()
        */
       if (typeof middleware.path != 'undefined') {
-        if (middleware.path != '' && _pathname != middleware.path)
-          return next()
+        if (middleware.path == '') return run(null, middleware)
+        if (middleware.path.indexOf(':') == -1) {
+          if (_pathname != middleware.path) return next()
+          return run(null, middleware)
+        }
+        const patternResult = patternCompile(middleware.path, _pathname)
+        if (!patternResult.match) return next()
+        Object.assign(req.params, patternResult.params)
         run(null, middleware)
       }
 
