@@ -1,1 +1,55 @@
-module.exports=function(e){function n(r){if(o[r])return o[r].exports;var t=o[r]={exports:{},id:r,loaded:!1};return e[r].call(t.exports,t,t.exports,n),t.loaded=!0,t.exports}var o={};return n.m=e,n.c=o,n.p="",n(0)}([function(e,exports,n){e.exports=n(1)},function(e,exports,n){(function(o){"use strict";function r(e){return e&&e.__esModule?e:{"default":e}}function t(e){return e}function i(e){}function a(e){return e}function u(e,n){console.log("Creating auth file...");var o={},r=e.targetPath||process.cwd();o.appId=l.v4(),o.appName=e.appName||"unnamed",o.appSecret=x();var t=(0,p["default"])(o,null,2);f.writeFile(r+"/"+o.appId+".json",t,"UTF-8",function(e){e&&console.error(e),console.log("Create auth file in path "+r)})}var s=n(2),p=r(s),c=n(3),l=n(!function(){var e=new Error('Cannot find module "node-uuid"');throw e.code="MODULE_NOT_FOUND",e}()),f=(n(4)("sha256"),n(5)),d=n(6),v=JSON.parse(f.readFileSync(d.join(o,"../package.json"))).version,x=n(!function(){var e=new Error('Cannot find module "utils/secret"');throw e.code="MODULE_NOT_FOUND",e}());c.version(v).option("-v, --version","View version").option("-k, --keygen [appName]","Create an auth file",t).option("-i, --init","Create an instance").option("-p, --path","keygen path",a).option("-l, --list","List all services",i).parse(process.argv),e.exports=function(){c.keygen&&u(c),c.init&&init(c)}}).call(exports,"/")},function(e,exports){e.exports=require("babel-runtime/core-js/json/stringify")},function(e,exports){e.exports=require("commander")},function(e,exports){e.exports=require("sha.js")},function(e,exports){e.exports=require("fs-extra")},function(e,exports){e.exports=require("path")}]);
+var program = require('commander')
+var uuid = require('uuid')
+var sha256 = require('sha.js')('sha256')
+var fs = require('fs-promise')
+var path = require('path')
+var version = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'))).version
+var createSecret = require('../../src/utils/secret')
+
+program
+  .version(version)
+  .option('-v, --version', 'View version')
+  .option('-k, --keygen [appName]', 'Create an auth file', appName)
+  .option('-i, --init', 'Create an instance')
+  .option('-p, --path', 'keygen path', targetPath)
+  .option('-l, --list', 'List all services', listServices)
+  .parse(process.argv)
+
+module.exports = function () {
+
+  if (program.keygen) createService(program)
+  if (program.init) init(program)
+
+}
+
+function appName(val) {
+  return val
+}
+
+function listServices(program) {
+
+}
+
+function targetPath(val) {
+  return val
+}
+
+
+
+function createService(program, callback){
+  console.log('Creating auth file...')
+  var service = {}
+  var targetPath = program.targetPath || process.cwd()
+  service.appId = uuid.v4()
+  service.appName = program.appName || 'unnamed'
+  service.appSecret = createSecret()
+
+  var data = JSON.stringify(service, null, 2)
+
+  fs.writeFile(targetPath+'/'+service.appId+'.json', data, 'UTF-8', function (err) {
+    if (err) console.error(err)
+    console.log('Create auth file in path '+targetPath)
+  })
+
+}
+
