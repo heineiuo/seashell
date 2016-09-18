@@ -3,9 +3,9 @@
   "private": true,
   "description": "Create socket pool to `require` denpendent services easily.",
   "scripts": {
-    "build": "node scripts/webpack --build=index --compress",
-    "build-cli": "node scripts/webpack --build=cli --compress",
-    "build-client": "node scripts/webpack --build=client --compress",
+    "build": "node scripts/webpack --build=seashell --compress",
+    "build-cli": "node scripts/webpack --build=seashell-cli --compress",
+    "build-client": "node scripts/webpack --build=seashell-client-node --compress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

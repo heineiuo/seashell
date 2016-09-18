@@ -83,11 +83,11 @@ class App extends Router {
         } else {
           const sUrl = s==0?url.substr(1):url
           let ss = sUrl.search('/')
-          req.headers.importAppName = sUrl.substring(0, ss)
-          req.headers.originUrl = sUrl.substring(ss)
+          req.headers.importAppName = ss > -1?sUrl.substring(0, ss):sUrl
+          req.headers.originUrl = ss > -1? sUrl.substring(ss):'/'
         }
 
-        console.log(`${SeashellChalk} Start request servicehub, data: ${JSON.stringify(req)}`)
+        console.log(`${SeashellChalk} Start request servicehub, data: ${JSON.stringify(req.headers)}`)
 
         /**
          * set callback
@@ -142,7 +142,7 @@ class App extends Router {
       app.setState({isOnline: true})
 
       /**
-       * IMPORTANT, every service should registered to work.
+       * IMPORTANT, every app should registered to work.
        */
       socket.emit('REGISTER', opts.key)
     })

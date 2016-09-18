@@ -26,7 +26,7 @@ module.exports = (db) => {
         }).on('error',function (err) {
           reject(err)
         }).on('close',function () {
-          console.log('close')
+          // console.log('close')
         }).on('end', function () {
           resolve(result)
         })

@@ -70,7 +70,7 @@ const webpackServerConfigCreator = (serverName) => {
     devtool: false,
     target: 'node',
     entry: {
-      app: [`${process.cwd()}/src/${serverName}.js`]
+      app: [`${process.cwd()}/packages/${serverName}/index.js`]
     },
     output: {
       libraryTarget: 'commonjs2',
@@ -119,9 +119,9 @@ const webpackClientConfigs = {
 }
 
 const allWebpackConfigs = Object.assign({}, webpackClientConfigs, {
-  index: webpackServerConfigCreator('index'),
-  client: webpackServerConfigCreator('client'),
-  cli: webpackServerConfigCreator('cli')
+  seashell: webpackServerConfigCreator('seashell'),
+  'seashell-client-node': webpackServerConfigCreator('seashell-client-node'),
+  'seashell-cli': webpackServerConfigCreator('seashell-cli')
 })
 
 console.log(`argv: ${JSON.stringify(argv)}`)

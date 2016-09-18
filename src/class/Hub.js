@@ -1,7 +1,9 @@
 import SocketIO from 'socket.io'
 import Base from './Base'
 import admin from '../admin'
-import * as Service from '../db/db'
+import App from '../models/App'
+import Group from '../models/Group'
+import Socket from '../models/Socket'
 import { SeashellChalk } from '../utils/chalk'
 
 /**
@@ -20,10 +22,10 @@ class Hub extends Base {
   state = {}
 
   /**
-   * receive request from a service
+   * receive request from a app
    * 1. get request data
-   * 2. validate service permission
-   * 3. pipe request to target service
+   * 2. validate app permission
+   * 3. pipe request to target app
    */
   handleRequest = async (socket, req) => {
     const { io } = this.state
@@ -36,7 +38,7 @@ class Hub extends Base {
       /**
        * 验证请求是否合法
        */
-      const reqService = await Service.getAppBySocketId(socket.id)
+      const reqService = await Socket.detail(socket.id)
 
       console.log(`${SeashellChalk} ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`)
 
@@ -48,7 +50,7 @@ class Hub extends Base {
       /**
        * 验证目标app是否在线
        */
-      const resServiceId = await Service.getResSocketIdWithBalance(importAppName)
+      const resServiceId = await Socket.balance(importAppName)
 
       /**
        * 发包给目标app
@@ -101,7 +103,7 @@ class Hub extends Base {
 
   /**
    * handle `callback`
-   * @return response.appId `response header's service id`
+   * @return response.appId `response header's app id`
    * @return response.callbackId `callbackId`
    * @return response.data `response body`
    */
@@ -116,7 +118,7 @@ class Hub extends Base {
        * 根据appId找到socket
        * 如果目标在线, 发送消息
        */
-      const reqSocket = await Service.getSocketByAppId(res.headers.appId)
+      const reqSocket = await Socket.findByAppId(res.headers.appId)
       io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res)
       console.log(
         `${SeashellChalk} ${reqSocket.appName} <-- ${res.headers.importAppName}${res.headers.originUrl},` +
@@ -133,7 +135,7 @@ class Hub extends Base {
   }
 
   /**
-   * register service
+   * register app
    * @param socket
    * @param data
    * @returns {Emitter|Namespace|Socket|*}
@@ -148,7 +150,7 @@ class Hub extends Base {
         appSecret: data.appSecret
       }
 
-      const socketData = await Service.bindAppToSocket(socket.id, insertData)
+      const socketData = await Socket.bindApp(socket.id, insertData)
       console.log(`${SeashellChalk} register success, data: ${JSON.stringify(data)}`)
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData})
     } catch(e){
@@ -178,12 +180,12 @@ class Hub extends Base {
       /**
        * empty old registered services
        */
-      await Service.emptySocket()
+      await Socket.empty()
 
       /**
        * import preset services
        */
-      await Promise.all(config.presets.map(Service.importServiceFromConfig))
+      await Promise.all(config.presets.map(App.importFromConfig))
       /**
        * handle socket connection
        */
@@ -206,7 +208,7 @@ class Hub extends Base {
           const deleteSocket = async (socketId, retry=0) => {
             try {
               console.log(`${SeashellChalk} ${socketId} disconnected`)
-              await Service.deleteSocket(socketId)
+              await Socket.delete(socketId)
             } catch(e){
               if (retry < 3) {
                 retry ++

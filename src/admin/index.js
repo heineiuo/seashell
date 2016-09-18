@@ -19,12 +19,9 @@ router.use((req, res, next) => {
 /**
  * router list
  */
-router.use('/service/create', require('./service/create'))
-router.use('/service/delete', require('./service/delete'))
-router.use('/service/enable', require('./service/enable'))
-router.use('/service/disable', require('./service/disable'))
-router.use('/service/list', require('./service/list'))
+router.use('/socket/list', require('./socket/list'))
 router.use('/group/list', require('./group/list'))
+router.use('/group/delete', require('./group/delete'))
 
 /**
  * error handle

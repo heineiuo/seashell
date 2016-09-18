@@ -7,6 +7,6 @@ import Group from '../../models/Group'
  * @param next
  */
 module.exports = async (req, res, next) => {
-  const groupList = await Group.list()
-  res.json(groupList)
+  const groupDetail = await Group.detail(req.body.groupId)
+  res.json(groupDetail)
 }
