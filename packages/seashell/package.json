@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.5.3",
+  "version": "0.6.1",
   "description": "Create socket pool to `require` denpendent services easily.",
   "main": "index.js",
   "repository": {
@@ -15,8 +15,6 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
-    "format-json": "^1.0.3",
-    "mkdirp": "~0.5.1",
     "uuid": "~2.0.2",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",

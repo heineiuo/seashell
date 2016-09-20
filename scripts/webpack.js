@@ -75,7 +75,7 @@ const webpackServerConfigCreator = (serverName) => {
     output: {
       libraryTarget: 'commonjs2',
       path: `${process.cwd()}/build`,
-      filename: `${serverName}.js`
+      filename: `${serverName}/index.js`
     },
     externals: nodeExternals({
       //whitelist: [ 'node-uuid', 'sha.js']

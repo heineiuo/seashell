@@ -30,7 +30,7 @@ class App extends Router {
   handleRequest = async (req) => {
     const {socket} = this.state
     const {handleLoop} = this
-    console.log(`${SeashellChalk} handle request: ${JSON.stringify(req)}`)
+    console.log(`${SeashellChalk} handle request: ${req.headers.originUrl}`)
     Object.assign(req, {params: {}})
     const res = {
       headers: req.headers,
@@ -87,7 +87,7 @@ class App extends Router {
           req.headers.originUrl = ss > -1? sUrl.substring(ss):'/'
         }
 
-        console.log(`${SeashellChalk} Start request servicehub, data: ${JSON.stringify(req.headers)}`)
+        console.log(`${SeashellChalk} Start request: ${url}`)
 
         /**
          * set callback
@@ -138,7 +138,7 @@ class App extends Router {
 
     socket.on('connect', () => {
       console.log(`${SeashellChalk} connected`)
-      console.log(`${SeashellChalk} register`)
+      console.log(`${SeashellChalk} registered`)
       app.setState({isOnline: true})
 
       /**

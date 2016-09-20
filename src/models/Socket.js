@@ -24,6 +24,17 @@ Socket.empty = () => {
     try {
       const sockets = await Socket.findAll()
       await Promise.all(sockets.map(item => dbPromise.del(item.key)))
+      const groups = await Group.list()
+      await Promise.all(groups.map(group => {
+        group.value.list = group.value.list.map(item => {
+          return {
+            appId: item.appId,
+            socketId: "",
+            status: 0
+          }
+        })
+        return dbPromise.put(group.key, group.value)
+      }))
       resolve()
     } catch(e){
       if (typeof e == 'string') return reject(e)
@@ -54,14 +65,14 @@ Socket.delete = (socketId) => {
       const socketInfo = await dbPromise.get(`socket_${socketId}`)
       await dbPromise.del(`socket_${socketId}`)
       const group = await dbPromise.get(`group_${socketInfo.appName}`)
-      const nextGroup = group.map(item => {
+      group.list = group.list.map(item => {
         if (item.appId == socketInfo.appId) {
           item.socketId = ''
           item.status = 0
         }
         return item
       })
-      await dbPromise.put(`group_${socketInfo.appName}`, nextGroup)
+      await dbPromise.put(`group_${socketInfo.appName}`, group)
       resolve(1)
     } catch(e){
       reject(e)
