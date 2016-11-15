@@ -63,7 +63,7 @@ class Router extends Base {
        * 404 检查
        */
       if(index >= exportActionStack.length) {
-        // if (err) console.log(`[seashell] unhandled error: ${err.stack||err}`)
+        // if (err) console.log(`[common] unhandled error: ${err.stack||err}`)
         return _next(err, req, res, _next, _index)
       }
 
@@ -123,7 +123,7 @@ class Router extends Base {
           return await middleware.fn(req, res, next)
 
         } catch(e){
-          // console.log(`[seashell] catch error: ${e.stack||e}`)
+          // console.log(`[common] catch error: ${e.stack||e}`)
           next(e)
         }
       }

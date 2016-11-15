@@ -1,7 +1,7 @@
 import promisify from 'q-level'
 import levelup from 'levelup'
 
-const db = levelup('./data/models/app', { valueEncoding: 'json' })
+const db = levelup('./data/gateway/app', { valueEncoding: 'json' })
 const dbPromise = promisify(db)
 
 
