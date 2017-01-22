@@ -7,6 +7,8 @@
 
 A message queue for node.js and javascript.
 
+The master branch is in a fast iteration state, please use branch [v0.6.x](https://github.com/heineiuo/seashell/tree/v0.6.x) for stable usage.
+
 ---
 
 
