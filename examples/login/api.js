@@ -1,4 +1,4 @@
-import {App} from '../../packages/seashell-client-node/index'
+import {App} from '../../packages/seashell-client-node/src/index'
 
 const app = require('express')()
 const http = require('http').Server(app)

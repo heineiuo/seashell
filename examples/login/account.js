@@ -1,4 +1,4 @@
-import { App, Router } from '../../packages/seashell-client-node/index'
+import { App, Router } from '../../packages/seashell-client-node/src/index'
 const app = new App()
 const router = new Router()
 const router2 = new Router()
