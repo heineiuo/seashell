@@ -6,7 +6,7 @@ import {combineReducers} from 'sprucejs'
 
 const SeashellChalk = chalk.blue.bold('[Seashell]');
 
-class ServiceHub {
+class Seashell {
 
   constructor (db, app) {
 
@@ -282,4 +282,4 @@ class ServiceHub {
 
 }
 
-export default ServiceHub
+export default Seashell
