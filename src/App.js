@@ -46,13 +46,13 @@ class App extends Model {
       });
 
       await Promise.all([
-        db.put(`group_${appName}`, group, {valueEncoding: 'json'}),
-        db.put(`app_${nextService.appId}`, nextService, {valueEncoding: 'json'})
+        reducers.Group.Put(appName, group, {valueEncoding: 'json'}),
+        db.put(nextService.appId, nextService, {valueEncoding: 'json'})
       ]);
 
       resolve(nextService)
     } catch(e) {
-      reject(new Error('CREATE_SERVICE_FAIL'))
+      reject(e)
     }
   });
 
@@ -84,13 +84,13 @@ class App extends Model {
       });
 
       await Promise.all([
-        db.put(`group_${service.appName}`, group),
-        db.put(`app_${newService.appId}`, newService)
+        reducers.Group.Put(service.appName, group),
+        db.put(newService.appId, newService)
       ]);
 
       resolve(newService)
     } catch(e) {
-      reject(new Error('CREATE_SERVICE_FAIL'))
+      reject(e)
     }
   });
 

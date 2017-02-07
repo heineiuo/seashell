@@ -20,6 +20,35 @@ class Group extends Model {
    *  }
    */
 
+  Get = (key) => new Promise(async (resolve, reject) => {
+    try {
+      const result = await this.props.db.get(key);
+      resolve(result)
+    } catch(e){
+      if (e.name == 'NotFoundError') return reject(new Error('GROUP_NOT_FOUND'));
+      reject(e)
+    }
+  });
+
+  Del = (key) => new Promise(async (resolve, reject) => {
+    try {
+      const result = await this.props.db.del(key);
+      resolve(result)
+    } catch(e){
+      if (e.name == 'NotFoundError') return reject(new Error('GROUP_NOT_FOUND'));
+      reject(e)
+    }
+  });
+
+  Put = (key, value) => new Promise(async (resolve, reject) => {
+    try {
+      const result = await this.props.db.put(key, value);
+      resolve(result)
+    } catch(e){
+      if (e.name == 'NotFoundError') return reject(new Error('GROUP_NOT_FOUND'));
+      reject(e)
+    }
+  });
 
   /**
    * get group list
@@ -27,12 +56,10 @@ class Group extends Model {
    */
   list = () => new Promise(async (resolve, reject) => {
     try {
-      const list = await Group.find({prefix: 'group_'});
+      const list = await this.props.db.find({});
       resolve(list)
     } catch(e){
-      if (typeof e == 'string') return reject(e);
-      console.log(e);
-      reject('NOT_FOUND')
+      reject(e)
     }
   });
 
@@ -44,7 +71,7 @@ class Group extends Model {
     const {db} = this.props;
 
     try {
-      const detail = await db.get(`group_${groupName}`);
+      const detail = await db.get(groupName);
       resolve(detail)
     } catch(e){
       if (e.name != 'NotFoundError') return reject(e);
@@ -55,7 +82,7 @@ class Group extends Model {
           permission: [],
           list: []
         };
-        await db.put(`group_${groupName}`, detail);
+        await db.put(groupName, detail);
         resolve(detail)
       } catch(e){
         reject(e)
@@ -71,26 +98,25 @@ class Group extends Model {
    * @returns {Promise}
    * @constructor
    */
-  delete = (groupName) => new Promise(async (resolve, reject) => {
+  remove = (groupName) => new Promise(async (resolve, reject) => {
     try {
-      const detail = await Group.get(`group_${groupName}`);
+      const {db, reducers} = this.props;
+      const detail = await db.get(groupName);
       await Promise.all(detail.list.map(item => {
         return new Promise(async (resolve, reject) => {
           if (item.socketId == '') return resolve();
           try {
-            await Group.del(`socket_${item.socketId}`);
+            await reducers.Socket.remove(item.socketId);
             resolve()
           } catch(e){
             reject(e)
           }
         })
       }));
-      await Group.del(`group_${groupName}`);
+      await db.del(groupName);
       resolve()
     } catch(e){
-      if (typeof e == 'string') return reject(e);
-      console.log(e);
-      reject('NOT_FOUND')
+      reject(e)
     }
   });
 
@@ -99,7 +125,7 @@ class Group extends Model {
     const {action} = query;
     if (action == 'list') return this.list();
     if (action == 'detail') return this.detail(query);
-    if (action == 'delete') return this.delete(query);
+    if (action == 'remove') return this.remove(query);
 
     return new Promise((resolve, reject) => reject(new Error('ACTION_NOT_FOUND')))
   }
