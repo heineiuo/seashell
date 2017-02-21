@@ -3,8 +3,27 @@ import Emitter from 'events'
 import uuid from 'uuid'
 import chalk from 'chalk'
 import {combineReducers} from 'sprucejs'
+import prettyjson from 'prettyjson'
 
 const SeashellChalk = chalk.blue.bold('[Seashell]');
+
+const SeashellDebug = (type, ...logs) => {
+  let result = `${SeashellChalk}[${type}]`;
+  logs.forEach((log, index) => {
+    if (index > 0) result += '\n';
+    if (typeof log == 'string') {
+      result += log;
+    } else if (typeof log == 'object') {
+      if (log.name && log.message && log.stack) {
+        result += `[ERROR]:${'\n'}${log.stack}`
+      } else {
+        result += `[JSON]:${'\n'}${prettyjson.render(log)}`;
+      }
+    }
+  });
+
+  console.log(result)
+};
 
 class Seashell {
 
@@ -41,7 +60,7 @@ class Seashell {
      * handle socket connection
      */
     this.io.on('connection', (socket) => {
-      console.log(`${SeashellChalk} new connection ${socket.id}`);
+      SeashellDebug('INFO', `new connection ${socket.id}`);
       socket.on('REGISTER', (data) => {
         this.register(socket, data)
       });
@@ -58,7 +77,7 @@ class Seashell {
       socket.on('disconnect', () => {
         const deleteSocket = async(socketId, retry = 0) => {
           try {
-            console.log(`${SeashellChalk} ${socketId} disconnected`);
+            SeashellDebug(`${socketId} disconnected`);
             await this.Socket.remove({socketId})
           } catch (e) {
             if (retry < 3) {
@@ -115,7 +134,7 @@ class Seashell {
              */
             integrationEmitterStack[callbackId] = new Emitter();
             integrationEmitterStack[callbackId].on('RESPONSE', (res) => {
-              console.log(`${SeashellChalk} INTEGRATION_GOT_RES`);
+              SeashellDebug('INFO', 'INTEGRATION_GOT_RES');
               resolve(res);
               delete integrationEmitterStack[callbackId];
               return null
@@ -125,9 +144,9 @@ class Seashell {
              * send request
              */
             this.request(req, {integration: true});
-            console.log(`${SeashellChalk} Integration ${name} Start request: ${url}`);
+            SeashellDebug('INFO', `Integration ${name} Start request: ${url}`);
           } catch(e){
-            console.log(e.stack);
+            SeashellDebug(e, 'ERROR');
             reject(e)
           }
         })
@@ -156,10 +175,10 @@ class Seashell {
       };
 
       const socketData = await this.Socket.bindApp({socketId: socket.id, registerInfo});
-      console.log(`${SeashellChalk} register success, data: ${JSON.stringify(data)}`);
+      SeashellDebug('INFO', `register success`, data);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData})
     } catch(e){
-      console.log(`${SeashellChalk} register failed, data: ${data}`);
+      SeashellDebug('INFO', 'register failed', data);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error: e.message})
     }
   };
@@ -181,9 +200,9 @@ class Seashell {
        */
       if (!isIntegration) {
         const reqService = await this.Socket.detail({socketId: socket.id});
-        console.log(`${SeashellChalk} ${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`);
+        SeashellDebug('INFO', `${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`);
       } else {
-        console.log(`${SeashellChalk} integration service --> ${req.headers.importAppName}${req.headers.originUrl}`);
+        SeashellDebug('INFO', `integration service --> ${req.headers.importAppName}${req.headers.originUrl}`);
       }
 
       /**
@@ -203,7 +222,7 @@ class Seashell {
         this.io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
       }
     } catch(e) {
-      console.log(e.stack);
+      SeashellDebug('ERROR', 'request failed', e);
       const res = {
         headers: {
           callbackId: req.headers.callbackId
@@ -213,13 +232,12 @@ class Seashell {
         }
       };
       socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
-      console.log(`${SeashellChalk} request failed because ${e.message}`);
     }
   };
 
   _requestIntegration = (integrationName, reqSocket, req) => new Promise(async (resolve) => {
     const { handleLoop } = this.integrations[integrationName].router;
-    console.log(`${SeashellChalk} handle admin request: ${JSON.stringify(req)}`);
+    SeashellDebug('INFO', 'handle admin request', req);
     const res = {
       headers: {
         importAppName: integrationName,
@@ -254,7 +272,7 @@ class Seashell {
         throw new Error('Export Lost Params: [appId]');
       }
 
-      if (!res.headers.callbackId) console.log(`${SeashellChalk}Warning: Lost Params: [callbackId]`);
+      if (!res.headers.callbackId) SeashellDebug('WARN', 'Lost Params: [callbackId]');
 
       /**
        * 根据appId找到socket
@@ -262,17 +280,17 @@ class Seashell {
        */
       const reqSocket = await this.Socket.findByAppId({appId: res.headers.appId});
       this.io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res);
-      console.log(
+      SeashellDebug('INFO',
         `${SeashellChalk} ${reqSocket.appName} <-- ${res.headers.importAppName}${res.headers.originUrl},` +
         ` total spend ${Date.now() - res.headers.__SEASHELL_START}ms`
       )
 
     } catch(e) {
-      console.log(e.stack);
+      SeashellDebug('ERROR', e);
 
       if (e.message == 'GET_SOCKET_FAIL') {
         // todo add to task, when socket connected again, send res again.
-        return console.log(`${SeashellChalk} reqSocket offline`)
+        return SeashellDebug('WARN', `reqSocket offline`)
       }
     }
   };
