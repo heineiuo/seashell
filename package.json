@@ -1,7 +1,8 @@
 {
   "name": "seashell",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "main": "./lib/index.js",
+  "browser": "./dist/seashell-client.js",
   "description": "Create socket pool to `require` denpendent services easily.",
   "scripts": {
     "build": "babel ./src -d lib --ignore __tests__ --ignore .test.js",
@@ -19,10 +20,23 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
+    "auto-sni": "^1.6.0",
+    "body-parser": "^1.17.1",
     "chalk": "^1.1.3",
+    "compression": "^1.6.2",
+    "ent": "^2.2.0",
+    "express": "^4.15.2",
+    "formidable": "^1.1.1",
+    "fs-promise": "^2.0.0",
+    "http-proxy": "^1.16.2",
+    "lodash.pick": "^4.4.0",
+    "morgan": "^1.8.1",
+    "path-to-regexp": "^1.7.0",
     "prettyjson": "^1.2.1",
     "socket.io": "^1.4.5",
+    "socket.io-client": "^1.7.3",
     "sprucejs": "^0.2.1",
+    "ua-parser-js": "^0.7.12",
     "uuid": "~2.0.2"
   },
   "devDependencies": {
