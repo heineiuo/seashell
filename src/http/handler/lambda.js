@@ -1,8 +1,7 @@
-
 /**
  * 返回json
  */
-const lambdaHandle = async ( res, content, query) => {
+const lambdaHandle = async(res, content, query) => {
 
 
   /**
@@ -19,8 +18,8 @@ const lambdaHandle = async ( res, content, query) => {
 
    */
 
-  // const lam = await Lambda.findOne({path: req.path})
-  // if (!lam) return next()
+    // const lam = await Lambda.findOne({path: req.path})
+    // if (!lam) return next()
 
   const danger = new Function('options', content);
 

@@ -14,17 +14,17 @@ const pickLocationMiddleware = () => {
        */
       const {host} = req.headers;
       // console.log('[gateway] searching host');
-      const requestHost = await gateway.handler({reducerName: 'host', hostname: host, action: 'Get'});
+      // const requestHost = await gateway.request('gateway', {reducerName: 'host', hostname: host, action: 'Get'});
       // console.log(requestHost.body);
-      if (requestHost.error) throw new Error(requestHost.error);
-      const requestLocations = await gateway.handler({reducerName: 'location', hostname: host, action: 'list'});
-      // console.log(requestLocations.body);
-      const {locations} = requestLocations.location;
+      // if (requestHost.body.error) throw new Error(requestHost.body.error);
+      const requestLocations = await gateway.request('gateway', {reducerName: 'location', hostname: host, action: 'list'});
+      if (requestLocations.body.error) throw new Error(requestLocations.body.error);
+      const {locations} = requestLocations.body.location;
       // console.log('locations: '+JSON.stringify(locations));
       const {location, url} = await pickLocation(locations, req.url);
 
       // console.log(location);
-      res.locals.host = requestHost;
+      res.locals.host = host;
       res.locals.url = url;
       // res.locals.location = location;
       res.locals.location = Object.assign({}, location, {content: location.content});

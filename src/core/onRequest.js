@@ -18,8 +18,7 @@ const onRequest = async function(socket, req) {
      * 如果请求来自集成服务, 跳过验证
      */
     if (!isIntegration) {
-      const reqService = await service.handler({
-        reducerName: 'socket',
+      const reqService = await service.handler('socket', {
         action: 'detail',
         socketId: socket.id
       });
@@ -41,7 +40,7 @@ const onRequest = async function(socket, req) {
         socket.emit('YOUR_REQUEST_HAS_RESPONSE', result);
       }
     } else {
-      const resServiceId = await service.handler({reducerName: 'socket', action: 'balance', importAppName});
+      const resServiceId = await service.handler('socket', { action: 'balance', importAppName});
       io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
     }
   } catch(e) {

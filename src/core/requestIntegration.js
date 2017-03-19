@@ -1,31 +1,20 @@
 import {SeashellDebug} from './debug'
+import {Context} from '../client/Context'
 
 const requestIntegration = function(integrationName, reqSocket, req) {
-  const {
-    integrations
-  } = this;
+  const {handleLoop} = this.integrations[integrationName].app;
+
   return new Promise(async (resolve) => {
-    const { handleLoop } = integrations[integrationName].router;
     SeashellDebug('INFO', 'handle admin request', req);
-    const res = {
-      headers: {
-        importAppName: integrationName,
-        appId: req.headers.appId,
-        callbackId: req.headers.callbackId
-      },
-      body: {},
-      end: () => {
-        // resolve({
-        //   headers: res.headers,
-        //   body: res.body
-        // })
-        resolve(res)
+    Object.assign(req, {params: {}});
+    const ctx = new Context({
+      emit: (type) => {
+        if (type == 'I_HAVE_HANDLE_THIS_REQUEST') {
+          resolve(ctx.response)
+        }
       }
-    };
-    const next = (err, req, res, index, pathname) => {
-      return handleLoop(err, req, res, next, index, pathname)
-    };
-    next(null, req, res, 0, req.headers.originUrl)
+    }, req);
+    handleLoop(ctx);
   });
 };
 

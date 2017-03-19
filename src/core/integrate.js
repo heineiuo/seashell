@@ -4,10 +4,10 @@ import uuid from 'uuid'
 
 const integrate = function(integration){
   const {integrations, integrationEmitterStack, onRequest} = this;
-  const {name, router, handler} = integration;
+  const {name, app, handler} = integration;
   integrations[name] = {
     handler,
-    router,
+    app,
     request: (url, data) => {
       if (typeof data != 'object') throw `${SeashellChalk} request data must be an object.`;
       return new Promise(async (resolve, reject) => {
@@ -60,7 +60,7 @@ const integrate = function(integration){
     }
   };
 
-  router.request = integrations[name].request;
+  app.request = integrations[name].request;
   this.integrations = integrations;
   return integrations[name]
 };

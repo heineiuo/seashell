@@ -68,7 +68,7 @@ const seashellProxyMiddleware = () => {
       next()
 
     } catch(e){
-      if (process.env.NODE_ENV == 'development') console.log(e.stack||e);
+      if (process.env.NODE_ENV == 'development') console.log(e.message||e);
       next(e)
     }
 
@@ -77,7 +77,7 @@ const seashellProxyMiddleware = () => {
   router.use((err, req, res, next) => {
     if (!err) return next();
     if (err.message == 'NOT_SEASHELL') return next();
-    if (process.env.NODE_ENV == 'development') console.log(err.stack||err);
+    if (process.env.NODE_ENV == 'development') console.log(err.message||err);
     next(err)
   });
 

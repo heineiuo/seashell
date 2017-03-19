@@ -13,8 +13,7 @@ const register = function(socket, registerInfo) {
   return new Promise(async (resolve, reject) => {
     try {
       if (!socket.id) throw new Error('LOST_SOCKET_ID');
-      const socketData = await service.handler({
-        reducerName: 'socket',
+      const socketData = await service.handler('socket', {
         action: 'bindApp',
         socketId: socket.id,
         registerInfo

@@ -61,7 +61,7 @@ const createServer = (config, gateway) => {
    * 其他的错误显示异常
    */
   app.use((err, req, res, next) => {
-    console.log(err.stack);
+    console.log(err.message);
     if (err.message == 'HOST_NOT_FOUND') return next();
     if (err.message == 'LOCATION_NOT_FOUND') return res.end(`${req.headers.host}: \n LOCATION NOT FOUND`);
     if (err.message == 'UNDEFINED_TYPE') return res.end(`${req.headers.host}: \n CONFIGURE ERROR`);

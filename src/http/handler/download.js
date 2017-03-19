@@ -12,7 +12,7 @@ const downloadHandle = (res, path) => new Promise((resolve, reject) => {
     const truePath = rawPath;
     res.download(truePath);
     resolve();
-  } catch(e){
+  } catch (e) {
     reject(e)
   }
 });

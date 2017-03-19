@@ -7,7 +7,7 @@ const locations = [
 ];
 
 
-it('find target location', () => {
+test('find target location', () => {
 
   const url = Url.parse('https://local.youkuohao.com/api/gateway');
 

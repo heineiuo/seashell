@@ -26,7 +26,7 @@ const onResponse = async function(socket, res) {
      * 根据appId找到socket
      * 如果目标在线, 发送消息
      */
-    const reqSocket = await service.handler({reducerName: 'socket', action: 'findByAppId', appId: res.headers.appId});
+    const reqSocket = await service.handler('socket', { action: 'findByAppId', appId: res.headers.appId});
     io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res);
     SeashellDebug('INFO',
       `${SeashellChalk} ${reqSocket.appName} <-- ${res.headers.importAppName}${res.headers.originUrl},` +

@@ -1,9 +1,7 @@
-import path from 'path'
-
 /**
  * 文件下载代理
  */
-const handleFILE = (res, hostname, pathname, reqpath) => new Promise(async (resolve, reject) => {
+const handleFILE = (res, hostname, pathname, reqpath) => new Promise(async(resolve, reject) => {
 
   try {
 
@@ -22,7 +20,7 @@ const handleFILE = (res, hostname, pathname, reqpath) => new Promise(async (reso
     res.write(result.body.cat);
     res.end();
 
-  } catch(e){
+  } catch (e) {
     reject(new Error('NOT_FOUND'))
   }
 });

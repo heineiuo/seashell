@@ -1,6 +1,6 @@
-import formidable from 'formidable'
-import path from 'path'
-import fs from 'fs-promise'
+import formidable from "formidable"
+import path from "path"
+import fs from "fs-promise"
 
 const handleUpload = (req, res, options) => new Promise(async(resolve, reject) => {
 
@@ -12,7 +12,7 @@ const handleUpload = (req, res, options) => new Promise(async(resolve, reject) =
      *  uploadLocation: the prefix for the uploaded file, like `http://superuser.youkuohao.com/upload`
      * }
      **/
-    const {uploadKey='file', uploadDir, hostname, pathname, uploadLocation, isPublic, isHashName} = options;
+    const {uploadKey = 'file', uploadDir, hostname, pathname, uploadLocation, isPublic, isHashName} = options;
 
     // console.log(uploadKey, uploadDir, uploadLocation);
 
@@ -37,8 +37,8 @@ const handleUpload = (req, res, options) => new Promise(async(resolve, reject) =
      * 移动文件
      */
     const filesFile = uploaded.files[uploadKey];
-    const fileList = filesFile.length > 0 ? filesFile: [filesFile];
-    const result = await Promise.all(fileList.map(file => new Promise(async (resolve, reject) => {
+    const fileList = filesFile.length > 0 ? filesFile : [filesFile];
+    const result = await Promise.all(fileList.map(file => new Promise(async(resolve, reject) => {
       try {
         const filename = `${file.hash}${path.extname(file.name).toLowerCase()}`;
         const content = await fs.readFile(file.path);
@@ -51,8 +51,8 @@ const handleUpload = (req, res, options) => new Promise(async(resolve, reject) =
         });
         if (transferResult.body.error) throw new Error(transferResult.body.error);
         await fs.unlink(file.path);
-        resolve(isPublic?`${uploadLocation}/${filename}`:filename)
-      } catch(e){
+        resolve(isPublic ? `${uploadLocation}/${filename}` : filename)
+      } catch (e) {
         reject(e)
       }
     })));
@@ -64,7 +64,7 @@ const handleUpload = (req, res, options) => new Promise(async(resolve, reject) =
      */
     res.json({result});
     resolve()
-  } catch(e){
+  } catch (e) {
     reject(e)
   }
 
