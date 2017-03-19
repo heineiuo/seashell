@@ -1,0 +1,17 @@
+{
+  "targets": [
+    {
+      "disable": false,
+      "origin": false,
+      "key": "seashell-client",
+      "filename": "src/client/index.js",
+      "distPath": "./dist",
+      "//publicPath": "//unpkg.com/seashell-client@0.8.1/dist/",
+      "devPublicPath": "http://127.0.0.1:8083/dist/",
+      "isLibrary": true
+    }
+  ],
+  "useBabelrc": true,
+  "devPublicPath": "./",
+  "modulesNeedBabel": []
+}

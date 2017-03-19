@@ -10,5 +10,6 @@ examples
 .DS_Store
 Thumb.db
 src/*
+__tests__
 .babelrc
 .editorconfig
