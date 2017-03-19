@@ -42,9 +42,12 @@ const seashellProxyMiddleware = () => {
         )
       });
 
-      // console.log(data);
+      // console.log('START REQUEST FOR USER SESSION');
 
-      const requestSession = await gateway.request('account', Object.assign(data));
+      const requestSession = await gateway.request('account', {
+        reducerName: 'session',
+        token: data.token,
+      });
 
       Object.assign(data, {__GATEWAY_USER: requestSession.body});
 
@@ -68,7 +71,6 @@ const seashellProxyMiddleware = () => {
       next()
 
     } catch(e){
-      if (process.env.NODE_ENV == 'development') console.log(e.message||e);
       next(e)
     }
 
@@ -77,7 +79,7 @@ const seashellProxyMiddleware = () => {
   router.use((err, req, res, next) => {
     if (!err) return next();
     if (err.message == 'NOT_SEASHELL') return next();
-    if (process.env.NODE_ENV == 'development') console.log(err.message||err);
+    console.log('SEASHELL PROXY FAIL: \n '+err.message||err);
     next(err)
   });
 

@@ -52,7 +52,7 @@ class App extends Router {
     const {socket, importEmitterStack, appId} = this.state;
     return new Promise( (resolve, reject) => {
       try {
-        if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE");
+        // if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE");
         /**
          * parse url, create req object
          */
@@ -75,7 +75,7 @@ class App extends Router {
           req.headers.originUrl = ss > -1? sUrl.substring(ss):'/'
         }
 
-        console.log(`${SeashellChalk} Start request: ${url}`);
+        // console.log(`${SeashellChalk} Start request: ${url}`);
 
         /**
          * set callback
@@ -93,7 +93,7 @@ class App extends Router {
          */
         socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
-        console.log(`${SeashellChalk} ${e.message||e}`);
+        console.log(`${SeashellChalk} REQUEST_ERROR ${e.message||e}`);
         reject(e)
       }
     })
@@ -104,6 +104,14 @@ class App extends Router {
    */
   requestStream = () => {
     // todo
+  };
+
+  handleResponse = (res) => {
+    const {importEmitterStack} = this.state;
+    const {callbackId} = res.headers;
+    importEmitterStack[callbackId].emit('RESPONSE', res);
+    delete importEmitterStack[callbackId];
+    this.state.importEmitterStack = importEmitterStack
   };
 
   /**
@@ -141,13 +149,7 @@ class App extends Router {
      * handle response
      * response should have `callbackId` key.
      */
-    socket.on('YOUR_REQUEST_HAS_RESPONSE', (res) => {
-      const {importEmitterStack} = this.state;
-      const {callbackId} = res.headers;
-      importEmitterStack[callbackId].emit('RESPONSE', res);
-      delete importEmitterStack[callbackId];
-      this.state.importEmitterStack = importEmitterStack
-    });
+    socket.on('YOUR_REQUEST_HAS_RESPONSE', this.handleResponse);
 
     /**
      * handle request

@@ -33,7 +33,7 @@ const onSend = async function(socket, req) {
      * 否则，先验证目标app是否在线, 在线则发包给目标app
      */
     if (isRequestIntegration) {
-      const result = await requestIntegration(importAppName, socket, req);
+      const result = await requestIntegration(importAppName, req);
       if (isIntegration) {
         integrationEmitterStack[req.headers.callbackId].emit('RESPONSE', result);
       } else {

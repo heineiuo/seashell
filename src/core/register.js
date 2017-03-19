@@ -5,7 +5,6 @@ import {SeashellDebug} from './debug'
  * register app
  * @param socket
  * @param registerInfo
- * @returns {Emitter|Namespace|Socket|*}
  */
 const register = function(socket, registerInfo) {
   const {integrations: {service, account}} = this;

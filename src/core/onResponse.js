@@ -7,15 +7,16 @@ const onResponse = async function(socket, res) {
   const {
     integrations,
     integrations: {service},
-    integrationEmitterStack,
     io
   } = this;
+
+  const isToIntegrate = integrations.hasOwnProperty(res.headers.appName);
 
   try {
     if (!res.headers.appId) {
       if (!res.headers.appName) throw new Error('Export Lost appName!');
-      if (integrations.hasOwnProperty(res.headers.appName)) {
-        return integrationEmitterStack[res.headers.callbackId].emit('RESPONSE', res)
+      if (isToIntegrate) {
+        return integrations[res.headers.appName].emit('YOUR_REQUEST_HAS_RESPONSE', res);
       }
       throw new Error('Export Lost Params: [appId]');
     }
