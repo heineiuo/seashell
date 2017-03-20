@@ -5,7 +5,7 @@ const lambdaHandle = async(res, content, query) => {
 
 
   /**
-   * example fn
+   * examples fn
    `
    return new Promise(function (resolve, reject){
       try {

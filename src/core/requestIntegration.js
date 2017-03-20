@@ -1,5 +1,5 @@
 import {SeashellDebug} from './debug'
-import {Context} from '../client/Context'
+import {Context} from './App/Context'
 
 const requestIntegration = function(toIntegrationName, req) {
   const {handleLoop} = this.integrations[toIntegrationName];
