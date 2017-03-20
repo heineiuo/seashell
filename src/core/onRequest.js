@@ -20,9 +20,23 @@ const onRequest = async function(socket, req) {
 
 
     /**
-     * 验证请求是否合法
+     * 1. 获取用户session
+     * 2. 验证请求是否合法
      * 如果请求来自集成服务, 跳过验证
      */
+
+    try {
+      // console.log('START REQUEST FOR USER SESSION');
+      const requestSession = await service.handler('account', {
+        reducerName: 'token',
+        action: 'session',
+        token: req.body.token,
+      });
+      Object.assign(req.headers, {session: requestSession.body});
+    } catch(e){
+      Object.assign(req.headers, {session: null});
+    }
+
     if (isFromIntegration) {
       // SeashellDebug('INFO', `[integrate] --> ${importAppName}${originUrl}`);
     } else {

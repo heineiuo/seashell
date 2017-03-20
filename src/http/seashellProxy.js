@@ -42,13 +42,6 @@ const seashellProxyMiddleware = () => {
         )
       });
 
-      // console.log('START REQUEST FOR USER SESSION');
-      const requestSession = await gateway.request('account', {
-        reducerName: 'session',
-        token: data.token,
-      });
-      Object.assign(data, {__GATEWAY_USER: requestSession.body});
-
       const content = location.content;
       const requestUrl = url.href.substring(content.length);
       const result = await gateway.request(requestUrl, data);
