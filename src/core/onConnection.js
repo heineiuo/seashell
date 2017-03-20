@@ -10,10 +10,10 @@ const onConnection = async function(socket) {
     throw new Error('Required integrated service not found')
   }
 
-  SeashellDebug('INFO', `new connection ${socket.id}`);
+  // SeashellDebug('INFO', `new connection ${socket.id}`);
   const url = socket.url = Url.parse(socket.request.url, {parseQueryString: true});
 
-  SeashellDebug('INFO', url.query);
+  SeashellDebug('INFO', `[CONNECTION][${url.query.appName}][${url.query.appId}]`);
 
   try {
     await this.register(socket, url.query);

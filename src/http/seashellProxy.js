@@ -43,20 +43,15 @@ const seashellProxyMiddleware = () => {
       });
 
       // console.log('START REQUEST FOR USER SESSION');
-
       const requestSession = await gateway.request('account', {
         reducerName: 'session',
         token: data.token,
       });
-
       Object.assign(data, {__GATEWAY_USER: requestSession.body});
 
-      // const importAppName = location.content.search('{') != 0 ? location.content:
-      //   url.pathname.search('account') > 0 ?'account':'gateway';
-      const result = await gateway.request(data.importAppName, data);
-
-      // console.log('==============seashell result =============');
-      // console.log(result);
+      const content = location.content;
+      const requestUrl = url.href.substring(content.length);
+      const result = await gateway.request(requestUrl, data);
 
       if (result.headers.hasOwnProperty('__HTML')) {
         Object.assign(res.locals.location, {type: 'HTML', content: result.body.html})
@@ -65,8 +60,6 @@ const seashellProxyMiddleware = () => {
       } else {
         Object.assign(res.locals.location, {type: 'JSON', content: result.body})
       }
-
-      // console.log(res.locals.location);
 
       next()
 

@@ -1,5 +1,5 @@
 import pathToRegexp from 'path-to-regexp'
-import {buildParams} from './buildParams'
+import {pathMatch} from './pathMatch'
 
 class Router {
 
@@ -59,9 +59,9 @@ class Router {
       }
       if (middleware.router) return middleware.router.handleLoop(ctx, next);
       if (middleware.path == '*') return middleware.fn(ctx, next);
-      const match = ctx.request.headers.originUrl.match(middleware.pathRe);
-      if (!match) return next();
-      Object.assign(ctx.request.params, buildParams(match, middleware.pathParsed));
+      const params = pathMatch(middleware.pathRe, ctx.request.headers.originUrl);
+      if (!params) return next();
+      Object.assign(ctx.request.params, params);
       return middleware.fn(ctx, next)
     };
 

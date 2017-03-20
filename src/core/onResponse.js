@@ -1,42 +1,49 @@
-import {SeashellDebug} from './debug'
+import {SeashellDebug} from "./debug"
 
 /**
  * handle `callback`
  */
-const onResponse = async function(socket, res) {
+const onResponse = async function (socket, res) {
   const {
     integrations,
     integrations: {service},
     io
   } = this;
 
-  const isToIntegrate = integrations.hasOwnProperty(res.headers.appName);
+  const {appId, appName, isFromIntegration, importAppName, originUrl, __SEASHELL_START, callbackId} = res.headers;
 
   try {
-    if (!res.headers.appId) {
-      if (!res.headers.appName) throw new Error('Export Lost appName!');
-      if (isToIntegrate) {
-        return integrations[res.headers.appName].emit('YOUR_REQUEST_HAS_RESPONSE', res);
-      }
-      throw new Error('Export Lost Params: [appId]');
+    if (!callbackId) {
+      return SeashellDebug('ERROR',
+        `[unknown] --> [${importAppName}${originUrl}]` +
+        `[ERROR][ILLEGAL_HEADER][${Date.now() - __SEASHELL_START}ms]`
+      );
     }
 
-    if (!res.headers.callbackId) SeashellDebug('WARN', 'Lost Params: [callbackId]');
+    if (isFromIntegration) {
+      return integrations[appName].socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
+    }
 
     /**
      * 根据appId找到socket
      * 如果目标在线, 发送消息
      */
-    const reqSocket = await service.handler('socket', { action: 'findByAppId', appId: res.headers.appId});
+    const reqSocket = await service.handler('socket', {
+      request: {
+        body: {
+          action: 'findByAppId',
+          appId: res.headers.appId
+        }
+      }
+    });
     io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res);
     SeashellDebug('INFO',
-      `${SeashellChalk} ${reqSocket.appName} <-- ${res.headers.importAppName}${res.headers.originUrl},` +
-      ` total spend ${Date.now() - res.headers.__SEASHELL_START}ms`
-    )
+      `[${reqSocket.appName}] --> [${importAppName}${originUrl}]` +
+      `[DONE][${Date.now() - __SEASHELL_START}ms]`
+    );
 
-  } catch(e) {
+  } catch (e) {
     SeashellDebug('ERROR', e);
-
     if (e.message == 'GET_SOCKET_FAIL') {
       // todo add to task, when socket connected again, send res again.
       return SeashellDebug('WARN', `reqSocket offline`)

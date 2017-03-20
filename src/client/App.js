@@ -29,11 +29,15 @@ class App extends Router {
    * @param req
    */
   handleRequest = async (req) => {
-    const {socket} = this.state;
-    console.log(`${SeashellChalk} handle request: ${req.headers.originUrl}`);
-    Object.assign(req, {params: {}});
-    const ctx = new Context(socket, req);
-    this.handleLoop(ctx);
+    try {
+      console.log(`${SeashellChalk} handle request: ${req.headers.originUrl}`);
+      Object.assign(req, {params: {}});
+      const ctx = new Context(this.socket, req);
+      this.handleLoop(ctx);
+    } catch(e){
+      console.log(e)
+    }
+
   };
 
 
@@ -49,7 +53,7 @@ class App extends Router {
    */
   request = (url, data={}) => {
     if (typeof data != 'object') throw `${SeashellChalk} request data must be an object.`;
-    const {socket, importEmitterStack, appId} = this.state;
+    const {importEmitterStack, appId, appName} = this.state;
     return new Promise( (resolve, reject) => {
       try {
         // if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE");
@@ -60,8 +64,9 @@ class App extends Router {
         const req = {
           body: data,
           headers: {
-            appId: appId,
-            callbackId: callbackId
+            appName,
+            appId,
+            callbackId
           }
         };
         const s = url.search('/');
@@ -91,7 +96,7 @@ class App extends Router {
         /**
          * send request
          */
-        socket.emit('I_HAVE_A_REQUEST', req)
+        this.socket.emit('I_HAVE_A_REQUEST', req)
       } catch(e) {
         console.log(`${SeashellChalk} REQUEST_ERROR ${e.message||e}`);
         reject(e)
@@ -122,12 +127,10 @@ class App extends Router {
   connect = (opts={}) => {
     if (this.state.isStarted) return false;
     console.log(`${SeashellChalk} connecting ${opts.url}`);
-    const {handleRequest} = this;
-    const socket = SocketIOClient(opts.url);
+    const socket = this.socket = SocketIOClient(opts.url);
     Object.assign(this.state, {
       opts: opts,
       isStarted: true,
-      socket: socket
     });
 
     socket.on('connect', () => {
@@ -142,7 +145,9 @@ class App extends Router {
      */
     socket.on('YOUR_REGISTER_HAS_RESPONSE', (response) => {
       console.log(`${SeashellChalk} registered`);
-      this.state.isRegistered = true
+      console.log(response)
+      this.state.appName= response.socketData.appName;
+      this.state.isRegistered = true;
     });
 
     /**
@@ -154,7 +159,7 @@ class App extends Router {
     /**
      * handle request
      */
-    socket.on('PLEASE_HANDLE_THIS_REQUEST', handleRequest);
+    socket.on('PLEASE_HANDLE_THIS_REQUEST', this.handleRequest);
 
     /**
      * listing disconnect event

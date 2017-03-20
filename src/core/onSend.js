@@ -1,7 +1,7 @@
-import {SeashellDebug} from './debug'
+import {SeashellDebug} from "./debug"
 
 
-const onSend = async function(socket, req) {
+const onSend = async function (socket, req) {
 
   const {io, integrations, integrations: {service}, requestIntegration, integrationEmitterStack} = this;
 
@@ -19,8 +19,12 @@ const onSend = async function(socket, req) {
      */
     if (!isIntegration) {
       const reqService = await service.handler('socket', {
-        action: 'detail',
-        socketId: socket.id
+        request: {
+          body: {
+            action: 'detail',
+            socketId: socket.id
+          }
+        }
       });
       SeashellDebug('INFO', `${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`);
     } else {
@@ -40,10 +44,18 @@ const onSend = async function(socket, req) {
         socket.emit('YOUR_REQUEST_HAS_RESPONSE', result);
       }
     } else {
-      const resServiceId = await service.handler('socket', { action: 'balance', importAppName});
+      const resServiceId = await service.handler('socket', {
+        request:
+          {
+            body: {
+              action: 'balance',
+              importAppName
+            }
+          }
+      });
       io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
     }
-  } catch(e) {
+  } catch (e) {
     SeashellDebug('ERROR', 'send failed', e);
     const res = {
       headers: {

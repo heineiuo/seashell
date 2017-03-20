@@ -13,9 +13,13 @@ const register = function(socket, registerInfo) {
     try {
       if (!socket.id) throw new Error('LOST_SOCKET_ID');
       const socketData = await service.handler('socket', {
-        action: 'bindApp',
-        socketId: socket.id,
-        registerInfo
+        request: {
+          body: {
+            action: 'bindApp',
+            socketId: socket.id,
+            registerInfo
+          }
+        }
       });
       SeashellDebug('INFO', `register success`, registerInfo.appId);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData});
