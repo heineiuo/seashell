@@ -1,4 +1,4 @@
-import {findTargetLocation, pickLocation} from '../src/http/pickLocation'
+import {findTargetLocation, pickLocation} from '../integrations/http/pickLocation'
 import Url from 'url'
 
 const locations = [

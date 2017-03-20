@@ -1,3 +1,12 @@
+/**
+ * This is an example integration, you should not use it directly in production.
+ *
+ * This integration shows how to proxy a http request to seashell,
+ * this means you can write http api by seashell technology, then the only thing you
+ * need do is the proxy.
+ * This integration also show how to control an http service(like stop or restart), from seashell
+ */
+
 import createAutoSNIServer from 'auto-sni'
 import morgan from 'morgan'
 import compression from 'compression'
