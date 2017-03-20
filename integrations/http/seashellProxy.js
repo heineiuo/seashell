@@ -43,7 +43,7 @@ const seashellProxyMiddleware = () => {
       });
 
       const content = location.content;
-      const requestUrl = url.href.substring(content.length);
+      const requestUrl = url.pathname.substring(content.length);
       const result = await gateway.request(requestUrl, data);
 
       if (result.headers.hasOwnProperty('__HTML')) {
