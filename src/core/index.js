@@ -19,6 +19,7 @@ import {onSend} from './onSend'
 import {onRequest} from './onRequest'
 import {onResponse} from './onResponse'
 import {onDisconnect} from './onDisconnect'
+import {proxyIntegration} from './proxyIntegration'
 import {requestIntegration} from './requestIntegration'
 import App from './App/App'
 
@@ -34,6 +35,7 @@ class Seashell extends App {
   integrations = {};
   integrate = integrate.bind(this);
   requestIntegration = requestIntegration.bind(this);
+  proxyIntegration = proxyIntegration.bind(this);
   register = register.bind(this);
   onConnection = onConnection.bind(this);
   onSend = onSend.bind(this);

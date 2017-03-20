@@ -1,8 +1,15 @@
+/**
+ * 内部请求流程
+ *
+ * 1. 集成app1, 给app1添加虚拟的socket，
+ * 2. 集成app2，同上
+ * 3. seashell请求app1，首先执行requestIntegration, 模拟socket和ctx
+ */
+
 import {SeashellDebug} from './debug'
 
 const integrate = function(integration){
   const {app, name} = integration;
-  app.handler = integration.handler;
   app.state.isOnlie = true;
   app.state.isRegistered = true;
   app.socket = {

@@ -13,12 +13,12 @@ const onResponse = async function (socket, res) {
   const {appId, appName, isFromIntegration, importAppName, originUrl, __SEASHELL_START, callbackId} = res.headers;
 
   try {
-    if (!callbackId) {
-      return SeashellDebug('ERROR',
-        `[unknown] --> [${importAppName}${originUrl}]` +
-        `[ERROR][ILLEGAL_HEADER][${Date.now() - __SEASHELL_START}ms]`
-      );
-    }
+    // if (!callbackId) {
+    //   return SeashellDebug('ERROR',
+    //     `[unknown] --> [${importAppName}${originUrl}]` +
+    //     `[ERROR][ILLEGAL_HEADER][${Date.now() - __SEASHELL_START}ms]`
+    //   );
+    // }
 
     if (isFromIntegration) {
       return integrations[appName].socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
@@ -28,15 +28,15 @@ const onResponse = async function (socket, res) {
      * 根据appId找到socket
      * 如果目标在线, 发送消息
      */
-    const reqSocket = await service.handler('socket', {
-      request: {
-        body: {
-          action: 'findByAppId',
-          appId: res.headers.appId
-        }
-      }
+    const reqSocket = await this.requestIntegration('service', {
+      reducerName: 'socket',
+      action: 'findByAppId',
+      appId: res.headers.appId
     });
-    io.sockets.connected[reqSocket.socketId].emit('YOUR_REQUEST_HAS_RESPONSE', res);
+    const targetFromSocket = io.sockets.connected[reqSocket.socketId];
+    if (!targetFromSocket) throw new Error('GET_SOCKET_FAIL');
+    Object.assign(res.headers, {appId, callbackId});
+    targetFromSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
     SeashellDebug('INFO',
       `[${reqSocket.appName}] --> [${importAppName}${originUrl}]` +
       `[DONE][${Date.now() - __SEASHELL_START}ms]`

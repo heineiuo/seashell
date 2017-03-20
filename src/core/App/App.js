@@ -4,6 +4,7 @@ import Router from './Router'
 import Emitter from './Emitter'
 import chalk from 'chalk'
 import {Context} from './Context'
+import {splitUrl} from './splitUrl'
 
 const SeashellChalk = (msg) => chalk.blue.bold(`[Seashell] ${msg}`);
 
@@ -33,7 +34,6 @@ class App extends Router {
   handleRequest = async (req) => {
     try {
       console.log(SeashellChalk(`handle request: ${req.headers.originUrl}`));
-      Object.assign(req, {params: {}});
       const ctx = new Context(this.socket, req);
       this.handleLoop(ctx);
     } catch(e){
@@ -65,22 +65,13 @@ class App extends Router {
         const callbackId = uuid.v4();
         const req = {
           body: data,
-          headers: {
+          headers: Object.assign({
             appName,
             appId,
             callbackId
-          }
+          }, splitUrl(url))
         };
-        const s = url.search('/');
-        if ( s < 0 ) {
-          req.headers.importAppName = url;
-          req.headers.originUrl = '/'
-        } else {
-          const sUrl = s==0?url.substr(1):url;
-          let ss = sUrl.search('/');
-          req.headers.importAppName = ss > -1?sUrl.substring(0, ss):sUrl;
-          req.headers.originUrl = ss > -1? sUrl.substring(ss):'/'
-        }
+
 
         /**
          * set callback

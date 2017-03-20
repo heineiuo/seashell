@@ -1,15 +1,9 @@
 import {SeashellDebug} from './debug'
 
-
 const onRequest = async function(socket, req) {
 
-  const {
-    io,
-    integrations,
-    integrations: {service},
-    requestIntegration,
-  } = this;
-  const {importAppName, originUrl, __SEASHELL_START, appName} = req.headers;
+  const {io, integrations, requestIntegration, proxyIntegration} = this;
+  const {importAppName, originUrl, __SEASHELL_START, appName, appId, callbackId} = req.headers;
   const isFromIntegration = socket.hasOwnProperty('isFromIntegration');
   const isToIntegration = integrations.hasOwnProperty(importAppName);
 
@@ -17,7 +11,6 @@ const onRequest = async function(socket, req) {
     if (!req.headers.callbackId) throw new Error('LOST_CALLBACK_ID');
     req.headers.__SEASHELL_START = Date.now();
     req.headers.isFromIntegration = isFromIntegration;
-
 
     /**
      * 1. 获取用户session
@@ -27,7 +20,7 @@ const onRequest = async function(socket, req) {
 
     try {
       // console.log('START REQUEST FOR USER SESSION');
-      const requestSession = await service.handler('account', {
+      const requestSession = await requestIntegration('account', {
         reducerName: 'token',
         action: 'session',
         token: req.body.token,
@@ -40,11 +33,17 @@ const onRequest = async function(socket, req) {
     if (isFromIntegration) {
       // SeashellDebug('INFO', `[integrate] --> ${importAppName}${originUrl}`);
     } else {
-      const reqService = await service.handler('socket', {
-        action: 'detail',
-        socketId: socket.id
-      });
-      // SeashellDebug('INFO', `${reqService.appName} --> ${importAppName}${originUrl}`);
+      try {
+        const reqService = await requestIntegration('service', {
+          reducerName: 'socket',
+          action: 'detail',
+          socketId: socket.id
+        });
+        // SeashellDebug('INFO', `${reqService.appName} --> ${importAppName}${originUrl}`);
+      } catch(e){
+        console.log(e)
+      }
+
     }
 
     /**
@@ -54,20 +53,24 @@ const onRequest = async function(socket, req) {
      */
     if (isToIntegration) {
 
-      const res = await requestIntegration(importAppName, req);
+      const res = await proxyIntegration(importAppName, req);
       // if (isFromIntegration) {
       //   integrationEmitterStack[req.headers.callbackId].emit('RESPONSE', res);
       // } else {
-        socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
+      socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
       // }
 
     } else {
-      const resServiceId = await service.handler('socket', {request: {body: { action: 'balance', importAppName}}});
+      const resServiceId = await requestIntegration('service', {
+        reducerName: 'socket',
+        action: 'balance',
+        importAppName
+      });
       // console.log('resServiceId: '+resServiceId)
       // console.log(io.sockets.connected[resServiceId]);
       const targetSocket = io.sockets.connected[resServiceId];
       if (!targetSocket) throw new Error('TARGET_SERVICE_OFFLINE');
-      io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)
+      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', req)
     }
   } catch(err) {
     req.headers.status = 'ERROR';

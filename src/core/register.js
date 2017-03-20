@@ -7,19 +7,15 @@ import {SeashellDebug} from './debug'
  * @param registerInfo
  */
 const register = function(socket, registerInfo) {
-  const {integrations: {service, account}} = this;
 
   return new Promise(async (resolve, reject) => {
     try {
       if (!socket.id) throw new Error('LOST_SOCKET_ID');
-      const socketData = await service.handler('socket', {
-        request: {
-          body: {
-            action: 'bindApp',
-            socketId: socket.id,
-            registerInfo
-          }
-        }
+      const socketData = await this.requestIntegration('service', {
+        reducerName: 'socket',
+        action: 'bindApp',
+        socketId: socket.id,
+        registerInfo
       });
       SeashellDebug('INFO', `register success`, registerInfo.appId);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData});

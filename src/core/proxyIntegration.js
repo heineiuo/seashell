@@ -1,13 +1,9 @@
 import {SeashellDebug} from './debug'
 import {Context} from './App/Context'
-import {splitUrl} from './App/splitUrl'
 
-const requestIntegration = function(url, body) {
+const proxyIntegration = function(importAppName, request) {
   try {
-    const headers = Object.assign({
-      isFromIntegration: true,
-    }, splitUrl(url));
-    const {handleLoop} = this.integrations[headers.importAppName];
+    const {handleLoop} = this.integrations[importAppName];
     return new Promise(async (resolve, reject) => {
       // SeashellDebug('INFO', 'handle integrate request', req);
       try {
@@ -19,7 +15,7 @@ const requestIntegration = function(url, body) {
               reject()
             }
           }
-        }, {headers, body});
+        }, request);
         handleLoop(ctx);
       } catch(e){
         reject(e)
@@ -33,5 +29,5 @@ const requestIntegration = function(url, body) {
 };
 
 export {
-  requestIntegration
+  proxyIntegration
 }
