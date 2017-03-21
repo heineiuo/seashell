@@ -1,4 +1,5 @@
-import Emitter from './Emitter'
+import Emitter from 'events'
+import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
 
 class Context extends Emitter {
   constructor(socket, req){
@@ -10,7 +11,7 @@ class Context extends Emitter {
       headers: req.headers,
       body: {},
       send: (packet) => {
-        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
+        socket.emit(I_HAVE_HANDLE_THIS_REQUEST, {
           headers: this.response.headers,
           body: packet
         })
@@ -18,7 +19,7 @@ class Context extends Emitter {
       end: () => {
         this.state.isHandled = true;
         this.emit('end');
-        socket.emit('I_HAVE_HANDLE_THIS_REQUEST', {
+        socket.emit(I_HAVE_HANDLE_THIS_REQUEST, {
           headers: this.response.headers,
           body: this.response.body
         })

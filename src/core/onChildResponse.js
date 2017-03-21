@@ -3,7 +3,7 @@ import {SeashellDebug} from "./debug"
 /**
  * handle `callback`
  */
-const onResponse = async function (socket, res) {
+const onChildResponse = async function (socket, res) {
   const {
     integrations,
     integrations: {service},
@@ -50,5 +50,5 @@ const onResponse = async function (socket, res) {
 };
 
 export {
-  onResponse
+  onChildResponse
 }

@@ -1,0 +1,7 @@
+export const I_HAVE_HANDLE_THIS_REQUEST = 'I_HAVE_HANDLE_THIS_REQUEST';
+export const I_HAVE_A_REQUEST = 'I_HAVE_A_REQUEST';
+export const ADD_SEND = 'ADD_SEND';
+
+export const ADD_REQUEST = 'ADD_REQUEST';
+export const ADD_RESPONSE = 'ADD_RESPONSE';
+export const END_RESPONSE = 'END_RESPONSE';

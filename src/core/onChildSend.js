@@ -1,7 +1,7 @@
 import {SeashellDebug} from "./debug"
 
 
-const onSend = async function (socket, req) {
+const onChildSend = async function (socket, req) {
 
   const {
     io, integrations, integrations: {service},
@@ -61,5 +61,5 @@ const onSend = async function (socket, req) {
 };
 
 export {
-  onSend
+  onChildSend
 }

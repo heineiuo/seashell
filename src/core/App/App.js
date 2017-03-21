@@ -1,10 +1,10 @@
-import uuid from 'uuid'
 import SocketIOClient from 'socket.io-client'
 import Router from './Router'
-import Emitter from './Emitter'
 import chalk from 'chalk'
-import {Context} from './Context'
-import {splitUrl} from './splitUrl'
+import {request} from './request'
+import {send} from './send'
+import {onRequest} from './onRequest'
+import {onResponse} from './onResponse'
 
 const SeashellChalk = (msg) => chalk.blue.bold(`[Seashell] ${msg}`);
 
@@ -27,73 +27,8 @@ class App extends Router {
     importEmitterStack: {}
   };
 
-  /**
-   * receive & handle message from hub
-   * @param req
-   */
-  handleRequest = async (req) => {
-    try {
-      console.log(SeashellChalk(`handle request: ${req.headers.originUrl}`));
-      const ctx = new Context(this.socket, req);
-      this.handleLoop(ctx);
-    } catch(e){
-      console.log(e)
-    }
-
-  };
-
-
-  /**
-   * push a request to MQ hub.
-   * @param url `/${appname}/${originUrl}`
-   * @param data
-   * @returns {Promise}
-   *
-   * use `socket.emit` to push request
-   * push a event callback to importEmitterStack every request
-   * listening on `RESPONSE` event and return data
-   */
-  request = (url, data={}) => {
-    if (typeof data != 'object') throw `request data must be an object.`;
-    const {importEmitterStack, appId, appName} = this.state;
-    return new Promise( (resolve, reject) => {
-      try {
-        // if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE");
-        /**
-         * parse url, create req object
-         */
-        const callbackId = uuid.v4();
-        const req = {
-          body: data,
-          headers: Object.assign({
-            appName,
-            appId,
-            callbackId
-          }, splitUrl(url))
-        };
-
-
-        /**
-         * set callback
-         * @type {Emitter}
-         */
-        importEmitterStack[callbackId] = new Emitter();
-        importEmitterStack[callbackId].on('RESPONSE', (res) => {
-          resolve(res);
-          delete importEmitterStack[callbackId];
-          return null
-        });
-
-        /**
-         * send request
-         */
-        this.socket.emit('I_HAVE_A_REQUEST', req)
-      } catch(e) {
-        console.log(SeashellChalk(`REQUEST_ERROR ${e.message||e}`));
-        reject(e)
-      }
-    })
-  };
+  request = request.bind(this);
+  send = send.bind(this);
 
   /**
    * request stream
@@ -102,13 +37,8 @@ class App extends Router {
     // todo
   };
 
-  handleResponse = (res) => {
-    const {importEmitterStack} = this.state;
-    const {callbackId} = res.headers;
-    importEmitterStack[callbackId].emit('RESPONSE', res);
-    delete importEmitterStack[callbackId];
-    this.state.importEmitterStack = importEmitterStack
-  };
+
+  onResponse = onResponse.bind(this);
 
   /**
    * connect to MQ hub.
@@ -136,7 +66,7 @@ class App extends Router {
      */
     socket.on('YOUR_REGISTER_HAS_RESPONSE', (response) => {
       console.log(SeashellChalk(` registered`));
-      console.log(response)
+      console.log(response);
       this.state.appName= response.socketData.appName;
       this.state.isRegistered = true;
     });
@@ -145,12 +75,12 @@ class App extends Router {
      * handle response
      * response should have `callbackId` key.
      */
-    socket.on('YOUR_REQUEST_HAS_RESPONSE', this.handleResponse);
+    socket.on('YOUR_REQUEST_HAS_RESPONSE', this.onResponse);
 
     /**
      * handle request
      */
-    socket.on('PLEASE_HANDLE_THIS_REQUEST', this.handleRequest);
+    socket.on('PLEASE_HANDLE_THIS_REQUEST', onRequest.bind(this));
 
     /**
      * listing disconnect event

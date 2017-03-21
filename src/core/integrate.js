@@ -17,7 +17,7 @@ const integrate = function(integration){
     emit: (type, data) => {
       const {importAppName, originUrl, __SEASHELL_START, status='DONE'} = data.headers;
       if (type == 'I_HAVE_A_REQUEST') {
-        return this.onRequest(app.socket, data)
+        return this.onChildRequest(app.socket, data)
       }
       if (type == 'YOUR_REQUEST_HAS_RESPONSE') {
         SeashellDebug(status == 'ERROR'?'ERROR':'INFO',
@@ -26,10 +26,10 @@ const integrate = function(integration){
           (status == 'ERROR'? `[${data.body.error}]` : '' )+
           `[${Date.now() - __SEASHELL_START}ms]`
         );
-        return app.handleResponse(data)
+        return app.onResponse(data)
       }
       if (type == 'I_HAVE_HANDLE_THIS_REQUEST') {
-        return this.onResponse(app.socket, data)
+        return this.onChildResponse(app.socket, data)
       }
     }
   };

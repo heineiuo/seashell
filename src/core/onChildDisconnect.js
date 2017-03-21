@@ -1,6 +1,6 @@
 import {SeashellDebug} from './debug'
 
-const onDisconnect = function(socket) {
+const onChildDisconnect = function(socket) {
   const deleteSocket = async(socketId, retry = 0) => {
     try {
       SeashellDebug('INFO', `${socketId} disconnected`);
@@ -16,5 +16,5 @@ const onDisconnect = function(socket) {
 };
 
 export {
-  onDisconnect
+  onChildDisconnect
 }

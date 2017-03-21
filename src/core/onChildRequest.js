@@ -1,6 +1,6 @@
 import {SeashellDebug} from './debug'
 
-const onRequest = async function(socket, req) {
+const onChildRequest = async function(socket, req) {
 
   const {io, integrations, requestIntegration, proxyIntegration} = this;
   const {importAppName, originUrl, __SEASHELL_START, appName, appId, callbackId} = req.headers;
@@ -81,5 +81,5 @@ const onRequest = async function(socket, req) {
 };
 
 export {
-  onRequest
+  onChildRequest
 }

@@ -1,6 +1,12 @@
 import Url from 'url'
 import {SeashellDebug} from './debug'
 
+import {onChildSend} from './onChildSend'
+import {onChildRequest} from './onChildRequest'
+import {onChildResponse} from './onChildResponse'
+import {onChildDisconnect} from './onChildDisconnect'
+import {register} from './register'
+
 /**
  * handle socket connection
  */
@@ -12,11 +18,9 @@ const onConnection = async function(socket) {
 
   // SeashellDebug('INFO', `new connection ${socket.id}`);
   const url = socket.url = Url.parse(socket.request.url, {parseQueryString: true});
-
   SeashellDebug('INFO', `[CONNECTION][${url.query.appName}][${url.query.appId}]`);
-
   try {
-    await this.register(socket, url.query);
+    await register.call(this, socket, url.query);
   } catch (e) {
     SeashellDebug('ERROR', e);
     return socket.disconnect(true)
@@ -26,25 +30,25 @@ const onConnection = async function(socket) {
    * service want to request another service
    */
   socket.on('I_HAVE_A_REQUEST', (request) => {
-    this.onRequest(socket, request)
+    onChildRequest.call(this, socket, request)
   });
 
   /**
    * service has handled request from another, transfer data back to that.
    */
   socket.on('I_HAVE_HANDLE_THIS_REQUEST', (response) => {
-    this.onResponse(socket, response)
+    onChildResponse.call(this, socket, response)
   });
 
   socket.on('I_HAVE_A_SEND', (message) => {
-    this.onSend(socket, message)
+    onChildSend.call(this, socket, message)
   });
 
   /**
    * handle disconnect
    */
   socket.on('disconnect', () => {
-    this.onDisconnect(socket)
+    onChildDisconnect.call(this, socket)
   })
 };
 
