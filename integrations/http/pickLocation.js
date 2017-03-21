@@ -18,7 +18,7 @@ const pickLocationMiddleware = () => {
       // console.log(requestHost.body);
       // if (requestHost.body.error) throw new Error(requestHost.body.error);
       // console.log('START REQUEST GATEWAY FOR LOCATION INFOMATION')
-      const requestLocations = await gateway.request('gateway', {reducerName: 'location', hostname: host, action: 'list'});
+      const requestLocations = await gateway.request('gateway/location/list', { hostname: host});
       if (requestLocations.body.error) throw new Error(requestLocations.body.error);
       const {locations} = requestLocations.body.location;
       // console.log('locations: '+JSON.stringify(locations));

@@ -21,9 +21,7 @@ const onSend = async function (socket, req) {
      * 如果请求来自集成服务, 跳过验证
      */
     if (!isIntegration) {
-      const reqService = await requestIntegration('service', {
-        reducerName: 'socket',
-        action: 'detail',
+      const reqService = await requestIntegration('service/socket/detail', {
         socketId: socket.id
       });
       SeashellDebug('INFO', `${reqService.appName} --> ${req.headers.importAppName}${req.headers.originUrl}`);
@@ -44,9 +42,7 @@ const onSend = async function (socket, req) {
         socket.emit('YOUR_REQUEST_HAS_RESPONSE', result);
       }
     } else {
-      const resServiceId = await requestIntegration('service', {
-        reducerName: 'socket',
-        action: 'balance',
+      const resServiceId = await requestIntegration('service/socket/balance', {
         importAppName
       });
       io.sockets.connected[resServiceId].emit('PLEASE_HANDLE_THIS_REQUEST', req)

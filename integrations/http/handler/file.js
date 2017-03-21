@@ -5,9 +5,7 @@ const handleFILE = (res, hostname, pathname, reqpath) => new Promise(async(resol
 
   try {
 
-    const result = await res.gateway.request('gateway', {
-      action: 'cat',
-      reducerName: 'file',
+    const result = await res.gateway.request('gateway/fs/cat', {
       hostname,
       pathname: `/public${reqpath}`
     });

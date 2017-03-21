@@ -4,7 +4,7 @@ const onDisconnect = function(socket) {
   const deleteSocket = async(socketId, retry = 0) => {
     try {
       SeashellDebug('INFO', `${socketId} disconnected`);
-      await this.requestIntegration('service', { reducerName: 'socket', action: 'remove', socketId})
+      await this.requestIntegration('service/socket/remove', {socketId})
     } catch (e) {
       if (retry < 3) {
         retry++;

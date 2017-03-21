@@ -20,9 +20,7 @@ const onRequest = async function(socket, req) {
 
     try {
       // console.log('START REQUEST FOR USER SESSION');
-      const requestSession = await requestIntegration('account', {
-        reducerName: 'token',
-        action: 'session',
+      const requestSession = await requestIntegration('/account/session', {
         token: req.body.token,
       });
       Object.assign(req.headers, {session: requestSession.body});
@@ -34,9 +32,7 @@ const onRequest = async function(socket, req) {
       // SeashellDebug('INFO', `[integrate] --> ${importAppName}${originUrl}`);
     } else {
       try {
-        const reqService = await requestIntegration('service', {
-          reducerName: 'socket',
-          action: 'detail',
+        const reqService = await requestIntegration('service/socket/detail', {
           socketId: socket.id
         });
         // SeashellDebug('INFO', `${reqService.appName} --> ${importAppName}${originUrl}`);
@@ -61,9 +57,7 @@ const onRequest = async function(socket, req) {
       // }
 
     } else {
-      const resServiceId = await requestIntegration('service', {
-        reducerName: 'socket',
-        action: 'balance',
+      const resServiceId = await requestIntegration('service/socket/balance', {
         importAppName
       });
       // console.log('resServiceId: '+resServiceId)
