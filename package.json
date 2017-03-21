@@ -37,7 +37,6 @@
     "prettyjson": "^1.2.1",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.7.3",
-    "sprucejs": "^0.3.0",
     "ua-parser-js": "^0.7.12",
     "uuid": "~2.0.2"
   },
