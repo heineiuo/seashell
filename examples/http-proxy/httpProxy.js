@@ -6,7 +6,7 @@ import httpProxy from 'http-proxy'
 const httpProxyMiddleware = (app) => {
 
   const proxy = httpProxy.createProxyServer({
-    // protocolRewrite: 'http'
+    // protocolRewrite: 'http-proxy'
   });
 
   proxy.on('error', (err, req, res) => {

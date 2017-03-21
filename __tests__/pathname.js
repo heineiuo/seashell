@@ -1,4 +1,4 @@
-import {findTargetLocation, pickLocation} from '../integrations/gateway/http/pickLocation'
+import {findTargetLocation, pickLocation} from '../examples/http-proxy/pickLocation'
 import Url from 'url'
 
 const locations = [
