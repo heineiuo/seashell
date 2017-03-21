@@ -1,9 +1,9 @@
 import prettyjson from 'prettyjson'
-import chalk from 'chalk'
+import * as log from './log'
 
 
 const SeashellDebug = (type, ...logs) => {
-  let result = `[SEASHELL][${type}]`;
+  let result = `[${type}]`;
   logs.forEach((log, index) => {
     if (index > 0) result += '\n';
     if (typeof log == 'string') {
@@ -17,11 +17,9 @@ const SeashellDebug = (type, ...logs) => {
     }
   });
 
-  console.log(
-    type == 'ERROR' ?
-      chalk.red.bold(result):
-      chalk.white(result)
-  );
+  type == 'ERROR' ?
+    log.error(result):
+    log.info(result)
 
 };
 

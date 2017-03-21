@@ -1,12 +1,11 @@
 import SocketIOClient from 'socket.io-client'
 import Router from './Router'
-import chalk from 'chalk'
 import {request} from './request'
 import {send} from './send'
 import {onRequest} from './onRequest'
 import {onResponse} from './onResponse'
-
-const SeashellChalk = (msg) => chalk.blue.bold(`[Seashell] ${msg}`);
+import * as log from '../log'
+import {bindEventHandlers} from './bindEventHandlers'
 
 class App extends Router {
 
@@ -47,48 +46,14 @@ class App extends Router {
    */
   connect = (opts={}) => {
     if (this.state.isStarted) return false;
-    console.log(SeashellChalk(`connecting ${opts.url}`));
+    log.info(`connecting ${opts.url}`);
     const socket = this.socket = SocketIOClient(opts.url);
     Object.assign(this.state, {
       opts: opts,
       isStarted: true,
     });
 
-    socket.on('connect', () => {
-      console.log(SeashellChalk(` connected`));
-      this.state.isOnline = true;
-    });
-
-    /**
-     * handle hub's response about register
-     * if there's some error, means register has failed
-     * otherwise, it succeed
-     */
-    socket.on('YOUR_REGISTER_HAS_RESPONSE', (response) => {
-      console.log(SeashellChalk(` registered`));
-      console.log(response);
-      this.state.appName= response.socketData.appName;
-      this.state.isRegistered = true;
-    });
-
-    /**
-     * handle response
-     * response should have `callbackId` key.
-     */
-    socket.on('YOUR_REQUEST_HAS_RESPONSE', this.onResponse);
-
-    /**
-     * handle request
-     */
-    socket.on('PLEASE_HANDLE_THIS_REQUEST', onRequest.bind(this));
-
-    /**
-     * listing disconnect event
-     */
-    socket.on('disconnect', () => {
-      console.log(SeashellChalk(` lost connection`));
-      this.state.isOnline = false
-    })
+    bindEventHandlers.call(this, socket)
   };
 
   /**
@@ -100,7 +65,7 @@ class App extends Router {
       const {socket} = this.state;
       socket.disconnect()
     }
-    console.log(SeashellChalk(` disconnected`))
+    log.info(` disconnected`)
   }
 }
 

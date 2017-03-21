@@ -12,11 +12,15 @@
  */
 
 import SocketIO from 'socket.io'
+import App from './App/App'
 import {integrate} from './integrate'
 import {onConnection} from './onConnection'
 import {proxyIntegration} from './proxyIntegration'
 import {requestIntegration} from './requestIntegration'
-import App from './App/App'
+import {onChildRequest} from './onChildRequest'
+import {onChildResponse} from './onChildResponse'
+import {onChildSend} from './onChildSend'
+import {onChildDisconnect} from './onChildDisconnect'
 
 class Seashell extends App {
 
@@ -31,6 +35,10 @@ class Seashell extends App {
   integrate = integrate.bind(this);
   requestIntegration = requestIntegration.bind(this);
   proxyIntegration = proxyIntegration.bind(this);
+  onChildRequest = onChildRequest.bind(this);
+  onChildResponse = onChildResponse.bind(this);
+  onChildSend = onChildSend.bind(this);
+  onChildDisconnect = onChildDisconnect.bind(this);
 
 
 }

@@ -37,7 +37,7 @@ const onChildRequest = async function(socket, req) {
         });
         // SeashellDebug('INFO', `${reqService.appName} --> ${importAppName}${originUrl}`);
       } catch(e){
-        console.log(e)
+        SeashellDebug('ERROR', e)
       }
 
     }

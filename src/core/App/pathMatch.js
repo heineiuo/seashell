@@ -1,3 +1,4 @@
+import * as log from '../log'
 
 
 const pathMatch = (re, pathname, params={}) => {

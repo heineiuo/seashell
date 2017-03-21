@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.9.0",
+  "version": "0.10.0-beta2",
   "main": "./lib/index.js",
   "browser": "./dist/seashell-client.js",
   "description": "Create socket pool to `require` denpendent services easily.",
@@ -37,6 +37,7 @@
     "prettyjson": "^1.2.1",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.7.3",
+    "socket.io-stream": "^0.9.1",
     "ua-parser-js": "^0.7.12",
     "uuid": "~2.0.2"
   },

@@ -1,5 +1,6 @@
 import Emitter from 'events'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
+import * as log from '../log'
 
 class Context extends Emitter {
   constructor(socket, req){

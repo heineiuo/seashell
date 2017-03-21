@@ -17,11 +17,9 @@
 
 import {splitUrl} from './splitUrl'
 import Emitter from 'events'
-import {Duplex} from 'stream'
 import uuid from 'uuid'
-import chalk from 'chalk'
-const SeashellChalk = (msg) => chalk.blue.bold(`[Seashell] ${msg}`);
 import {I_HAVE_A_REQUEST} from './emit-types'
+import * as log from '../log'
 
 /**
  * push a request to MQ hub.
@@ -69,7 +67,7 @@ const request = function (url, data={}) {
        */
       this.socket.emit(I_HAVE_A_REQUEST, req)
     } catch(e) {
-      console.log(SeashellChalk(`REQUEST_ERROR ${e.message||e}`));
+      log.info(`REQUEST_ERROR ${e.message||e}`);
       reject(e)
     }
   })

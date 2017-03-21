@@ -1,3 +1,5 @@
+import * as log from '../log'
+
 const onResponse = function (res) {
   const {importEmitterStack} = this.state;
   const {callbackId} = res.headers;
