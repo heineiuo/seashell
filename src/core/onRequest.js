@@ -1,5 +1,5 @@
 import {Context} from './Context'
-import * as log from '../log'
+import * as log from './log'
 
 /**
  * receive & handle message from hub
@@ -13,7 +13,6 @@ const onRequest = async (req) => {
   } catch(e){
     log.info(e.message)
   }
-
 };
 
 export {

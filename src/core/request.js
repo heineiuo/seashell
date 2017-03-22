@@ -19,52 +19,47 @@ import {splitUrl} from './splitUrl'
 import Emitter from 'events'
 import uuid from 'uuid'
 import {I_HAVE_A_REQUEST} from './emit-types'
-import * as log from '../log'
+import * as log from './log'
 
 /**
  * push a request to MQ hub.
  * @param url `/${appname}/${originUrl}`
  * @param data
+ * @param options
  * @returns {Promise}
  *
  * use `socket.emit` to push request
  * push a event callback to importEmitterStack every request
  * listening on `RESPONSE` event and return data
  */
-const request = function (url, data={}) {
+const request = function (url, data={}, options={needCallback: true}) {
   if (typeof data != 'object') throw `request data must be an object.`;
-  const {importEmitterStack, appId, appName} = this.state;
+  const {needCallback} = options;
   return new Promise( (resolve, reject) => {
     try {
-      // if (!this.state.isOnline) return reject("YOUR_SERVICE_IS_OFFLINE");
+      if (this.appState != 3) return reject("YOUR_SERVICE_IS_OFFLINE");
       /**
        * parse url, create req object
        */
-      const callbackId = uuid.v4();
       const req = {
         body: data,
         headers: Object.assign({
-          appName,
-          appId,
-          callbackId
+          appName: this.appOptions.appName,
+          appId: this.appOptions.appId,
         }, splitUrl(url))
       };
 
+      if (needCallback){
+        const callbackId = uuid.v4();
+        req.headers.callbackId = callbackId;
+        this.importEmitterStack[callbackId] = new Emitter();
+        this.importEmitterStack[callbackId].on('RESPONSE', (res) => {
+          resolve(res);
+          delete this.importEmitterStack[callbackId];
+          return null
+        });
+      }
 
-      /**
-       * set callback
-       * @type {Emitter}
-       */
-      importEmitterStack[callbackId] = new Emitter();
-      importEmitterStack[callbackId].on('RESPONSE', (res) => {
-        resolve(res);
-        delete importEmitterStack[callbackId];
-        return null
-      });
-
-      /**
-       * send request
-       */
       this.socket.emit(I_HAVE_A_REQUEST, req)
     } catch(e) {
       log.info(`REQUEST_ERROR ${e.message||e}`);

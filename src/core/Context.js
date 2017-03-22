@@ -1,6 +1,6 @@
 import Emitter from 'events'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
-import * as log from '../log'
+import * as log from './log'
 
 class Context extends Emitter {
   constructor(socket, req){
@@ -11,19 +11,14 @@ class Context extends Emitter {
     this.response = {
       headers: req.headers,
       body: {},
-      send: (packet) => {
-        socket.emit(I_HAVE_HANDLE_THIS_REQUEST, {
-          headers: this.response.headers,
-          body: packet
-        })
-      },
       end: () => {
+        if (this.state.isHandled) throw new Error('ctx.response.end has been called!');
         this.state.isHandled = true;
-        this.emit('end');
         socket.emit(I_HAVE_HANDLE_THIS_REQUEST, {
           headers: this.response.headers,
           body: this.response.body
-        })
+        });
+        this.emit('end');
       }
     };
   }

@@ -12,34 +12,34 @@
  */
 
 import SocketIO from 'socket.io'
-import App from './App/App'
-import {integrate} from './integrate'
+import App from './App'
 import {onConnection} from './onConnection'
-import {proxyIntegration} from './proxyIntegration'
-import {requestIntegration} from './requestIntegration'
 import {onChildRequest} from './onChildRequest'
 import {onChildResponse} from './onChildResponse'
-import {onChildSend} from './onChildSend'
 import {onChildDisconnect} from './onChildDisconnect'
+import {requestSession} from './requestSession'
+import {requestChild} from './requestChild'
 
 class Seashell extends App {
 
   constructor () {
     super();
     this.io = new SocketIO();
-    this.io.on('connection', onConnection.bind(this));
+    this.io.on('connection', this.onConnection);
   }
 
-  integrationEmitterStack = {};
-  integrations = {};
-  integrate = integrate.bind(this);
-  requestIntegration = requestIntegration.bind(this);
-  proxyIntegration = proxyIntegration.bind(this);
+  __SEASHELL_NAME = 'seashell';
+  __SEASHELL_SESSION_URL = '/token/session';
+  __SEASHELL_PICK_APP_URL = '/app/pickItem';
+  __SEASHELL_BIND_SOCKET_URL = '/socket/create';
+  __SEASHELL_UNBIND_SOCKET_URL = '/socket/remove';
+
+  onConnection = onConnection.bind(this);
   onChildRequest = onChildRequest.bind(this);
   onChildResponse = onChildResponse.bind(this);
-  onChildSend = onChildSend.bind(this);
   onChildDisconnect = onChildDisconnect.bind(this);
-
+  requestChild = requestChild.bind(this);
+  requestSession = requestSession.bind(this);
 
 }
 

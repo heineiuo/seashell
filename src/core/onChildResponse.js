@@ -1,50 +1,44 @@
 import {SeashellDebug} from "./debug"
 
-/**
- * handle `callback`
- */
 const onChildResponse = async function (socket, res) {
-  const {
-    integrations,
-    integrations: {service},
-    io
-  } = this;
 
-  const {appId, appName, isFromIntegration, importAppName, originUrl, __SEASHELL_START, callbackId} = res.headers;
+  const {appName, callbackId, importAppName, originUrl, __SEASHELL_START} = res.headers;
+
+  /**
+   * 如果没有callbackId, drop这个处理（用于send请求，仅发送消息）
+   * 如果请求来自requestChild, 触发callback emit
+   * 否则根据appName和appId找到socket，
+   * 存在不在线的情况，需要做丢弃或者离线处理（离线处理涉及到callbackId的存储问题）
+   */
+  if (!callbackId) return null;
 
   try {
-    // if (!callbackId) {
-    //   return SeashellDebug('ERROR',
-    //     `[unknown] --> [${importAppName}${originUrl}]` +
-    //     `[ERROR][ILLEGAL_HEADER][${Date.now() - __SEASHELL_START}ms]`
-    //   );
-    // }
-
-    if (isFromIntegration) {
-      return integrations[appName].socket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
+    if (res.headers.appName == this.__SEASHELL_NAME) {
+      this.importEmitterStack[callbackId].emit('RESPONSE', res);
+      return null
     }
 
-    /**
-     * 根据appId找到socket
-     * 如果目标在线, 发送消息
-     */
-    const reqSocket = await this.requestIntegration('service/socket/findByAppId', {
-      appId: res.headers.appId
-    });
-    const targetFromSocket = io.sockets.connected[reqSocket.socketId];
-    if (!targetFromSocket) throw new Error('GET_SOCKET_FAIL');
-    Object.assign(res.headers, {appId, callbackId});
-    targetFromSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
+    const findRequestApp = await this.requestSelf({headers: {
+      originUrl: this.__SEASHELL_PICK_APP_URL
+    }, body: {
+      appId: res.headers.appId,
+      appName: res.headers.appName,
+    }});
+    const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;
+
+    if (!requestSocket) throw new Error('GET_SOCKET_FAIL');
+    requestSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
     SeashellDebug('INFO',
-      `[${reqSocket.appName}] --> [${importAppName}${originUrl}]` +
+      `[${requestSocket.appName}] --> [${importAppName}${originUrl}]` +
       `[DONE][${Date.now() - __SEASHELL_START}ms]`
     );
 
   } catch (e) {
-    SeashellDebug('ERROR', e);
     if (e.message == 'GET_SOCKET_FAIL') {
       // todo add to task, when socket connected again, send res again.
-      return SeashellDebug('WARN', `reqSocket offline`)
+      SeashellDebug('WARN', `the request app offline, maybe resent response later...`)
+    } else {
+      SeashellDebug('ERROR', e);
     }
   }
 };

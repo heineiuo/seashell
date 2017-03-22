@@ -7,14 +7,10 @@ import {register} from './register'
  * handle socket connection
  */
 const onConnection = async function(rawSocket) {
-  if (!this.integrations.hasOwnProperty('service') ||
-    !this.integrations.hasOwnProperty('account')) {
-    throw new Error('Required integrated service not found')
-  }
+
   const socket = ss(rawSocket);
 
-  // SeashellDebug('INFO', `new connection ${socket.id}`);
-  const url = socket.url = Url.parse(socket.request.url, {parseQueryString: true});
+  const url = Url.parse(socket.request.url, {parseQueryString: true});
   SeashellDebug('INFO', `[CONNECTION][${url.query.appName}][${url.query.appId}]`);
   try {
     await register.call(this, socket, url.query);
@@ -37,9 +33,6 @@ const onConnection = async function(rawSocket) {
     this.onChildResponse(socket, response)
   });
 
-  socket.on('I_HAVE_A_SEND', (message) => {
-    this.onChildSend(socket, message)
-  });
 
   /**
    * handle disconnect

@@ -1,7 +1,6 @@
 import prettyjson from 'prettyjson'
 import * as log from './log'
 
-
 const SeashellDebug = (type, ...logs) => {
   let result = `[${type}]`;
   logs.forEach((log, index) => {

@@ -11,9 +11,14 @@ const register = function(socket, registerInfo) {
   return new Promise(async (resolve, reject) => {
     try {
       if (!socket.id) throw new Error('LOST_SOCKET_ID');
-      const socketData = await this.requestIntegration('service/socket/bindApp', {
-        socketId: socket.id,
-        registerInfo
+      const socketData = await this.requestSelf({
+        headers: {
+          originUrl: this.__SEASHELL_BIND_SOCKET_URL,
+        },
+        body: {
+          socketId: socket.id,
+          registerInfo
+        }
       });
       SeashellDebug('INFO', `register success`, registerInfo.appId);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData});

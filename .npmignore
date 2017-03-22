@@ -13,3 +13,4 @@ src/*
 __tests__
 .babelrc
 .editorconfig
+react-dev.json
