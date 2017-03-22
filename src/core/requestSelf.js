@@ -2,7 +2,7 @@ import {Context} from './Context'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
 
 const requestSelf = function(req) {
-  let state = 0;
+  let state = 0; // 0 initial 1 success 2 error
   return new Promise(async (resolve, reject) => {
     try {
       const ctx = new Context({
@@ -16,11 +16,17 @@ const requestSelf = function(req) {
           }
         }
       }, req);
+
       ctx.on('end', () => {
-        if (state == 0) {
-          state = 2;
-          reject(new Error('ExceptionError'))
-        }
+        process.nextTick(
+          () => {
+            if (!ctx.state.isHandled) {
+              ctx.response.body = {error: 'NOT_FOUND'};
+              ctx.response.end();
+              resolve(ctx.response)
+            }
+          }
+        )
       });
       this.handleLoop(ctx);
     } catch(e){

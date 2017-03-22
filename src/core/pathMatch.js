@@ -1,7 +1,7 @@
 import * as log from './log'
 
 
-const pathMatch = (re, pathname, params={}) => {
+const pathMatch = (re, pathname='/', params={}) => {
   const match = re.exec(pathname);
   const keys = re.keys;
   if (!match) return false;

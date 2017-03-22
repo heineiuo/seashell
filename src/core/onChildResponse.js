@@ -14,7 +14,9 @@ const onChildResponse = async function (socket, res) {
 
   try {
     if (res.headers.appName == this.__SEASHELL_NAME) {
-      this.importEmitterStack[callbackId].emit('RESPONSE', res);
+      try {
+        this.importEmitterStack[callbackId].emit('RESPONSE', res);
+      } catch(e) {}
       return null
     }
 
