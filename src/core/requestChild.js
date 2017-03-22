@@ -1,6 +1,7 @@
 import uuid from 'uuid'
 import {SeashellDebug} from './debug'
 import {splitUrl} from './splitUrl'
+import Emitter from 'events'
 
 const requestChild = function (url, data={}, options={needCallback: false}) {
 
