@@ -2,11 +2,12 @@ import {SeashellDebug} from "./debug"
 
 const onChildResponse = async function (socket, res) {
 
-  const {appName, callbackId, importAppName, originUrl, __SEASHELL_START} = res.headers;
+  const {appName, appId, callbackId, importAppName, originUrl, __SEASHELL_START} = res.headers;
 
   /**
    * 如果没有callbackId, drop这个处理（用于send请求，仅发送消息）
    * 如果请求来自requestChild, 触发callback emit
+   * 否则如果没有appId或appName, 该响应非法
    * 否则根据appName和appId找到socket，
    * 存在不在线的情况，需要做丢弃或者离线处理（离线处理涉及到callbackId的存储问题）
    */
@@ -20,11 +21,13 @@ const onChildResponse = async function (socket, res) {
       return null
     }
 
+    if (!appId || !appName) return null;
+
     const findRequestApp = await this.requestSelf({headers: {
       originUrl: this.__SEASHELL_PICK_APP_URL
     }, body: {
-      appId: res.headers.appId,
-      appName: res.headers.appName,
+      appId,
+      appName
     }});
     const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;
 
