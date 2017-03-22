@@ -20,11 +20,10 @@ const register = function(socket, registerInfo) {
           registerInfo
         }
       });
-      SeashellDebug('INFO', `register success`, registerInfo.appId);
-      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData});
-      resolve(registerInfo);
+      if (socketData.body.error) throw new Error(socketData.body.error);
+      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData.body});
+      resolve(socketData.body);
     } catch(e){
-      SeashellDebug('INFO', 'register failed', e);
       socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error: e.message});
       reject(e);
     }

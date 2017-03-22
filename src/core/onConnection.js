@@ -8,14 +8,16 @@ import {register} from './register'
  */
 const onConnection = async function(rawSocket) {
 
-  const socket = ss(rawSocket);
 
-  const url = Url.parse(socket.request.url, {parseQueryString: true});
-  SeashellDebug('INFO', `[CONNECTION][${url.query.appName}][${url.query.appId}]`);
+  const url = Url.parse(rawSocket.request.url, {parseQueryString: true});
+  SeashellDebug('INFO', `[new connection: ${url.query.appName}, ${url.query.appId}]`);
+
+  const socket = ss(rawSocket).sio;
   try {
-    await register.call(this, socket, url.query);
+    const socketData = await register.call(this, socket, url.query);
+    SeashellDebug('INFO', `${socketData.appName} register success, id: ${socketData.appId}`);
   } catch (e) {
-    SeashellDebug('ERROR', e);
+    SeashellDebug('ERROR', `${url.query.appName} register failed: ${e.message}`);
     return socket.disconnect(true)
   }
 

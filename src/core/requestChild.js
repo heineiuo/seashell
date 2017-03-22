@@ -3,7 +3,7 @@ import {SeashellDebug} from './debug'
 import {splitUrl} from './splitUrl'
 import Emitter from 'events'
 
-const requestChild = function (url, data={}, options={needCallback: false}) {
+const requestChild = function (url, data={}, options={needCallback: true}) {
 
   const {importAppName, originUrl} = splitUrl(url);
   const {needCallback} = options;
@@ -51,8 +51,12 @@ const requestChild = function (url, data={}, options={needCallback: false}) {
         req.headers.callbackId = callbackId;
         this.importEmitterStack[callbackId] = new Emitter();
         this.importEmitterStack[callbackId].on('RESPONSE', (res) => {
-          resolve(res);
           delete this.importEmitterStack[callbackId];
+          resolve(res);
+          SeashellDebug('INFO',
+            `[${this.__SEASHELL_NAME}] --> [${importAppName}${originUrl}]` +
+            `[DONE][${Date.now() - req.headers.__SEASHELL_START}ms]`
+          );
           return null
         });
       } else {

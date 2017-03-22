@@ -22,7 +22,6 @@ const requestSelf = function(req) {
           reject(new Error('ExceptionError'))
         }
       });
-      console.log(req);
       this.handleLoop(ctx);
     } catch(e){
       reject(e)
