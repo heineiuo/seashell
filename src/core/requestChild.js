@@ -54,6 +54,8 @@ const requestChild = function (url, data={}, options={needCallback: false}) {
           delete this.importEmitterStack[callbackId];
           return null
         });
+      } else {
+        resolve()
       }
 
       targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', req)

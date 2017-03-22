@@ -58,6 +58,8 @@ const request = function (url, data={}, options={needCallback: true}) {
           delete this.importEmitterStack[callbackId];
           return null
         });
+      } else {
+        resolve()
       }
 
       this.socket.emit(I_HAVE_A_REQUEST, req)
