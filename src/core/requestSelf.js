@@ -4,6 +4,10 @@ import {SeashellDebug} from './debug'
 
 const requestSelf = function(req) {
   let state = 0; // 0 initial 1 success 2 error
+
+  // see onChildRequest
+  req.headers.session = this.requestSession(req);
+
   return new Promise(async (resolve, reject) => {
     try {
       const ctx = new Context({
