@@ -1,15 +1,14 @@
 import {Context} from './Context'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
 import {SeashellDebug} from './debug'
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 const requestSelf = function(req) {
   let state = 0; // 0 initial 1 success 2 error
 
-  // see onChildRequest
-  req.headers.session = this.requestSession(req);
-
   return new Promise(async (resolve, reject) => {
     try {
+
       const ctx = new Context({
         emit: (type, response) => {
           if (type == I_HAVE_HANDLE_THIS_REQUEST) {
@@ -20,7 +19,7 @@ const requestSelf = function(req) {
             reject()
           }
         }
-      }, req);
+      }, clearUnsafeHeaders(req));
 
       ctx.on('end', () => {
         process.nextTick(

@@ -2,7 +2,7 @@ import * as log from './log'
 
 const bindEventHandlers = function () {
   this.socket.on('connect', () => {
-    log.info(` connected`);
+    log.info(`connected`);
     this.appState = 2;
   });
 
@@ -31,9 +31,10 @@ const bindEventHandlers = function () {
    * listing disconnect event
    */
   this.socket.on('disconnect', () => {
-    log.info(` lost connection`);
+    console.log('disconnect');
+    log.info(`lost connection`);
     this.appState = 0;
-  })
+  });
 };
 
 export {

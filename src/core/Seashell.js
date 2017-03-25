@@ -13,28 +13,28 @@
 
 import SocketIO from 'socket.io'
 import App from './App'
-import {onConnection} from './onConnection'
+import {onChildConnection} from './onChildConnection'
 import {onChildRequest} from './onChildRequest'
 import {onChildResponse} from './onChildResponse'
 import {onChildDisconnect} from './onChildDisconnect'
-import {requestSession} from './requestSession'
 import {requestChild} from './requestChild'
+import {requestSession} from './requestSession'
 
 class Seashell extends App {
 
   constructor () {
     super();
     this.io = new SocketIO();
-    this.io.on('connection', this.onConnection);
+    this.io.on('connection', this.onChildConnection);
   }
 
   __SEASHELL_NAME = 'seashell';
-  __SEASHELL_SESSION_URL = '/token/session';
-  __SEASHELL_PICK_APP_URL = '/app/pickItem';
-  __SEASHELL_BIND_SOCKET_URL = '/socket/create';
-  __SEASHELL_UNBIND_SOCKET_URL = '/socket/remove';
+  __SEASHELL_APP_FIND_URL = '/app/find';
+  __SEASHELL_SOCKET_BIND_URL = '/socket/bind';
+  __SEASHELL_SOCKET_SESSION_URL = '/socket/session';
+  __SEASHELL_SOCKET_UNBIND_URL = '/socket/unbind';
 
-  onConnection = onConnection.bind(this);
+  onChildConnection = onChildConnection.bind(this);
   onChildRequest = onChildRequest.bind(this);
   onChildResponse = onChildResponse.bind(this);
   onChildDisconnect = onChildDisconnect.bind(this);

@@ -1,20 +1,16 @@
 import {SeashellDebug} from './debug'
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 const onChildRequest = async function(socket, req) {
 
   const {importAppName, originUrl, __SEASHELL_START, appName, appId} = req.headers;
   req.headers.__SEASHELL_START = Date.now();
   const isToSelf = importAppName == this.__SEASHELL_NAME;
+
+
   try {
 
-    /**
-     * ** 特殊处理 **
-     * 任何请求头中带有的session都强制清空，需要经过seashell获取session
-     * 首先从socket中获取用户session，如果socket是service，则根据请求头
-     * 中的token获取用户session
-     */
-    req.headers.session = this.requestSession(req);
-
+    req.headers.session = await this.requestSession(req, socket);
 
     /**
      * 发送请求
@@ -27,7 +23,8 @@ const onChildRequest = async function(socket, req) {
     } else {
       const findResponseService = await this.requestSelf({
         headers: {
-          originUrl: this.__SEASHELL_PICK_APP_URL
+          originUrl: this.__SEASHELL_APP_FIND_URL,
+          originUrlDescription: '__SEASHELL_APP_FIND_URL'
         },
         body: {
           appName: importAppName,
@@ -36,7 +33,8 @@ const onChildRequest = async function(socket, req) {
       });
       const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
       if (!targetSocket) throw new Error('TARGET_SERVICE_OFFLINE');
-      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', req)
+
+      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
     }
 
   } catch(err) {

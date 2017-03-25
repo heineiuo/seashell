@@ -6,7 +6,8 @@ const onChildDisconnect = function(socket) {
       SeashellDebug('INFO', `${socketId} disconnected`);
       this.requestSelf({
         headers: {
-          originUrl: this.__SEASHELL_UNBIND_SOCKET_URL
+          originUrl: this.__SEASHELL_SOCKET_UNBIND_URL,
+          originUrlDescription: '__SEASHELL_SOCKET_UNBIND_URL'
         },
         body: {socketId}
       })

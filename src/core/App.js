@@ -17,6 +17,8 @@ class App extends Router {
   onResponse = onResponse.bind(this);
   requestSelf = requestSelf.bind(this);
 
+  __SEASHELL_REQUEST_TIMEOUT = 300000;
+
   /**
    * connect to MQ hub.
    * @param opts

@@ -13,7 +13,8 @@ const register = function(socket, registerInfo) {
       if (!socket.id) throw new Error('LOST_SOCKET_ID');
       const socketData = await this.requestSelf({
         headers: {
-          originUrl: this.__SEASHELL_BIND_SOCKET_URL,
+          originUrl: this.__SEASHELL_SOCKET_BIND_URL,
+          originUrlDescription: '__SEASHELL_SOCKET_BIND_URL',
         },
         body: {
           socketId: socket.id,

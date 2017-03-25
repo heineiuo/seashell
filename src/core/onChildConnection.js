@@ -6,7 +6,7 @@ import {register} from './register'
 /**
  * handle socket connection
  */
-const onConnection = async function(rawSocket) {
+const onChildConnection = async function(rawSocket) {
 
 
   const url = Url.parse(rawSocket.request.url, {parseQueryString: true});
@@ -45,5 +45,5 @@ const onConnection = async function(rawSocket) {
 };
 
 export {
-  onConnection
+  onChildConnection
 }

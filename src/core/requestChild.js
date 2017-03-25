@@ -2,15 +2,17 @@ import uuid from 'uuid'
 import {SeashellDebug} from './debug'
 import {splitUrl} from './splitUrl'
 import Emitter from 'events'
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
-const requestChild = function (url, data={}, options={needCallback: true}) {
+const requestChild = async function (url, data={}, options={needCallback: true}) {
 
   const {importAppName, originUrl} = splitUrl(url);
-  const {needCallback} = options;
+  const needCallback = options.needCallback || true;
 
   const req = {
     body: data,
     headers: Object.assign({
+      ...options.headers,
       appName: this.__SEASHELL_NAME,
       appId: 'SEASHELL',
       __SEASHELL_START: Date.now()
@@ -20,15 +22,16 @@ const requestChild = function (url, data={}, options={needCallback: true}) {
   };
 
 
-  if (importAppName == this.__SEASHELL_NAME) {
-    return this.requestSelf(req);
-  }
-
-  // see onChildRequest
-  req.headers.session = this.requestSession(req);
-
   return new Promise(async (resolve, reject) => {
     try {
+
+      req.headers.session = await this.requestSession(req);
+
+      if (importAppName == this.__SEASHELL_NAME) {
+        const res = await this.requestSelf(req);
+        return resolve(res)
+      }
+
       /**
        * 发送请求
        * 如果请求的是集成服务, 则直接调用
@@ -36,7 +39,8 @@ const requestChild = function (url, data={}, options={needCallback: true}) {
        */
       const findResponseService = await this.requestSelf({
         headers: {
-          originUrl: this.__SEASHELL_PICK_APP_URL
+          session: req.headers.session,
+          originUrl: this.__SEASHELL_APP_FIND_URL
         },
         body: {
           appName: importAppName
@@ -45,12 +49,9 @@ const requestChild = function (url, data={}, options={needCallback: true}) {
       const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
       if (!targetSocket) throw new Error('TARGET_SERVICE_OFFLINE');
 
-
       if (needCallback){
-        const callbackId = uuid.v4();
-        req.headers.callbackId = callbackId;
-        this.importEmitterStack[callbackId] = new Emitter();
-        this.importEmitterStack[callbackId].on('RESPONSE', (res) => {
+        const callbackId = req.headers.callbackId = uuid.v4();
+        const callback = (res) => {
           delete this.importEmitterStack[callbackId];
           resolve(res);
           SeashellDebug('INFO',
@@ -58,12 +59,22 @@ const requestChild = function (url, data={}, options={needCallback: true}) {
             `[DONE][${Date.now() - req.headers.__SEASHELL_START}ms]`
           );
           return null
-        });
+        };
+        this.importEmitterStack[callbackId] = new Emitter();
+        this.importEmitterStack[callbackId].on('RESPONSE', callback);
+        setTimeout(() => {
+          try {
+            this.importEmitterStack[callbackId].off('RESPONSE', callback);
+            delete this.importEmitterStack[callbackId];
+          } catch(e){}
+          return null
+        }, this.__SEASHELL_REQUEST_TIMEOUT)
+
       } else {
         resolve()
       }
 
-      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', req)
+      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
 
     } catch(err) {
       req.headers.status = 'ERROR';

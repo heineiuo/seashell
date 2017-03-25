@@ -2,7 +2,7 @@ import {SeashellDebug} from "./debug"
 
 const onChildResponse = async function (socket, res) {
 
-  const {appName, appId, callbackId, importAppName, originUrl, __SEASHELL_START} = res.headers;
+  const {appName, appId, callbackId, callbackAppId, importAppName, originUrl, __SEASHELL_START} = res.headers;
 
   /**
    * 如果没有callbackId, drop这个处理（用于send请求，仅发送消息）
@@ -24,9 +24,10 @@ const onChildResponse = async function (socket, res) {
     if (!appId || !appName) return null;
 
     const findRequestApp = await this.requestSelf({headers: {
-      originUrl: this.__SEASHELL_PICK_APP_URL
+      originUrl: this.__SEASHELL_APP_FIND_URL,
+      originUrlDescription: '__SEASHELL_APP_FIND_URL'
     }, body: {
-      appId,
+      appId: callbackAppId? callbackAppId: appId,
       appName
     }});
     const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;
