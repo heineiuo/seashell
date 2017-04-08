@@ -5,7 +5,7 @@ const onChildRequest = async function(socket, req) {
 
   const {importAppName, originUrl, __SEASHELL_START, appName, appId} = req.headers;
   req.headers.__SEASHELL_START = Date.now();
-  const isToSelf = importAppName == this.__SEASHELL_NAME;
+  const isToSelf = importAppName === this.__SEASHELL_NAME;
 
 
   try {

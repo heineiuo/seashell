@@ -1,7 +1,7 @@
 import {SeashellDebug} from './debug'
 
 const onChildDisconnect = function(socket) {
-  const deleteSocket = async(socketId, retry = 0) => {
+  const deleteSocket = (socketId, retry = 0) => {
     try {
       SeashellDebug('INFO', `${socketId} disconnected`);
       this.requestSelf({

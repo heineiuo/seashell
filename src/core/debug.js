@@ -5,9 +5,9 @@ const SeashellDebug = (type, ...logs) => {
   let result = `[${type}]`;
   logs.forEach((log, index) => {
     if (index > 0) result += '\n';
-    if (typeof log == 'string') {
+    if (typeof log === 'string') {
       result += log;
-    } else if (typeof log == 'object') {
+    } else if (typeof log === 'object') {
       if (log.name && log.message && log.stack) {
         result += `[ERROR]:${'\n'}${log.stack}`
       } else {
@@ -16,7 +16,7 @@ const SeashellDebug = (type, ...logs) => {
     }
   });
 
-  type == 'ERROR' ?
+  type === 'ERROR' ?
     log.error(result):
     log.info(result)
 

@@ -11,7 +11,7 @@ const requestSelf = function(req) {
 
       const ctx = new Context({
         emit: (type, response) => {
-          if (type == I_HAVE_HANDLE_THIS_REQUEST) {
+          if (type === I_HAVE_HANDLE_THIS_REQUEST) {
             state = 1;
             resolve(response)
           } else {

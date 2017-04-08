@@ -14,7 +14,7 @@ const onChildResponse = async function (socket, res) {
   if (!callbackId) return null;
 
   try {
-    if (res.headers.appName == this.__SEASHELL_NAME) {
+    if (res.headers.appName === this.__SEASHELL_NAME) {
       try {
         this.importEmitterStack[callbackId].emit('RESPONSE', res);
       } catch(e) {}
@@ -32,7 +32,11 @@ const onChildResponse = async function (socket, res) {
     }});
     const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;
 
-    if (!requestSocket) throw new Error('GET_SOCKET_FAIL');
+    if (!requestSocket) {
+      // todo add to task, when socket connected again, send res again.
+      return SeashellDebug('WARN', `the request app offline, maybe resent response later...`)
+    }
+
     requestSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
     SeashellDebug('INFO',
       `[${requestSocket.appName}] --> [${importAppName}${originUrl}]` +
@@ -40,12 +44,7 @@ const onChildResponse = async function (socket, res) {
     );
 
   } catch (e) {
-    if (e.message == 'GET_SOCKET_FAIL') {
-      // todo add to task, when socket connected again, send res again.
-      SeashellDebug('WARN', `the request app offline, maybe resent response later...`)
-    } else {
-      SeashellDebug('ERROR', e);
-    }
+    SeashellDebug('ERROR', e);
   }
 };
 

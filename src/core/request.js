@@ -33,11 +33,11 @@ import * as log from './log'
  * listening on `RESPONSE` event and return data
  */
 const request = function (url, data={}, options={needCallback: true}) {
-  if (typeof data != 'object') throw `request data must be an object.`;
+  if (typeof data !== 'object') throw `request data must be an object.`;
   const needCallback = options.needCallback || true;
   return new Promise( (resolve, reject) => {
     try {
-      if (this.appState != 3) return reject("YOUR_SERVICE_IS_OFFLINE");
+      if (this.appState !== 3) return reject("YOUR_SERVICE_IS_OFFLINE");
       /**
        * parse url, create req object
        */

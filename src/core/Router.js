@@ -11,7 +11,7 @@ class Router {
   use = (...args) => {
     const {exportActionStack} = this;
     let path, middleware;
-    if (args.length == 1) {
+    if (args.length === 1) {
       path = '*';
       middleware = args[0]
     } else {
@@ -58,7 +58,7 @@ class Router {
         return parentNext();
       }
       if (middleware.router) return middleware.router.handleLoop(ctx, next);
-      if (middleware.path == '*') return middleware.fn(ctx, next);
+      if (middleware.path === '*') return middleware.fn(ctx, next);
       const params = pathMatch(middleware.pathRe, ctx.request.headers.originUrl);
       if (!params) return next();
       Object.assign(ctx.request.params, params);

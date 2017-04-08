@@ -7,7 +7,7 @@ const splitUrl = (url) => {
         originUrl: '/'
       }
     } else {
-      const sUrl = s == 0 ? url.substr(1) : url;
+      const sUrl = s === 0 ? url.substr(1) : url;
       let ss = sUrl.search('/');
       return {
         importAppName: ss > -1 ? sUrl.substring(0, ss) : sUrl,

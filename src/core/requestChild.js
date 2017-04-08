@@ -27,7 +27,7 @@ const requestChild = async function (url, data={}, options={needCallback: true})
 
       req.headers.session = await this.requestSession(req);
 
-      if (importAppName == this.__SEASHELL_NAME) {
+      if (importAppName === this.__SEASHELL_NAME) {
         const res = await this.requestSelf(req);
         return resolve(res)
       }

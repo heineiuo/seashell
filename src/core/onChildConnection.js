@@ -25,16 +25,15 @@ const onChildConnection = async function(rawSocket) {
    * service want to request another service
    */
   socket.on('I_HAVE_A_REQUEST', (request) => {
-    this.onChildRequest(socket, request)
+    process.nextTick(() => this.onChildRequest(socket, request))
   });
 
   /**
    * service has handled request from another, transfer data back to that.
    */
   socket.on('I_HAVE_HANDLE_THIS_REQUEST', (response) => {
-    this.onChildResponse(socket, response)
+    process.nextTick(() => this.onChildResponse(socket, response))
   });
-
 
   /**
    * handle disconnect
