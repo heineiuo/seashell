@@ -32,7 +32,7 @@ const onChildRequest = async function(socket, req) {
         }
       });
       const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
-      if (!targetSocket) throw new Error('TARGET_SERVICE_OFFLINE');
+      if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
       targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
     }

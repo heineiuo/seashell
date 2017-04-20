@@ -47,7 +47,7 @@ const requestChild = async function (url, data={}, options={needCallback: true})
         }
       });
       const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
-      if (!targetSocket) throw new Error('TARGET_SERVICE_OFFLINE');
+      if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
       if (needCallback){
         const callbackId = req.headers.callbackId = uuid.v4();
