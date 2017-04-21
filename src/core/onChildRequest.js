@@ -9,7 +9,6 @@ const onChildRequest = async function(socket, req) {
 
 
   try {
-
     req.headers.session = await this.requestSession(req, socket);
 
     /**
@@ -23,8 +22,8 @@ const onChildRequest = async function(socket, req) {
     } else {
       const findResponseService = await this.requestSelf({
         headers: {
-          originUrl: this.__SEASHELL_APP_FIND_URL,
-          originUrlDescription: '__SEASHELL_APP_FIND_URL'
+          originUrl: this.__SEASHELL_SOCKET_QUERY_URL,
+          originUrlDescription: '__SEASHELL_SOCKET_QUERY_URL'
         },
         body: {
           appName: importAppName,

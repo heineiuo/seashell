@@ -27,20 +27,20 @@ const requestChild = async function (url, data={}, options={needCallback: true})
 
       req.headers.session = await this.requestSession(req);
 
-      if (importAppName === this.__SEASHELL_NAME) {
-        const res = await this.requestSelf(req);
-        return resolve(res)
-      }
 
       /**
        * 发送请求
        * 如果请求的是集成服务, 则直接调用
        * 否则，先验证目标app是否在线, 在线则发包给目标app
        */
+      if (importAppName === this.__SEASHELL_NAME) {
+        const res = await this.requestSelf(req);
+        return resolve(res)
+      }
       const findResponseService = await this.requestSelf({
         headers: {
           session: req.headers.session,
-          originUrl: this.__SEASHELL_APP_FIND_URL
+          originUrl: this.__SEASHELL_SOCKET_QUERY_URL
         },
         body: {
           appName: importAppName

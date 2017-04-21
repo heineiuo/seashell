@@ -24,10 +24,10 @@ const onChildResponse = async function (socket, res) {
     if (!appId || !appName) return null;
 
     const findRequestApp = await this.requestSelf({headers: {
-      originUrl: this.__SEASHELL_APP_FIND_URL,
-      originUrlDescription: '__SEASHELL_APP_FIND_URL'
+      originUrl: this.__SEASHELL_SOCKET_QUERY_URL,
+      originUrlDescription: '__SEASHELL_SOCKET_QUERY_URL'
     }, body: {
-      appId: callbackAppId? callbackAppId: appId,
+      appId: callbackAppId ? callbackAppId: appId,
       appName
     }});
     const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;

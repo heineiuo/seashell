@@ -29,7 +29,7 @@ class Seashell extends App {
   }
 
   __SEASHELL_NAME = 'seashell';
-  __SEASHELL_APP_FIND_URL = '/app/find';
+  __SEASHELL_SOCKET_QUERY_URL = '/socket/query';
   __SEASHELL_SOCKET_BIND_URL = '/socket/bind';
   __SEASHELL_SOCKET_SESSION_URL = '/socket/session';
   __SEASHELL_SOCKET_UNBIND_URL = '/socket/unbind';
