@@ -27,7 +27,8 @@ class App extends Router {
   connect = (opts={}) => {
     if (this.appState > 0) return false;
     log.info(`connecting ${opts.url}`);
-    this.socket = ss(SocketIOClient(opts.url)).sio;
+    const options = {}
+    this.socket = ss(SocketIOClient(opts.url), options).sio;
     this.appState = 1;
     this.appOptions = opts;
     bindEventHandlers.call(this)
