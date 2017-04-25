@@ -5,8 +5,6 @@ export {
   splitUrl,
   pathMatch,
   uuid,
-  createStream,
-  createBlobReadStream
 } from './client'
 
 export default Seashell
