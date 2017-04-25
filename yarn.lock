@@ -3814,6 +3814,10 @@ rucksack-css@^0.8.6:
     read-file-stdin "^0.2.0"
     write-file-stdout "^0.0.2"
 
+safe-buffer@~5.0.1:
+  version "5.0.1"
+  resolved "https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.0.1.tgz#d263ca54696cd8a306b5ca6551e92de57918fbe7"
+
 safe-replace@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/safe-replace/-/safe-replace-1.0.2.tgz#b181ab4095acdf6ab0a8f840517491ca8a9922ba"
@@ -4236,6 +4240,10 @@ ultron@1.0.x:
   version "1.0.2"
   resolved "https://registry.npmjs.org/ultron/-/ultron-1.0.2.tgz#ace116ab557cd197386a4e88f4685378c8b2e4fa"
 
+ultron@~1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/ultron/-/ultron-1.1.0.tgz#b07a2e6a541a815fc6a34ccd4533baec307ca864"
+
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
@@ -4466,6 +4474,13 @@ ws@1.1.2:
   dependencies:
     options ">=0.0.5"
     ultron "1.0.x"
+
+ws@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.npmjs.org/ws/-/ws-2.3.1.tgz#6b94b3e447cb6a363f785eaf94af6359e8e81c80"
+  dependencies:
+    safe-buffer "~5.0.1"
+    ultron "~1.1.0"
 
 wtf-8@1.0.0:
   version "1.0.0"

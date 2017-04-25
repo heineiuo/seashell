@@ -11,7 +11,7 @@
  *
  */
 
-import SocketIO from 'socket.io'
+import WebSocket from 'ws'
 import App from './App'
 import {onChildConnection} from './onChildConnection'
 import {onChildRequest} from './onChildRequest'
@@ -22,9 +22,11 @@ import {requestSession} from './requestSession'
 
 class Seashell extends App {
 
-  constructor () {
+  constructor (opts) {
     super();
-    this.io = new SocketIO();
+    const options = Object.assign({}, opts);
+    if (options.server) delete options.port;
+    this.io = new WebSocket.Server(options);
     this.io.on('connection', this.onChildConnection);
   }
 

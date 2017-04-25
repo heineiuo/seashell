@@ -1,39 +1,36 @@
 import * as log from './log'
 
 const bindEventHandlers = function () {
-  this.socket.on('connect', () => {
+  this.socket.on('open', () => {
     log.info(`connected`);
     this.appState = 2;
   });
 
-  /**
-   * handle hub's response about register
-   * if there's some error, means register has failed
-   * otherwise, it succeed
-   */
-  this.socket.on('YOUR_REGISTER_HAS_RESPONSE', (response) => {
-    log.info(`registered`);
-    this.appState = 3;
+
+  this.socket.on('message', (data, flags) => {
+    console.log(data)
+    if (data.type ===  'YOUR_REGISTER_HAS_RESPONSE') {
+      log.info(`registered`);
+      this.appState = 3;
+    } else if (data.type === 'YOUR_REQUEST_HAS_RESPONSE') {
+      this.onResponse(data, flags)
+    } else if (data.type === 'PLEASE_HANDLE_THIS_REQUEST') {
+      this.onRequest(data, flags)
+    }
   });
 
-  /**
-   * handle response
-   * response should have `callbackId` key.
-   */
-  this.socket.on('YOUR_REQUEST_HAS_RESPONSE', this.onResponse);
-
-  /**
-   * handle request
-   */
-  this.socket.on('PLEASE_HANDLE_THIS_REQUEST', this.onRequest);
+  this.socket.on('error', (err) => {
+    log.error(err)
+  })
 
   /**
    * listing disconnect event
    */
-  this.socket.on('disconnect', () => {
+  this.socket.on('close', () => {
     console.log('disconnect');
     log.info(`lost connection`);
     this.appState = 0;
+    this.connect(this.appOptions)
   });
 };
 

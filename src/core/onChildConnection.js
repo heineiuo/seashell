@@ -1,18 +1,16 @@
 import Url from 'url'
 import {SeashellDebug} from './debug'
-import ss from 'socket.io-stream'
 import {register} from './register'
 
 /**
  * handle socket connection
  */
-const onChildConnection = async function(rawSocket) {
+const onChildConnection = async function(socket) {
+  console.log(socket)
 
-
-  const url = Url.parse(rawSocket.request.url, {parseQueryString: true});
+  const url = Url.parse(socket.request.url, {parseQueryString: true});
   SeashellDebug('INFO', `[new connection: ${url.query.appName}, ${url.query.appId}]`);
 
-  const socket = ss(rawSocket).sio;
   try {
     const socketData = await register.call(this, socket, url.query);
     SeashellDebug('INFO', `${socketData.appName} register success, id: ${socketData.appId}`);

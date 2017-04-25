@@ -3,7 +3,7 @@
   "version": "0.10.3",
   "main": "./lib/index.js",
   "browser": "./dist/seashell-client.js",
-  "description": "Create socket pool to `require` denpendent services easily.",
+  "description": "A message framework for node.js and javascript.",
   "scripts": {
     "build": "babel ./src -d lib --ignore __tests__ --ignore .test.js",
     "build-client": "react-sh --build --compress",
@@ -27,7 +27,8 @@
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",
     "socket.io-stream": "^0.9.1",
-    "uuid": "~2.0.2"
+    "uuid": "~2.0.2",
+    "ws": "^2.3.1"
   },
   "devDependencies": {
     "auto-sni": "^1.6.0",
@@ -44,7 +45,6 @@
     "fs-promise": "^2.0.0",
     "http-proxy": "^1.16.2",
     "jest": "^19.0.2",
-    "lodash.pick": "^4.4.0",
     "mitt": "^1.1.0",
     "morgan": "^1.8.1",
     "react-sh": "^0.6.4",
