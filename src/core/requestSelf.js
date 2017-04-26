@@ -8,18 +8,18 @@ const requestSelf = function(req) {
 
   return new Promise(async (resolve, reject) => {
     try {
-
       const ctx = new Context({
-        emit: (type, response) => {
-          if (type === I_HAVE_HANDLE_THIS_REQUEST) {
+        send: (data) => {
+          data = JSON.parse(data);
+          if (data.headers.type === I_HAVE_HANDLE_THIS_REQUEST) {
             state = 1;
-            resolve(response)
+            resolve(data)
           } else {
             state = 2;
             reject()
           }
         }
-      }, clearUnsafeHeaders(req));
+      }, req);
 
       ctx.on('end', () => {
         process.nextTick(
@@ -33,6 +33,7 @@ const requestSelf = function(req) {
           }
         )
       });
+
       this.handleLoop(ctx);
     } catch(e){
       reject(e)

@@ -1,5 +1,13 @@
 // socket emit types
+
+/**
+ * service has handled request from another, transfer data back to that.
+ */
 export const I_HAVE_HANDLE_THIS_REQUEST = 'I_HAVE_HANDLE_THIS_REQUEST';
+
+/**
+ * service want to request another service
+ */
 export const I_HAVE_A_REQUEST = 'I_HAVE_A_REQUEST';
 
 /**

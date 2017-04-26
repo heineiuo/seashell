@@ -1,6 +1,7 @@
 import Emitter from 'events'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
 import * as log from './log'
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 class Context extends Emitter {
   constructor(socket, req){
@@ -14,10 +15,10 @@ class Context extends Emitter {
       end: () => {
         if (this.state.isHandled) throw new Error('ctx.response.end has been called!');
         this.state.isHandled = true;
-        socket.emit(I_HAVE_HANDLE_THIS_REQUEST, {
-          headers: this.response.headers,
+        socket.send(clearUnsafeHeaders({
+          headers: {...this.response.headers, type: 'I_HAVE_HANDLE_THIS_REQUEST'},
           body: this.response.body
-        });
+        }));
         this.emit('end');
       }
     };

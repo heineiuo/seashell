@@ -1,42 +1,40 @@
 import Url from 'url'
 import {SeashellDebug} from './debug'
 import {register} from './register'
+import uuid from 'uuid'
 
 /**
  * handle socket connection
  */
 const onChildConnection = async function(socket) {
-  console.log(socket)
 
-  const url = Url.parse(socket.request.url, {parseQueryString: true});
+  const url = Url.parse(socket.upgradeReq.url, {parseQueryString: true});
   SeashellDebug('INFO', `[new connection: ${url.query.appName}, ${url.query.appId}]`);
+  socket.id = uuid.v1();
+  this.__connections[socket.id] = socket;
 
   try {
     const socketData = await register.call(this, socket, url.query);
-    SeashellDebug('INFO', `${socketData.appName} register success, id: ${socketData.appId}`);
+    SeashellDebug('INFO', `${url.query.appName} register success, id: ${url.query.appId}`);
   } catch (e) {
     SeashellDebug('ERROR', `${url.query.appName} register failed: ${e.message}`);
-    return socket.disconnect(true)
+    return socket.close()
   }
 
-  /**
-   * service want to request another service
-   */
-  socket.on('I_HAVE_A_REQUEST', (request) => {
-    process.nextTick(() => this.onChildRequest(socket, request))
-  });
-
-  /**
-   * service has handled request from another, transfer data back to that.
-   */
-  socket.on('I_HAVE_HANDLE_THIS_REQUEST', (response) => {
-    process.nextTick(() => this.onChildResponse(socket, response))
+  socket.on('message', (data) => {
+    data = JSON.parse(data);
+    if (data.headers.type === 'I_HAVE_A_REQUEST') {
+      process.nextTick(() => this.onChildRequest(socket, data))
+    } else if ( data.headers.type === 'I_HAVE_HANDLE_THIS_REQUEST') {
+      process.nextTick(() => this.onChildResponse(socket, data))
+    }
   });
 
   /**
    * handle disconnect
    */
-  socket.on('disconnect', () => {
+  socket.on('close', () => {
+    delete this.__connections[socket.id];
     this.onChildDisconnect(socket)
   })
 };

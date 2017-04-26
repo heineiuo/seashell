@@ -1,6 +1,6 @@
 {
   "name": "seashell",
-  "version": "0.10.3",
+  "version": "0.11.0-beta1",
   "main": "./lib/index.js",
   "browser": "./dist/seashell-client.js",
   "description": "A message framework for node.js and javascript.",

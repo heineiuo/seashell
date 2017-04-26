@@ -28,7 +28,7 @@ import * as log from './log'
  * @param options
  * @returns {Promise}
  *
- * use `socket.emit` to push request
+ * use `socket.send` to push request
  * push a event callback to importEmitterStack every request
  * listening on `RESPONSE` event and return data
  */
@@ -63,7 +63,8 @@ const request = function (url, data={}, options={needCallback: true}) {
         resolve()
       }
 
-      this.socket.emit(I_HAVE_A_REQUEST, req)
+      req.headers.type = 'I_HAVE_A_REQUEST'
+      this.socket.send(clearUnsafeHeaders(req))
     } catch(e) {
       log.info(`REQUEST_ERROR ${e.message||e}`);
       reject(e)

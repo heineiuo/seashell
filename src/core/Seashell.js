@@ -36,6 +36,7 @@ class Seashell extends App {
   __SEASHELL_SOCKET_SESSION_URL = '/socket/session';
   __SEASHELL_SOCKET_UNBIND_URL = '/socket/unbind';
 
+  __connections = {};
   onChildConnection = onChildConnection.bind(this);
   onChildRequest = onChildRequest.bind(this);
   onChildResponse = onChildResponse.bind(this);

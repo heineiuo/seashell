@@ -74,7 +74,8 @@ const requestChild = async function (url, data={}, options={needCallback: true})
         resolve()
       }
 
-      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
+      req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST'
+      targetSocket.send(clearUnsafeHeaders(req))
 
     } catch(err) {
       req.headers.status = 'ERROR';

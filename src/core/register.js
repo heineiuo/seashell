@@ -1,5 +1,5 @@
 import {SeashellDebug} from './debug'
-
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 /**
  * register app
@@ -22,10 +22,20 @@ const register = function(socket, registerInfo) {
         }
       });
       if (socketData.body.error) throw new Error(socketData.body.error);
-      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {success: 1, socketData: socketData.body});
+      socket.send(clearUnsafeHeaders({
+        headers: {type: 'YOUR_REGISTER_HAS_RESPONSE'},
+        body: {success: 1, socketData: socketData.body}
+      }));
       resolve(socketData.body);
     } catch(e){
-      socket.emit('YOUR_REGISTER_HAS_RESPONSE', {error: e.message});
+      try {
+        socket.send(clearUnsafeHeaders({
+          headers: {type: 'YOUR_REGISTER_HAS_RESPONSE'},
+          body: {error: e.message}
+        }));
+      } catch(e){
+       console.log(e)
+      }
       reject(e);
     }
   })
