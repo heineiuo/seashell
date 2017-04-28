@@ -1,6 +1,5 @@
 import Emitter from 'events'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
-import * as log from './log'
 import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 class Context extends Emitter {

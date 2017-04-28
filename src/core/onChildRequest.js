@@ -31,7 +31,7 @@ const onChildRequest = async function(socket, req) {
           appId
         }
       });
-      const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
+      const targetSocket = this.__connections[findResponseService.body.socketId];
       if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
       req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST';

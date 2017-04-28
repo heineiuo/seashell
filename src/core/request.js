@@ -19,7 +19,6 @@ import {splitUrl} from './splitUrl'
 import Emitter from 'events'
 import uuid from 'uuid'
 import {I_HAVE_A_REQUEST} from './emit-types'
-import * as log from './log'
 
 /**
  * push a request to MQ hub.
@@ -66,7 +65,7 @@ const request = function (url, data={}, options={needCallback: true}) {
       req.headers.type = 'I_HAVE_A_REQUEST'
       this.socket.send(clearUnsafeHeaders(req))
     } catch(e) {
-      log.info(`REQUEST_ERROR ${e.message||e}`);
+      console.info(`[Seashell] REQUEST_ERROR ${e.message||e}`);
       reject(e)
     }
   })

@@ -2,7 +2,7 @@ import * as log from './log'
 
 const bindEventHandlers = function () {
   this.socket.on('open', () => {
-    log.info(`connected`);
+    console.info(`[Seashell] connected`);
     this.appState = 2;
   });
 
@@ -10,7 +10,7 @@ const bindEventHandlers = function () {
   this.socket.on('message', (data, flags) => {
     data = typeof data === 'string' ? JSON.parse(data): data;
     if (data.headers.type ===  'YOUR_REGISTER_HAS_RESPONSE') {
-      log.info(`registered`);
+      console.info(`[Seashell] registered`);
       this.appState = 3;
     } else if (data.headers.type === 'YOUR_REQUEST_HAS_RESPONSE') {
       this.onResponse(data, flags)
@@ -23,15 +23,14 @@ const bindEventHandlers = function () {
   });
 
   this.socket.on('error', (err) => {
-    log.error(err)
+    console.error(err)
   })
 
   /**
    * listing disconnect event
    */
   this.socket.on('close', () => {
-    console.log('disconnect');
-    log.info(`lost connection`);
+    console.info(`[Seashell] lost connection`);
     this.appState = 0;
     this.connect(this.appOptions)
   });

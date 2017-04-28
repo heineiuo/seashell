@@ -46,7 +46,7 @@ const requestChild = async function (url, data={}, options={needCallback: true})
           appName: importAppName
         }
       });
-      const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
+      const targetSocket = this.__connections[findResponseService.body.socketId];
       if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
       if (needCallback){

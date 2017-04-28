@@ -1,6 +1,5 @@
 import {Context} from './Context'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
-import {SeashellDebug} from './debug'
 import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 const requestSelf = function(req) {
@@ -25,7 +24,7 @@ const requestSelf = function(req) {
         process.nextTick(
           () => {
             if (!ctx.state.isHandled) {
-              SeashellDebug('WARN', `A no response request happened, please check ${req.headers.originUrl}.`);
+              console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
               ctx.response.body = {error: 'NOT_FOUND'};
               ctx.response.end();
               resolve(ctx.response)

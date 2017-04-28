@@ -1,5 +1,4 @@
 import {Context} from './Context'
-import * as log from './log'
 
 /**
  * receive & handle message from hub
@@ -7,12 +6,11 @@ import * as log from './log'
  */
 const onRequest = async function (req) {
   try {
-    log.info(`handle request: ${req.headers.originUrl}`);
-    console.log(this.socket)
+    console.info(`[Seashell] handle request: ${req.headers.originUrl}`);
     const ctx = new Context(this.socket, req);
     this.handleLoop(ctx);
   } catch(e){
-    log.info(e.message)
+    console.info(`[Seashell] ${e.message}`)
   }
 };
 

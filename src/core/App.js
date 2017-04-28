@@ -1,10 +1,9 @@
-import WebSocket from 'ws'
 import Router from './Router'
+import WebSocket from 'ws'
 import {request} from './request'
 import {onRequest} from './onRequest'
 import {requestSelf} from './requestSelf'
 import {onResponse} from './onResponse'
-import * as log from './log'
 import {bindEventHandlers} from './bindEventHandlers'
 
 class App extends Router {
@@ -25,7 +24,7 @@ class App extends Router {
    */
   connect = (opts={}) => {
     if (this.appState > 0) return false;
-    log.info(`connecting ${opts.url}`);
+    console.info(`[Seashell] connecting ${opts.url}`);
     this.socket = new WebSocket(opts.url)
     this.appState = 1;
     this.appOptions = opts;
@@ -40,7 +39,7 @@ class App extends Router {
     if (this.appState > 0) {
       this.socket.close()
     }
-    log.info(`disconnected`)
+    console.info(`[Seashell] disconnected`)
   }
 }
 

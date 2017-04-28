@@ -26,8 +26,8 @@ class Seashell extends App {
     super();
     const options = Object.assign({}, opts);
     if (options.server) delete options.port;
-    this.io = new WebSocket.Server(options);
-    this.io.on('connection', this.onChildConnection);
+    this.server = new WebSocket.Server(options);
+    this.server.on('connection', this.onChildConnection);
   }
 
   __SEASHELL_NAME = 'seashell';
