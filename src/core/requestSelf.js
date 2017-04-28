@@ -1,6 +1,5 @@
 import {Context} from './Context'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
-import {SeashellDebug} from './debug'
 import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 const requestSelf = function(req) {
@@ -8,24 +7,24 @@ const requestSelf = function(req) {
 
   return new Promise(async (resolve, reject) => {
     try {
-
       const ctx = new Context({
-        emit: (type, response) => {
-          if (type === I_HAVE_HANDLE_THIS_REQUEST) {
+        send: (data) => {
+          data = JSON.parse(data);
+          if (data.headers.type === I_HAVE_HANDLE_THIS_REQUEST) {
             state = 1;
-            resolve(response)
+            resolve(data)
           } else {
             state = 2;
             reject()
           }
         }
-      }, clearUnsafeHeaders(req));
+      }, req);
 
       ctx.on('end', () => {
         process.nextTick(
           () => {
             if (!ctx.state.isHandled) {
-              SeashellDebug('WARN', `A no response request happened, please check ${req.headers.originUrl}.`);
+              console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
               ctx.response.body = {error: 'NOT_FOUND'};
               ctx.response.end();
               resolve(ctx.response)
@@ -33,6 +32,7 @@ const requestSelf = function(req) {
           }
         )
       });
+
       this.handleLoop(ctx);
     } catch(e){
       reject(e)

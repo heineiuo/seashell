@@ -1,4 +1,3 @@
-import * as log from './log'
 
 const onResponse = function (res) {
   const {callbackId} = res.headers;

@@ -11,7 +11,7 @@
  *
  */
 
-import SocketIO from 'socket.io'
+import WebSocket from 'ws'
 import App from './App'
 import {onChildConnection} from './onChildConnection'
 import {onChildRequest} from './onChildRequest'
@@ -22,10 +22,12 @@ import {requestSession} from './requestSession'
 
 class Seashell extends App {
 
-  constructor () {
+  constructor (opts) {
     super();
-    this.io = new SocketIO();
-    this.io.on('connection', this.onChildConnection);
+    const options = Object.assign({}, opts);
+    if (options.server) delete options.port;
+    this.server = new WebSocket.Server(options);
+    this.server.on('connection', this.onChildConnection);
   }
 
   __SEASHELL_NAME = 'seashell';
@@ -34,6 +36,7 @@ class Seashell extends App {
   __SEASHELL_SOCKET_SESSION_URL = '/socket/session';
   __SEASHELL_SOCKET_UNBIND_URL = '/socket/unbind';
 
+  __connections = {};
   onChildConnection = onChildConnection.bind(this);
   onChildRequest = onChildRequest.bind(this);
   onChildResponse = onChildResponse.bind(this);

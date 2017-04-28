@@ -4,6 +4,4 @@ export {
   splitUrl,
   pathMatch,
   uuid,
-  createStream,
-  createBlobReadStream
 } from '../tools'

@@ -1,39 +1,38 @@
 import * as log from './log'
 
 const bindEventHandlers = function () {
-  this.socket.on('connect', () => {
-    log.info(`connected`);
+  this.socket.on('open', () => {
+    console.info(`[Seashell] connected`);
     this.appState = 2;
   });
 
-  /**
-   * handle hub's response about register
-   * if there's some error, means register has failed
-   * otherwise, it succeed
-   */
-  this.socket.on('YOUR_REGISTER_HAS_RESPONSE', (response) => {
-    log.info(`registered`);
-    this.appState = 3;
+
+  this.socket.on('message', (data, flags) => {
+    data = typeof data === 'string' ? JSON.parse(data): data;
+    if (data.headers.type ===  'YOUR_REGISTER_HAS_RESPONSE') {
+      console.info(`[Seashell] registered`);
+      this.appState = 3;
+    } else if (data.headers.type === 'YOUR_REQUEST_HAS_RESPONSE') {
+      this.onResponse(data, flags)
+    } else if (data.headers.type === 'PLEASE_HANDLE_THIS_REQUEST') {
+      this.onRequest(data, flags)
+    } else {
+      console.log('Unknown message: ')
+      console.log(data)
+    }
   });
 
-  /**
-   * handle response
-   * response should have `callbackId` key.
-   */
-  this.socket.on('YOUR_REQUEST_HAS_RESPONSE', this.onResponse);
-
-  /**
-   * handle request
-   */
-  this.socket.on('PLEASE_HANDLE_THIS_REQUEST', this.onRequest);
+  this.socket.on('error', (err) => {
+    console.error(err)
+  })
 
   /**
    * listing disconnect event
    */
-  this.socket.on('disconnect', () => {
-    console.log('disconnect');
-    log.info(`lost connection`);
+  this.socket.on('close', () => {
+    console.info(`[Seashell] lost connection`);
     this.appState = 0;
+    this.connect(this.appOptions)
   });
 };
 

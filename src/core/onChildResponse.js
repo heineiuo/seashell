@@ -1,4 +1,5 @@
 import {SeashellDebug} from "./debug"
+import {clearUnsafeHeaders} from './clearUnsafeHeaders'
 
 const onChildResponse = async function (socket, res) {
 
@@ -30,14 +31,15 @@ const onChildResponse = async function (socket, res) {
       appId: callbackAppId ? callbackAppId: appId,
       appName
     }});
-    const requestSocket = this.io.sockets.connected[findRequestApp.body.socketId] || null;
+    const requestSocket = this.__connections[findRequestApp.body.socketId] || null;
 
     if (!requestSocket) {
       // todo add to task, when socket connected again, send res again.
       return SeashellDebug('WARN', `the request app offline, maybe resent response later...`)
     }
 
-    requestSocket.emit('YOUR_REQUEST_HAS_RESPONSE', res);
+    res.headers.type = 'YOUR_REQUEST_HAS_RESPONSE'
+    requestSocket.send(clearUnsafeHeaders(res));
     SeashellDebug('INFO',
       `[${requestSocket.appName}] --> [${importAppName}${originUrl}]` +
       `[DONE][${Date.now() - __SEASHELL_START}ms]`

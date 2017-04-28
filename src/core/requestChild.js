@@ -46,7 +46,7 @@ const requestChild = async function (url, data={}, options={needCallback: true})
           appName: importAppName
         }
       });
-      const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
+      const targetSocket = this.__connections[findResponseService.body.socketId];
       if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
       if (needCallback){
@@ -74,7 +74,8 @@ const requestChild = async function (url, data={}, options={needCallback: true})
         resolve()
       }
 
-      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
+      req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST'
+      targetSocket.send(clearUnsafeHeaders(req))
 
     } catch(err) {
       req.headers.status = 'ERROR';

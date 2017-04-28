@@ -1,5 +1,3 @@
-import * as log from './log'
-
 
 const pathMatch = (re, pathname='/', params={}) => {
   const match = re.exec(pathname);

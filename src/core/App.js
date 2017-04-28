@@ -1,12 +1,10 @@
-import SocketIOClient from 'socket.io-client'
 import Router from './Router'
+import WebSocket from 'ws'
 import {request} from './request'
 import {onRequest} from './onRequest'
 import {requestSelf} from './requestSelf'
 import {onResponse} from './onResponse'
-import * as log from './log'
 import {bindEventHandlers} from './bindEventHandlers'
-import ss from 'socket.io-stream'
 
 class App extends Router {
 
@@ -26,9 +24,8 @@ class App extends Router {
    */
   connect = (opts={}) => {
     if (this.appState > 0) return false;
-    log.info(`connecting ${opts.url}`);
-    const options = {}
-    this.socket = ss(SocketIOClient(opts.url), options).sio;
+    console.info(`[Seashell] connecting ${opts.url}`);
+    this.socket = new WebSocket(opts.url)
     this.appState = 1;
     this.appOptions = opts;
     bindEventHandlers.call(this)
@@ -40,9 +37,9 @@ class App extends Router {
    */
   disconnect = () => {
     if (this.appState > 0) {
-      this.socket.disconnect()
+      this.socket.close()
     }
-    log.info(`disconnected`)
+    console.info(`[Seashell] disconnected`)
   }
 }
 

@@ -18,7 +18,8 @@ const onChildRequest = async function(socket, req) {
      */
     if (isToSelf) {
       const result = await this.requestSelf(req);
-      socket.emit('YOUR_REQUEST_HAS_RESPONSE', result);
+      result.headers.type = 'YOUR_REQUEST_HAS_RESPONSE';
+      socket.send(clearUnsafeHeaders(result));
     } else {
       const findResponseService = await this.requestSelf({
         headers: {
@@ -30,16 +31,18 @@ const onChildRequest = async function(socket, req) {
           appId
         }
       });
-      const targetSocket = this.io.sockets.connected[findResponseService.body.socketId];
+      const targetSocket = this.__connections[findResponseService.body.socketId];
       if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
 
-      targetSocket.emit('PLEASE_HANDLE_THIS_REQUEST', clearUnsafeHeaders(req))
+      req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST';
+      targetSocket.send(clearUnsafeHeaders(req))
     }
 
   } catch(err) {
     req.headers.status = 'ERROR';
     req.body.error = err.message;
-    socket.emit('YOUR_REQUEST_HAS_RESPONSE', req);
+    req.headers.type = 'YOUR_REQUEST_HAS_RESPONSE';
+    socket.send(clearUnsafeHeaders(req));
 
     SeashellDebug('ERROR',
       `[${appName}] --> [${importAppName}${originUrl}]` +
