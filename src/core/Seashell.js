@@ -11,7 +11,7 @@
  *
  */
 
-import WebSocket from 'ws'
+import WebSocket from 'isomorphic-ws'
 import App from './App'
 import {onChildConnection} from './onChildConnection'
 import {onChildRequest} from './onChildRequest'

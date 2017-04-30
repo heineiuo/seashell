@@ -1,10 +1,10 @@
 {
   "plugins": [
-    "transform-class-properties",
-    ["transform-runtime", {
-      "polyfill": false,
-      "regenerator": true
-    }]
+    "transform-class-properties"
+    // ["transform-runtime", {
+      // "polyfill": false,
+      // "regenerator": true
+    // }]
   ],
   "presets": ["es2015", "stage-0"]
 }

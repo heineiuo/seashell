@@ -8,7 +8,12 @@
       "distPath": "./dist",
       "//publicPath": "//unpkg.com/seashell-client@0.8.1/dist/",
       "devPublicPath": "http://127.0.0.1:8083/dist/",
-      "isLibrary": true
+      "isLibrary": true,
+      "externals": {
+        "ws": {
+          "root": "WebSocket"
+        }
+      }
     }
   ],
   "useBabelrc": true,

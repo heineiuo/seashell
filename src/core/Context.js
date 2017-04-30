@@ -18,7 +18,7 @@ class Context extends Emitter {
           headers: {...this.response.headers, type: 'I_HAVE_HANDLE_THIS_REQUEST'},
           body: this.response.body
         }));
-        this.emit('end');
+        this.emit('close');
       }
     };
   }

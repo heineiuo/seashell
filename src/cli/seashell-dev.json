@@ -1,0 +1,19 @@
+{
+  "targets": [
+    {
+      "entry": "server/index.js",
+      "port": 8080,
+      "publicPath": "/api/draft",
+      "outputPath": "build/bin",
+      "outputName": "example",
+      "seashell": {
+        "url": "ws://120.24.2.71:3311",
+        "key": {
+          "appId": "ca189e83-72f1-428d-8aec-604e0cad3e14",
+          "appName": "local-tester",
+          "appSecret": "add698be17b9b469623357347795beca8c75d481c0d962431afef1ea1237a3dz"
+        }
+      }
+    }
+  ]
+}
