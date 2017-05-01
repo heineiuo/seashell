@@ -1,11 +1,11 @@
-const path = require('path');
-const nodeExternals = require('webpack-node-externals');
+import path from 'path'
+import nodeExternals from 'webpack-node-externals'
 
 /**
  * webpack server config
  * @param options
  */
-module.exports = (options) => {
+export default (options) => {
 
   const config = {
     context: process.cwd(),
@@ -21,8 +21,6 @@ module.exports = (options) => {
       filename: `${options.outputName}.js`
     },
     externals: nodeExternals({
-      // whitelist: [ 'node-uuid', 'sha.js']
-      // whitelist: _.keys(packageFile.devDependencies)
     }),
     resolve: {
       extensions: ['', '.jsx', '.scss', '.js', '.json'],
@@ -31,7 +29,7 @@ module.exports = (options) => {
       ]
     },
     module: {
-      loaders: [
+      rules: [
         {
           test: /(\.js|\.jsx)$/,
           exclude: /(node_modules)/,

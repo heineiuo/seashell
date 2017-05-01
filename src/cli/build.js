@@ -1,7 +1,9 @@
-const webpackServerConfigCreator = require('./configure');
-const webpack = require('webpack');
+import webpack from 'webpack'
+import webpackServerConfigCreator from './configure'
+import {argv} from 'yargs'
+import readConfig from './readConfig'
 
-module.exports = (target) => {
+export default () => {
 
   const webpackConf = webpackServerConfigCreator(target);
   const compiler = webpack(webpackConf);

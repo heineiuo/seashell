@@ -1,49 +1,37 @@
-var program = require('commander')
-var uuid = require('uuid')
-var sha256 = require('sha.js')('sha256')
-var fs = require('fs-promise')
-var path = require('path')
-var version = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'))).version
-var createSecret = require('./createSecret')
+/**
+ * pnp means pull and push
+ */
 
-program
-  .version(version)
-  .option('-v, --version', 'View version')
-  .option('-i, --init', 'Create an instance')
-  .option('-p, --path', 'keygen path', targetPath)
-  .option('-l, --list', 'List all services', listServices)
-  .parse(process.argv)
+import {argv} from 'yargs'
+import {fail} from './show'
+import proxy from './proxy'
+import build from './build'
 
-module.exports = function () {
-
-  if (program.init) init(program)
-
+const commands = {
+  proxy,
+  build
 }
 
-function listServices(program) {
+process.nextTick(async () => {
+  try {
+    const userCommands = argv._.slice();
 
-}
+    const walkToExecCommand = (commands) => new Promise(async (resolve, reject) => {
+      const command = commands[userCommands[0]];
+      if (typeof command === 'undefined') return reject(new Error('Command not found! '))
+      try {
+        if (typeof command === 'function') return resolve(await command())
+        userCommands.shift();
+        resolve(await walkToExecCommand(command))
+      } catch(e){
+        reject(e)
+      }
+    })
 
-function targetPath(val) {
-  return val
-}
+    await walkToExecCommand(commands)
 
-
-
-function createService(program, callback){
-  console.log('Creating auth file...')
-  var service = {}
-  var targetPath = program.targetPath || process.cwd()
-  service.appId = uuid.v4()
-  service.appName = program.appName || 'unnamed'
-  service.appSecret = createSecret()
-
-  var data = JSON.stringify(service, null, 2)
-
-  fs.writeFile(targetPath+'/'+service.appId+'.json', data, 'UTF-8', function (err) {
-    if (err) console.error(err)
-    console.log('Create auth file in path '+targetPath)
-  })
-
-}
-
+  } catch(e){
+    fail(`${e.name}: ${e.message}`)
+    // console.log(e.stack)
+  }
+})

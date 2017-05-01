@@ -1,55 +1,61 @@
-const seashellProxyMiddleware = (seashellApp, seashellConfig) => {
+import express from "express"
+import morgan from "morgan"
+import bodyParser from "body-parser"
+import pick from "lodash/pick"
 
-  const handleRequest = (req, original) => {
-    const {handleLoop} = seashellApp
-    console.log(`[seashell] handle request: ${JSON.stringify(req)}`)
-    Object.assign(req, {params: {}})
-    const res = {
-      headers: {
-        appId: req.headers.appId,
-        callbackId: req.headers.callbackId
-      },
-      body: {},
-      end: () => {
-        if (res.headers.__type === 'html') return original.res.end(res.body.__html)
-        if (res.headers.__type === 'json') return original.res.json(res.body)
-        original.res.json(res.body)
-      },
-      json: (data) => {
-        res.headers.__type = 'json'
-        res.body = data
-        res.end()
-      },
-      render: (string) => {
-        res.headers.__type = 'html'
-        res.body.__html = string
-        res.end()
-      }
-    }
-    const next = (err, req, res, index, pathname) => {
-      return handleLoop(err, req, res, next, index, pathname)
-    }
-    next(null, req, res, 0, req.headers.originUrl)
-  }
+export default (seashell, opts={}) => {
 
-  if (typeof seashellConfig !== 'undefined') {
-    seashellApp.connect(seashellConfig)
-  }
+  const app = express();
+  const httpOptions = Object({port: 8080}, opts);
 
-  return (req, res, next) => {
-    const original = {
-      req: req,
-      res: res,
-      next: next
-    }
-    const seaReq = {
-      headers: {
-        originUrl: req.path
-      },
-      body: Object.assign({}, req.query, req.body)
-    }
-    handleRequest(seaReq, original)
-  }
-}
+  app.use(morgan('dev'));
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(bodyParser.json());
+  app.use(bodyParser.json({type: 'application/*+json'}));
+  app.use(bodyParser.json({type: 'text/html'}));
+  app.use(bodyParser.json({type: 'text/plain'}));
 
-export { seashellProxyMiddleware }
+  app.use(async (req, res, next) => {
+
+    try {
+      const meta = Object.assign({},
+        pick(req, ['ip', 'method', 'originalUrl', 'protocol']),
+        pick(req.headers, ['user-agent', 'host'])
+      );
+
+      const data = Object.assign({}, req.query, req.body);
+
+      const result = await seashell.requestSelf({
+          headers: {
+            meta,
+            originUrl: req.url
+          },
+          body: data
+        })
+
+      res.json(result.body)
+
+    } catch (e) {
+      next(e)
+    }
+
+  });
+
+  app.use((err, req, res, next) => {
+    if (!err) return next()
+    res.status(500);
+    res.end(err.stack || err.message || err.name || err);
+  })
+
+  app.use((req, res) => {
+    res.sendStatus(404)
+  })
+
+
+  app.listen(httpOptions.port, () => {
+    console.log('[SEASHELL] Seashell Proxy just for development, please consider your own proxy way on production')
+    console.log('[SEASHELL] Seashell Proxy running on port ' + httpOptions.port)
+  })
+
+};
+
