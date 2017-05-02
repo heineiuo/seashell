@@ -23,39 +23,38 @@ We have some examples in examples directory.
 ```javascript
 $ npm install seashell --save
 
-// create hub.js
+// server
 import Seashell from 'seashell'
 
-const hub = new Seashell()
-hub.start()
+const seashell = new Seashell();
 
-// create app.js
-import {App, Router} from 'seashell'
+seashell.use('/api', ctx => {
+  ctx.response.body = {...};
+  ctx.response.end()
+})
 
-const config = {
-  url: "ws://127.0.0.1:3311",
-  key: {
-    appId: "", // see example in demo/service
-    appName: "",
-    appSecret: ""
-  }
-}
-app.connect(config)
+seashell.listen(3333);
+
+// client
+import {App, Router} from 'seashell/lib/client'
+
+app.connect('ws://127.0.0.1:3333?appId=APPID&appName=APPNAME&appSecret=APPSECRET');
+
+app.request('/seashell/api');
 
 ```
 
 ## Command Line Tool
 
 ```shell
-$ npm install seashell-cli -g
-$ seashell -k // will create a key like example in demo/service.
+$ npm install seashell -g
+$ seashell proxy src/index.js # Start a http server to proxy seashell app.
 ```
 
 
 ## Road Map
 
 * Streaming support.
-* Index Service support.
 
 
 ## Community

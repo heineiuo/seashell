@@ -7,11 +7,26 @@ import {fail} from './show'
 import devProxy from './devProxy'
 import devServer from './devServer'
 import build from './build'
+import {info} from './show'
+
+const help = () => new Promise(async (resolve, reject) => {
+  info(
+`
+All Commands:
+help, ${Object.keys(commands).join(', ')}
+
+seashell build --entry=[entry file path]     Build app.
+seashell dev proxy --entry=[entry file path] Start a http server to proxy app.
+`
+  )
+  resolve()
+})
 
 const commands = {
   devProxy,
   devServer,
   build,
+  help,
   dev: {
     server: devServer,
     proxy: devProxy
