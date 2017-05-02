@@ -3,7 +3,9 @@ import nodeExternals from 'webpack-node-externals'
 
 /**
  * webpack server config
- * @param options
+ * @param options.entry
+ * @param options.outputPath
+ * @param options.outputName
  */
 export default (options) => {
 
@@ -14,30 +16,22 @@ export default (options) => {
     devtool: false,
     target: 'node',
     entry: {
-      index: [path.join(process.cwd(), options.entry)]
+      index: [options.entry]
     },
     output: {
-      path: path.join(process.cwd(), options.outputPath),
+      path: options.outputPath,
       filename: `${options.outputName}.js`
     },
-    externals: nodeExternals({
-    }),
+    externals: nodeExternals({}),
     resolve: {
-      extensions: ['', '.jsx', '.scss', '.js', '.json'],
-      modulesDirectories: [
-        'node_modules',
-      ]
+      extensions: ['.js', '.json'],
     },
     module: {
       rules: [
         {
           test: /(\.js|\.jsx)$/,
           exclude: /(node_modules)/,
-          loader: 'babel',
-          query: {
-            presets:['es2015','stage-0', 'react'],
-            plugins: ['transform-runtime']
-          }
+          loader: 'babel-loader'
         }
       ]
     },

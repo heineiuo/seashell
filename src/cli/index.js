@@ -4,12 +4,18 @@
 
 import {argv} from 'yargs'
 import {fail} from './show'
-import proxy from './proxy'
+import devProxy from './devProxy'
+import devServer from './devServer'
 import build from './build'
 
 const commands = {
-  proxy,
-  build
+  devProxy,
+  devServer,
+  build,
+  dev: {
+    server: devServer,
+    proxy: devProxy
+  }
 }
 
 process.nextTick(async () => {
