@@ -13,10 +13,12 @@ examples/data/db/service/*
 
 # packages
 package/*/lib
-packages/seashell-cli
+# package seashell-cli
+packages/seashell-cli/*
 !packages/seashell-cli/package.json
 !packages/seashell-cli/README.md
 !packages/seashell-cli/bin
-/packages/seashell/
+# package seashell
+/packages/seashell/*
 !/packages/seashell/package.json
 !/packages/seashell/README.md
