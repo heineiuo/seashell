@@ -47,7 +47,7 @@ app.request('/seashell/api');
 ## Command Line Tool
 
 ```shell
-$ npm install seashell -g
+$ npm install seashell-cli -g
 $ seashell proxy src/index.js # Start a http server to proxy seashell app.
 ```
 

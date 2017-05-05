@@ -10,3 +10,13 @@ lib/*
 .DS_Store
 Thumb.db
 examples/data/db/service/*
+
+# packages
+package/*/lib
+packages/seashell-cli
+!packages/seashell-cli/package.json
+!packages/seashell-cli/README.md
+!packages/seashell-cli/bin
+/packages/seashell/
+!/packages/seashell/package.json
+!/packages/seashell/README.md
