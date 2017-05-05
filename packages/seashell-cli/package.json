@@ -34,6 +34,7 @@
     "morgan": "^1.8.1",
     "path-to-regexp": "^1.7.0",
     "prettyjson": "^1.2.1",
+    "seashell": "~0.12.0",
     "shelljs": "^0.7.7",
     "uuid": "~2.0.2",
     "webpack": "^2.4.1",
