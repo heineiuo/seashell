@@ -6,7 +6,7 @@ export default () => {
 
   if (!shelljs.which('babel-node')) return console.error('[SEASHELL] Please install babel-node first')
   let extraCommand = '';
-  if (argv.port) extendCommand += ` --port ${argv.port}`
+  if (argv.port) extraCommand += ` --port ${argv.port}`
   shelljs.exec(`babel-node ${path.resolve(__dirname, './server.js')} ${extraCommand}`);
 
 };
