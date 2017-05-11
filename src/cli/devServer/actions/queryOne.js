@@ -9,6 +9,12 @@ export default query => (dispatch, getCtx) => new Promise(async (resolve, reject
   const validated = validate(query);
   const {appName, appId} = validated.value;
   let socketId = null;
-  // todo
-  resolve({socketId})
+  try {
+    const nedb = (await getCtx().getNedb()).collection('socket');
+    const doc = await nedb.findOne({appName});
+    console.log(doc);
+    resolve({socketId: doc.socketId});
+  } catch(e){
+    reject(e)
+  }
 })

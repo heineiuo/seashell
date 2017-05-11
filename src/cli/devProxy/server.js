@@ -6,7 +6,7 @@ import pick from "lodash/pick"
 export default (seashell, opts={}) => {
 
   const app = express();
-  const httpOptions = Object({port: 8080}, opts);
+  const httpOptions = Object.assign({port: 8080}, opts);
 
   app.use(morgan('dev'));
   app.use(bodyParser.urlencoded({extended: true}));

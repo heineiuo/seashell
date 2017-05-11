@@ -1,18 +1,11 @@
 {
   "name": "seashell-cli",
   "version": "0.12.0",
-  "main": "./lib/index.js",
   "bin": {
     "seashell": "./bin/seashell"
   },
   "browser": "./dist/seashell-client.js",
   "description": "A message framework for node.js and javascript.",
-  "scripts": {
-    "build": "babel ./src -d packages/seashell --ignore __tests__ --ignore .test.js",
-    "build-inline": "babel --no-babelrc ./src -d packages/seashell --ignore __tests__ --ignore .test.js --presets=es2015,stage-0 --plugins=transform-class-properties,transform-runtime",
-    "build-client": "react-sh --build --compress",
-    "test": "jest __tests__"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:heineiuo/seashell"
@@ -25,21 +18,21 @@
   "author": "@heineiuo",
   "license": "MIT",
   "dependencies": {
+    "action-creator": "^0.4.0",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
     "babel-runtime": "^6.23.0",
     "body-parser": "^1.17.1",
     "chalk": "^1.1.3",
     "express": "^4.15.2",
-    "fs-promise": "^2.0.2",    
-    "isomorphic-ws": "^2.3.1",
-    "morgan": "^1.8.1",
-    "path-to-regexp": "^1.7.0",
-    "prettyjson": "^1.2.1",
-    "seashell": "~0.12.0",
+    "fs-promise": "^2.0.2",
+    "joi": "^10.4.1",
+    "nedb-promise": "^2.0.1",
+    "seashell": "~0.12.1-beta1",
     "shelljs": "^0.7.7",
     "uuid": "~2.0.2",
     "webpack": "^2.4.1",
     "webpack-node-externals": "^1.5.4",
-    "ws": "^2.3.1",
     "yargs": "^7.1.0"
   }
 }

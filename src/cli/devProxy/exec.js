@@ -1,7 +1,7 @@
 import {argv} from 'yargs'
 import shelljs from 'shelljs'
 import path from 'path'
-import proxy from '../devProxy'
+import proxy from 'seashell/devProxy'
 
 process.nextTick(() => {
   const {entryFile} = argv;

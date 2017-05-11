@@ -7,6 +7,6 @@ export default () => {
   if (!shelljs.which('babel-node')) return console.error('[SEASHELL] Please install babel-node first')
   if (!argv.entry) return console.log('[SEASHELL] Lost param: entry');
   const entryFile = path.resolve(process.cwd(), argv.entry);
-  shelljs.exec(`babel-node ${path.resolve(__dirname, './devProxyExec.js')} --entryFile=${entryFile}`);
+  shelljs.exec(`babel-node ${path.resolve(__dirname, './exec.js')} --entryFile=${entryFile}`);
 
 };

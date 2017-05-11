@@ -21,6 +21,7 @@ const register = function(socket, registerInfo) {
           registerInfo
         }
       });
+      console.log(socketData.body)
       if (socketData.body.error) throw new Error(socketData.body.error);
       socket.send(clearUnsafeHeaders({
         headers: {type: 'YOUR_REGISTER_HAS_RESPONSE'},

@@ -6,10 +6,10 @@ const validate = (query) => Joi.validate(query, Joi.object().keys({
 }), {allowUnknown: true});
 
 /**
- * 绑定app到socket /socket/add
- * @param query.socketId
- * @param query.registerInfo
- * @returns {Promise}
+ * *** WARNING ****
+ * This bind function is just for dev server, 
+ * and it DOESN'T VERIFY REGISTER INFO.
+ * You MUST VERIFY REGISTER INFO in production.
  */
 export default (query) => (dispatch, getCtx) => new Promise(async(resolve, reject) => {
   const validated = validate(query);
@@ -17,7 +17,9 @@ export default (query) => (dispatch, getCtx) => new Promise(async(resolve, rejec
   const {socketId, registerInfo: {appName, appId, appSecret}} = validated.value;
 
   try {
-    // todo 
+    const nedb = (await getCtx().getNedb()).collection('socket');
+    const doc = await nedb.insert({socketId, appName, appId, appSecret})
+    console.log(doc)
     resolve({socketId})
   } catch (e) {
     reject(e);
