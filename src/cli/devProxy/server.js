@@ -2,8 +2,11 @@ import express from "express"
 import morgan from "morgan"
 import bodyParser from "body-parser"
 import pick from "lodash/pick"
+import {argv} from 'yargs'
+import shelljs from 'shelljs'
+import path from 'path'
 
-export default (seashell, opts={}) => {
+const proxy = (seashell, opts={}) => {
 
   const app = express();
   const httpOptions = Object.assign({port: 8080}, opts);
@@ -59,3 +62,12 @@ export default (seashell, opts={}) => {
 
 };
 
+
+
+process.nextTick(() => {
+  const {entryFile} = argv;
+  let app = require(entryFile);
+  if (!app.hasOwnProperty('requestSelf')) app = app.default;
+  if (!app.hasOwnProperty('requestSelf')) return console.log('[SEASHELL] Illegal entry module')
+  proxy(app)
+})
