@@ -1,7 +1,8 @@
 import Url from 'url'
+import uuid from 'uuid'
 import {SeashellDebug} from './debug'
 import {register} from './register'
-import uuid from 'uuid'
+import {parseBuffer} from './clearUnsafeHeaders'
 
 /**
  * handle socket connection
@@ -21,8 +22,8 @@ const onChildConnection = async function(socket) {
     return socket.close()
   }
 
-  socket.on('message', (data) => {
-    data = JSON.parse(data);
+  socket.on('message', (buf) => {
+    const data = parseBuffer(buf)
     if (data.headers.type === 'I_HAVE_A_REQUEST') {
       process.nextTick(() => this.onChildRequest(socket, data))
     } else if ( data.headers.type === 'I_HAVE_HANDLE_THIS_REQUEST') {

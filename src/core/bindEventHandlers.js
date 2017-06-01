@@ -1,4 +1,5 @@
 import * as log from './log'
+import {parseBuffer} from './clearUnsafeHeaders'
 
 const bindEventHandlers = function () {
   this.socket.on('open', () => {
@@ -7,15 +8,15 @@ const bindEventHandlers = function () {
   });
 
 
-  this.socket.on('message', (data, flags) => {
-    data = typeof data === 'string' ? JSON.parse(data): data;
+  this.socket.on('message', (e) => {
+    const data = parseBuffer(e)
     if (data.headers.type ===  'YOUR_REGISTER_HAS_RESPONSE') {
       console.info(`[Seashell] registered`);
       this.appState = 3;
     } else if (data.headers.type === 'YOUR_REQUEST_HAS_RESPONSE') {
-      this.onResponse(data, flags)
+      this.onResponse(data)
     } else if (data.headers.type === 'PLEASE_HANDLE_THIS_REQUEST') {
-      this.onRequest(data, flags)
+      this.onRequest(data)
     } else {
       console.log('Unknown message: ')
       console.log(data)

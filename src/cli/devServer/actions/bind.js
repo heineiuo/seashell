@@ -19,7 +19,8 @@ export default (query) => (dispatch, getCtx) => new Promise(async(resolve, rejec
   try {
     const nedb = (await getCtx().getNedb()).collection('socket');
     const doc = await nedb.insert({socketId, appName, appId, appSecret})
-    console.log(doc)
+    console.log('doc: ' + JSON.stringify(doc))
+    if (!doc) return reject(new Error('bind fail'))
     resolve({socketId})
   } catch (e) {
     reject(e);

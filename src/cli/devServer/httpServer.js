@@ -16,7 +16,7 @@ app.use(bodyParser.json({type: 'text/html'}));
 app.use(bodyParser.json({type: 'text/plain'}));
 
 app.use(async (req, res, next) => {
-  try {
+  try {    
     const __GATEWAY_META = Object.assign({},
       pick(req, ['ip', 'method', 'originalUrl', 'protocol']),
       pick(req.headers, ['user-agent', 'host'])
