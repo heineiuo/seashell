@@ -1,13 +1,14 @@
 import Emitter from 'events'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
 import {clearUnsafeHeaders} from './clearUnsafeHeaders'
+import defaults from 'lodash/defaults'
 
 class Context extends Emitter {
   constructor(socket, req){
     super();
     this.socket = socket;
     this.request = req;
-    if (!req.hasOwnProperty('params')) this.request.params = {};
+    defaults(this.request, {params: {}});
     this.response = {
       headers: req.headers,
       body: {},
