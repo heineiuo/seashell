@@ -28,7 +28,7 @@
     "fs-promise": "^2.0.2",
     "joi": "^10.4.1",
     "nedb-promise": "^2.0.1",
-    "seashell": "~0.12.1-beta1",
+    "seashell": "0.12.1-beta.2",
     "shelljs": "^0.7.7",
     "uuid": "~2.0.2",
     "webpack": "^2.4.1",

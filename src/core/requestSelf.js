@@ -21,16 +21,14 @@ const requestSelf = function(req) {
       }, req);
 
       ctx.on('end', () => {
-        process.nextTick(
-          () => {
-            if (!ctx.state.isHandled) {
-              console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
-              ctx.response.body = {error: 'NOT_FOUND'};
-              ctx.response.end();
-              resolve(ctx.response)
-            }
+        process.nextTick(() => {
+          if (!ctx.state.isHandled) {
+            console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
+            ctx.response.body = {error: 'NOT_FOUND'};
+            ctx.response.end();
+            resolve(ctx.response)
           }
-        )
+        })
       });
 
       this.handleLoop(ctx);
