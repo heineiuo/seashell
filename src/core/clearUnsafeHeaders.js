@@ -2,7 +2,6 @@ import defaults from 'lodash/defaults'
 import {Buffer} from 'buffer'
 
 const parseBuffer = (e) => {
-  const str = e.toString()
   const indexOfSeparator = e.indexOf(':')
   const headerByteLength = Number(e.slice(0, indexOfSeparator))
   const indexOfHeaderStart = indexOfSeparator + 1
@@ -26,8 +25,6 @@ const buildBuffer = (header, body) => {
     headerBuf,
     bodyBuf
   ])
-
-  console.log(len, JSON.stringify(header))
 
   return mergeBuffer
 }
