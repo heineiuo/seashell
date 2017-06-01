@@ -27,7 +27,7 @@ export default () => {
       
 
     } catch(e){
-      console.log(e)
+      console.log('build' + e)
     }
   })
   

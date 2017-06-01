@@ -1,6 +1,6 @@
 import {Context} from './Context'
 import {I_HAVE_HANDLE_THIS_REQUEST} from './emit-types'
-import {clearUnsafeHeaders} from './clearUnsafeHeaders'
+import {clearUnsafeHeaders, parseBuffer} from './clearUnsafeHeaders'
 
 const requestSelf = function(req) {
   let state = 0; // 0 initial 1 success 2 error
@@ -8,14 +8,14 @@ const requestSelf = function(req) {
   return new Promise(async (resolve, reject) => {
     try {
       const ctx = new Context({
-        send: (data) => {
-          data = JSON.parse(data);
+        send: (res) => {
+          const data = parseBuffer(res)
           if (data.headers.type === I_HAVE_HANDLE_THIS_REQUEST) {
             state = 1;
             resolve(data)
           } else {
             state = 2;
-            reject()
+            reject(new Error('Unknown type of response header.'))
           }
         }
       }, req);

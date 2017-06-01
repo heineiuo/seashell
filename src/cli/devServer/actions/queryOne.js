@@ -12,7 +12,8 @@ export default query => (dispatch, getCtx) => new Promise(async (resolve, reject
   try {
     const nedb = (await getCtx().getNedb()).collection('socket');
     const doc = await nedb.findOne({appName});
-    console.log(doc);
+    console.log('doc: ' + JSON.stringify(doc));
+    if (!doc) return reject('NOT_FOUND')
     resolve({socketId: doc.socketId});
   } catch(e){
     reject(e)

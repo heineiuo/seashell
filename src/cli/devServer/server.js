@@ -1,5 +1,5 @@
-import Seashell from 'seashell'
-// import Seashell from '../..'
+import Seashell from '../../index'
+// import Seashell from 'seashell'
 import httpServer from './httpServer'
 import allActionCreators from './actions'
 import getNedb, {getConfig} from './nedb'
@@ -7,12 +7,17 @@ import {createDispatch} from 'action-creator'
 
 const app = new Seashell({server: httpServer});
 
-app.use(async (ctx, next) => {
+app.use((ctx, next) => {
   ctx.getNedb = getNedb;
   ctx.getConfig = getConfig;
   ctx.json = (json) => {
-    ctx.response.body = json
-    ctx.response.end()
+    try {
+      ctx.response.body = json
+      ctx.response.end()
+    } catch(e){
+      console.log('error' + e)
+    }
+    
   };
   ctx.setHeader = (header) => {
     Object.assign(ctx.response.headers, header);
@@ -24,12 +29,12 @@ app.use(async (ctx, next) => {
     if (err.message === 'Command failed') return ctx.error('COMMAND_FAILED');
     return ctx.error(err.message);
   });
-  ctx.on('end', () => {
-    if (!ctx.state.isHandled) {
-      ctx.response.body = {error: 'CAN_NOT_HANDLE_TIS_REQUEST'};
-      ctx.response.end()
-    }
-  });
+  // ctx.on('end', () => {
+  //   if (!ctx.state.isHandled) {
+  //     ctx.response.body = {error: 'CAN_NOT_HANDLE_TIS_REQUEST'};
+  //     ctx.response.end()
+  //   }
+  // });
   next()
 });
 
