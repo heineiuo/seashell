@@ -1,4 +1,3 @@
-import prettyjson from 'prettyjson'
 import * as log from './log'
 
 const SeashellDebug = (type, ...logs) => {
@@ -11,7 +10,7 @@ const SeashellDebug = (type, ...logs) => {
       if (log.name && log.message && log.stack) {
         result += `[ERROR]:${'\n'}${log.stack}`
       } else {
-        result += `[JSON]:${'\n'}${prettyjson.render(log)}`;
+        result += `[JSON]:${'\n'}${JSON.stringify(log)}`;
       }
     }
   });
