@@ -40,7 +40,6 @@
     "ent": "^2.2.0",
     "express": "^4.15.2",
     "formidable": "^1.1.1",
-    "fs-promise": "^2.0.2",
     "http-proxy": "^1.16.2",
     "isomorphic-ws": "^2.3.1",
     "jest": "^19.0.2",
@@ -58,6 +57,7 @@
     "webpack": "^2.4.1",
     "webpack-node-externals": "^1.5.4",
     "ws": "^2.3.1",
-    "yargs": "^7.1.0"
+    "yargs": "^7.1.0",
+    "mz": "^2.6.0"
   }
 }

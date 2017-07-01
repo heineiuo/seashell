@@ -2,7 +2,7 @@ import webpack from 'webpack'
 import configure from './configure'
 import {argv} from 'yargs'
 import path from 'path'
-import fs from 'fs-promise'
+import fs from 'mz/fs'
 
 export default () => {
 

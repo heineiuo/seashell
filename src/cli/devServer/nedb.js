@@ -1,6 +1,6 @@
 import {homedir} from "os"
 import {argv} from "yargs"
-import fs from 'fs-promise'
+import fs from 'mz/fs'
 import json5 from 'json5'
 import path from 'path'
 import nedb from 'nedb-promise'
