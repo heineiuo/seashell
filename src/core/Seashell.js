@@ -12,13 +12,13 @@
  */
 
 import WebSocket from 'isomorphic-ws'
+import Url from 'url'
+import uuid from 'uuid'
+import Emitter from 'events'
+import {SeashellDebug} from './log'
+import {parseBuffer, clearUnsafeHeaders} from './clearUnsafeHeaders'
 import App from './App'
-import {onChildConnection} from './onChildConnection'
-import {onChildRequest} from './onChildRequest'
-import {onChildResponse} from './onChildResponse'
-import {onChildDisconnect} from './onChildDisconnect'
-import {requestChild} from './requestChild'
-import {requestSession} from './requestSession'
+import {splitUrl} from './splitUrl'
 
 class Seashell extends App {
 
@@ -37,12 +37,313 @@ class Seashell extends App {
   __SEASHELL_SOCKET_UNBIND_URL = '/socket/unbind';
 
   __connections = {};
-  onChildConnection = onChildConnection.bind(this);
-  onChildRequest = onChildRequest.bind(this);
-  onChildResponse = onChildResponse.bind(this);
-  onChildDisconnect = onChildDisconnect.bind(this);
-  requestChild = requestChild.bind(this);
-  requestSession = requestSession.bind(this);
+
+    
+  /**
+   * handle socket connection
+   */
+  onChildConnection = async (socket) => {
+
+    const url = Url.parse(socket.upgradeReq.url, {parseQueryString: true});
+    SeashellDebug('INFO', `[new connection: ${url.query.appName}, ${url.query.appId}]`);
+    socket.id = uuid.v1();
+    this.__connections[socket.id] = socket;
+
+    try {
+      if (!socket.id) throw new Error('LOST_SOCKET_ID');
+      const socketDataAll = await this.requestSelf({
+        headers: {
+          originUrl: this.__SEASHELL_SOCKET_BIND_URL,
+          originUrlDescription: '__SEASHELL_SOCKET_BIND_URL',
+        },
+        body: {
+          socketId: socket.id,
+          registerInfo: url.query
+        }
+      });
+      if (socketDataAll.body.error) throw new Error(socketDataAll.body.error);
+      socket.send(clearUnsafeHeaders({
+        headers: {type: 'YOUR_REGISTER_HAS_RESPONSE'},
+        body: {success: 1, socketData: socketDataAll.body}
+      }));
+
+      const socketData = socketDataAll.body;
+
+      SeashellDebug('INFO', `${url.query.appName} register success, id: ${url.query.appId}`);
+    } catch (e) {
+
+      try {
+        socket.send(clearUnsafeHeaders({
+          headers: {type: 'YOUR_REGISTER_HAS_RESPONSE'},
+          body: {error: e.message}
+        }));
+      } catch(e){
+        console.log('send fail' + e)
+      }
+      
+      SeashellDebug('ERROR', `${url.query.appName} register failed: ${e.message}`);
+      return socket.close()
+    }
+
+    socket.on('message', (buf) => {
+      const data = parseBuffer(buf)
+      if (data.headers.type === 'I_HAVE_A_REQUEST') {
+        process.nextTick(() => this.onChildRequest(socket, data))
+      } else if ( data.headers.type === 'I_HAVE_HANDLE_THIS_REQUEST') {
+        process.nextTick(() => this.onChildResponse(socket, data))
+      }
+    });
+
+    /**
+     * handle disconnect
+     */
+    socket.on('close', () => {
+      delete this.__connections[socket.id];
+      this.onChildDisconnect(socket)
+    })
+  };
+
+
+  onChildRequest = async (socket, req) => {
+
+    const {importAppName, originUrl, __SEASHELL_START, appName, appId} = req.headers;
+    req.headers.__SEASHELL_START = Date.now();
+    const isToSelf = importAppName === this.__SEASHELL_NAME;
+
+
+    try {
+      req.headers.session = await this.requestSession(req, socket);
+
+      /**
+       * 发送请求
+       * 如果请求的是集成服务, 则直接调用
+       * 否则，先验证目标app是否在线, 在线则发包给目标app
+       */
+      if (isToSelf) {
+        const result = await this.requestSelf(req);
+        result.headers.type = 'YOUR_REQUEST_HAS_RESPONSE';
+        socket.send(clearUnsafeHeaders(result));
+      } else {
+        const findResponseService = await this.requestSelf({
+          headers: {
+            originUrl: this.__SEASHELL_SOCKET_QUERY_URL,
+            originUrlDescription: '__SEASHELL_SOCKET_QUERY_URL'
+          },
+          body: {
+            appName: importAppName,
+            appId
+          }
+        });
+        const targetSocket = this.__connections[findResponseService.body.socketId];
+        if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
+
+        req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST';
+        targetSocket.send(clearUnsafeHeaders(req))
+      }
+
+    } catch(err) {
+      req.headers.status = 'ERROR';
+      req.body.error = err.message;
+      req.headers.type = 'YOUR_REQUEST_HAS_RESPONSE';
+      socket.send(clearUnsafeHeaders(req));
+
+      SeashellDebug('ERROR',
+        `[${appName}] --> [${importAppName}${originUrl}]` +
+        `[ERROR][${err.message}][${Date.now() - __SEASHELL_START}ms]`
+      );
+    }
+  };
+
+  
+  
+
+  onChildResponse = async (socket, res) => {
+
+    const {appName, appId, callbackId, callbackAppId, importAppName, originUrl, __SEASHELL_START} = res.headers;
+
+    /**
+     * 如果没有callbackId, drop这个处理（用于send请求，仅发送消息）
+     * 如果请求来自requestChild, 触发callback emit
+     * 否则如果没有appId或appName, 该响应非法
+     * 否则根据appName和appId找到socket，
+     * 存在不在线的情况，需要做丢弃或者离线处理（离线处理涉及到callbackId的存储问题）
+     */
+    if (!callbackId) return null;
+
+    try {
+      if (res.headers.appName === this.__SEASHELL_NAME) {
+        try {
+          this.importEmitterStack[callbackId].emit('RESPONSE', res);
+        } catch(e) {}
+        return null
+      }
+
+      if (!appId || !appName) return null;
+
+      const findRequestApp = await this.requestSelf({headers: {
+        originUrl: this.__SEASHELL_SOCKET_QUERY_URL,
+        originUrlDescription: '__SEASHELL_SOCKET_QUERY_URL'
+      }, body: {
+        appId: callbackAppId ? callbackAppId: appId,
+        appName
+      }});
+      const requestSocket = this.__connections[findRequestApp.body.socketId] || null;
+
+      if (!requestSocket) {
+        // todo add to task, when socket connected again, send res again.
+        return SeashellDebug('WARN', `the request app offline, maybe resent response later...`)
+      }
+
+      res.headers.type = 'YOUR_REQUEST_HAS_RESPONSE'
+      requestSocket.send(clearUnsafeHeaders(res));
+      SeashellDebug('INFO',
+        `[${requestSocket.appName}] --> [${importAppName}${originUrl}]` +
+        `[DONE][${Date.now() - __SEASHELL_START}ms]`
+      );
+
+    } catch (e) {
+      SeashellDebug('ERROR', e);
+    }
+  };
+
+
+  onChildDisconnect = (socket) => {
+    const deleteSocket = (socketId, retry = 0) => {
+      try {
+        SeashellDebug('INFO', `${socketId} disconnected`);
+        this.requestSelf({
+          headers: {
+            originUrl: this.__SEASHELL_SOCKET_UNBIND_URL,
+            originUrlDescription: '__SEASHELL_SOCKET_UNBIND_URL'
+          },
+          body: {socketId}
+        })
+      } catch (e) {
+        if (retry < 3) {
+          retry++;
+          deleteSocket(socketId, retry)
+        }
+      }
+    };
+    deleteSocket(socket.id)
+  };
+
+
+  /**
+   * 获取client的session
+   */
+  requestSession = (req, socket={}) => {
+    return new Promise(async resolve => {
+      try {
+        const requestSession = await this.requestSelf({
+          headers: {
+            originUrl: this.__SEASHELL_SOCKET_SESSION_URL,
+            originUrlDescription: '__SEASHELL_SOCKET_SESSION_URL'
+          },
+          body: {
+            headers: req.headers,
+            socketId: socket.id
+          },
+        });
+        if (requestSession.body.error) return resolve(null);
+        resolve(requestSession.body)
+      } catch(e){
+        resolve(null)
+      }
+    });
+  };
+
+
+  /**
+   * request client's who connect to tihs seashell instance.
+   */
+  requestChild = async (url, data={}, options={needCallback: true}) => {
+
+    const {importAppName, originUrl} = splitUrl(url);
+    const needCallback = options.needCallback || true;
+
+    const req = {
+      body: data,
+      headers: Object.assign({
+        ...options.headers,
+        appName: this.__SEASHELL_NAME,
+        appId: 'SEASHELL',
+        __SEASHELL_START: Date.now()
+      }, {
+        importAppName, originUrl
+      })
+    };
+
+
+    return new Promise(async (resolve, reject) => {
+      try {
+
+        req.headers.session = await this.requestSession(req);
+
+
+        /**
+         * 发送请求
+         * 如果请求的是集成服务, 则直接调用
+         * 否则，先验证目标app是否在线, 在线则发包给目标app
+         */
+        if (importAppName === this.__SEASHELL_NAME) {
+          const res = await this.requestSelf(req);
+          return resolve(res)
+        }
+        const findResponseService = await this.requestSelf({
+          headers: {
+            session: req.headers.session,
+            originUrl: this.__SEASHELL_SOCKET_QUERY_URL
+          },
+          body: {
+            appName: importAppName
+          }
+        });
+        const targetSocket = this.__connections[findResponseService.body.socketId];
+        if (!targetSocket) throw new Error(findResponseService.body.error || 'TARGET_SERVICE_OFFLINE');
+
+        if (needCallback){
+          const callbackId = req.headers.callbackId = uuid.v4();
+          const callback = (res) => {
+            delete this.importEmitterStack[callbackId];
+            resolve(res);
+            SeashellDebug('INFO',
+              `[${this.__SEASHELL_NAME}] --> [${importAppName}${originUrl}]` +
+              `[DONE][${Date.now() - req.headers.__SEASHELL_START}ms]`
+            );
+            return null
+          };
+          this.importEmitterStack[callbackId] = new Emitter();
+          this.importEmitterStack[callbackId].on('RESPONSE', callback);
+          setTimeout(() => {
+            try {
+              this.importEmitterStack[callbackId].off('RESPONSE', callback);
+              delete this.importEmitterStack[callbackId];
+            } catch(e){}
+            return null
+          }, this.__SEASHELL_REQUEST_TIMEOUT)
+
+        } else {
+          resolve()
+        }
+
+        req.headers.type = 'PLEASE_HANDLE_THIS_REQUEST'
+        targetSocket.send(clearUnsafeHeaders(req))
+
+      } catch(err) {
+        req.headers.status = 'ERROR';
+        req.body.error = err.message;
+
+        SeashellDebug('ERROR',
+          `[${this.__SEASHELL_NAME}] --> [${importAppName}${originUrl}]` +
+          `[ERROR][${err.message}][${Date.now() - req.headers.__SEASHELL_START}ms]`
+        );
+
+        resolve(req);
+      }
+    })
+
+  };
 
 }
 
