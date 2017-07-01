@@ -1,8 +1,7 @@
 import defaults from 'lodash/defaults'
-import {Buffer} from 'buffer'
 
 const parseBuffer = (e) => {
-  const str = e.toString()
+  const t1 = Date.now();
   const indexOfSeparator = e.indexOf(':')
   const headerByteLength = Number(e.slice(0, indexOfSeparator))
   const indexOfHeaderStart = indexOfSeparator + 1
@@ -12,10 +11,12 @@ const parseBuffer = (e) => {
   const {bodyType} = headers
   const bodyText = bodyType === 'json' ? e.slice(indexOfHeaderEnd).toString() : '{}'
   const body = bodyType === 'json' ? JSON.parse(bodyText) : bodyText
+  console.log(`parseBuffer: spend time ${Date.now() - t1}ms`)
   return {headers, body}
 }
 
 const buildBuffer = (header, body) => {
+  const t1 = Date.now();
   const {bodyType} = header;
   const headerBuf = Buffer.from(JSON.stringify(header))
   const bodyBuf = bodyType === 'json' ? Buffer.from(JSON.stringify(body)) :
@@ -26,9 +27,7 @@ const buildBuffer = (header, body) => {
     headerBuf,
     bodyBuf
   ])
-
-  console.log(len, JSON.stringify(header))
-
+  console.log(`buildBuffer: spend time ${Date.now() - t1}ms`)
   return mergeBuffer
 }
 
