@@ -25,8 +25,8 @@ const SeashellDebug = (type, ...logs) => {
   });
 
   type === 'ERROR' ?
-    log.error(result):
-    log.info(result)
+    error(result):
+    info(result)
 
 };
 

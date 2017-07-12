@@ -10,6 +10,7 @@
     "build-cli": "babel ./src/cli -d packages/seashell-cli/cli --ignore test.js",
     "build-inline": "babel --no-babelrc ./src -d packages/seashell --ignore __tests__ --ignore .test.js --presets=es2015,stage-0 --plugins=transform-class-properties,transform-runtime",
     "build-client": "react-sh --build --compress",
+    "publish-next": "cd packages/seashell && npm publish --tag=next && cd ../..",
     "test": "jest __tests__"
   },
   "repository": {

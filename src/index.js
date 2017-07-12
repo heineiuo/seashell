@@ -4,7 +4,6 @@ export {
   Router,
   splitUrl,
   pathMatch,
-  uuid,
 } from './client'
 
 export default Seashell

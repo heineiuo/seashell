@@ -22,6 +22,7 @@ class App extends Router {
   appState = 0;
   importEmitterStack = {};
 
+  __SEASHELL_RECONNECT_TIMEOUT = 1000;
   __SEASHELL_REQUEST_TIMEOUT = 300000;
 
   /**
@@ -189,7 +190,9 @@ class App extends Router {
     this.socket.on('close', () => {
       console.info(`[Seashell] lost connection`);
       this.appState = 0;
-      this.connect(this.appOptions)
+      this.reconnectTimeout = setTimeout(() => {
+        this.connect(this.appOptions)
+      }, __SEASHELL_RECONNECT_TIMEOUT)
     });
   };
 
