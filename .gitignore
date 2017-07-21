@@ -8,6 +8,7 @@ build/*
 lib/*
 !build/README.md
 .DS_Store
+_docpress
 Thumb.db
 examples/data/db/service/*
 

@@ -13,9 +13,6 @@ The master branch is in a fast iteration state, please use branch [v0.6.x](https
 
 ## Document
 
-[Server API](./docs/API/Server.md)
-[Client API](./docs/API/Client.md)
-
 ## Examples
 
 We have some examples in examples directory.
