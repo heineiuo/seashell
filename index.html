@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="assets/style.css?t=615badd5">
+    <script src="assets/script.js?t=42463e55"></script>
+    <title>Introduction</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a class="link title -active link-index" href="index.html">Introduction</a>
+              <ul class="headings heading-list">
+                <li class="heading-item -depth-2"><a class="hlink link-document" href="#document">Document</a>
+                </li>
+                <li class="heading-item -depth-2"><a class="hlink link-examples" href="#examples">Examples</a>
+                </li>
+                <li class="heading-item -depth-2"><a class="hlink link-command-line-tool" href="#command-line-tool">Command Line Tool</a>
+                </li>
+                <li class="heading-item -depth-2"><a class="hlink link-road-map" href="#road-map">Road Map</a>
+                </li>
+                <li class="heading-item -depth-2"><a class="hlink link-community" href="#community">Community</a>
+                </li>
+                <li class="heading-item -depth-2"><a class="hlink link-license" href="#license">LICENSE</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">API Reference</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a class="link title  link-apiserver" href="API/Server.html">Server</a>
+                </li>
+                <li class="menu-item -level-2"><a class="link title  link-apiclient" href="API/Client.html">Client</a>
+                </li>
+                <li class="menu-item -level-2"><a class="link title  link-apiintegration" href="API/Integration.html">Integration</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+      <div class="body page-index">
+        <div class="header-nav">
+          <div class="right"><a class="iconlink" href="https://github.com/heineiuo/seashell" data-title="heineiuo/seashell">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><h1 id="seashell">Seashell</h1>
+<p><a href="https://gitter.im/heineiuo/seashell?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/heineiuo/seashell.svg" alt="Join the chat at https://gitter.im/heineiuo/seashell"></a>
+<a href="https://www.npmjs.com/package/seashell"><img src="https://img.shields.io/npm/v/seashell.svg?style=flat-square" alt="npm version"></a>
+<a href="https://www.npmjs.org/package/seashell"><img src="http://img.shields.io/npm/dm/seashell.svg?style=flat-square" alt="NPM Status"></a>
+<a href="https://travis-ci.org/heineiuo/seashell"><img src="http://img.shields.io/travis/heineiuo/seashell/master.svg?style=flat-square" alt="Build Status"></a></p>
+<p>A message framework, a high-level communication protocol for node.js and javascript.</p>
+<p>The master branch is in a fast iteration state, please use branch <a href="https://github.com/heineiuo/seashell/tree/v0.6.x">v0.6.x</a> for stable usage.</p>
+<hr>
+<h2 id="document">Document</h2>
+<h2 id="examples">Examples</h2>
+<p>We have some examples in examples directory.</p>
+<pre><code class="lang-javascript">$ npm install seashell --save
+
+<span class="pl-c">// server</span>
+<span class="pl-k">import</span> Seashell <span class="pl-k">from</span> <span class="pl-s">&apos;seashell&apos;</span>
+
+<span class="pl-k">const</span> seashell = <span class="pl-k">new</span> Seashell();
+
+seashell.use(<span class="pl-s">&apos;/api&apos;</span>, ctx =&gt; {
+  ctx.response.body = {...};
+  ctx.response.end()
+})
+
+seashell.listen(<span class="hljs-number">3333</span>);
+
+<span class="pl-c">// client</span>
+<span class="pl-k">import</span> {App, Router} <span class="pl-k">from</span> <span class="pl-s">&apos;seashell/lib/client&apos;</span>
+
+app.connect(<span class="pl-s">&apos;ws://127.0.0.1:3333?appId=APPID&amp;appName=APPNAME&amp;appSecret=APPSECRET&apos;</span>);
+
+app.request(<span class="pl-s">&apos;/seashell/api&apos;</span>);
+
+</code></pre>
+<h2 id="command-line-tool">Command Line Tool</h2>
+<pre><code class="lang-shell">$ npm install seashell-cli -g
+$ seashell proxy src/index.js # Start a http server to proxy seashell app.
+</code></pre>
+<h2 id="road-map">Road Map</h2>
+<ul>
+<li>Streaming support.</li>
+</ul>
+<h2 id="community">Community</h2>
+<p>QQ Group: 310433696</p>
+<h2 id="license">LICENSE</h2>
+<p>MIT License.</p>
+
+        </div>
+        <div class="footer-nav">
+          <div class="right"><a href="API/Server.html"><span class="label">Next: </span><span class="title">Server</span></a></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

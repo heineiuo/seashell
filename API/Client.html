@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../assets/style.css?t=615badd5">
+    <script src="../assets/script.js?t=42463e55"></script>
+    <title>Client - Introduction</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a class="link title  link-index" href="../index.html">Introduction</a>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">API Reference</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a class="link title  link-apiserver" href="../API/Server.html">Server</a>
+                </li>
+                <li class="menu-item -level-2"><a class="link title -active link-apiclient" href="../API/Client.html">Client</a>
+                  <ul class="headings heading-list">
+                    <li class="heading-item -depth-2"><a class="hlink link-app" href="#app">App</a>
+                    </li>
+                    <li class="heading-item -depth-2"><a class="hlink link-router" href="#router">Router</a>
+                    </li>
+                    <li class="heading-item -depth-2"><a class="hlink link-router.use(path-middleware)" href="#router.use(path-middleware)">router.use([path,] middleware)</a>
+                      <ul class="heading-list -depth-2">
+                        <li class="heading-item -depth-3"><a class="hlink link-router.use(path-(req-res-next)greater)" href="#router.use(path-(req-res-next)greater)">router.use(path, (req, res, next)=&gt;{})</a>
+                        </li>
+                        <li class="heading-item -depth-3"><a class="hlink link-router.use(path-router)" href="#router.use(path-router)">router.use([path, ]router)</a>
+                        </li>
+                        <li class="heading-item -depth-3"><a class="hlink link-app.use(path-router)" href="#app.use(path-router)">app.use([path, ] router)</a>
+                        </li>
+                        <li class="heading-item -depth-3"><a class="hlink link-app.connect(options)" href="#app.connect(options)">app.connect(options)</a>
+                        </li>
+                        <li class="heading-item -depth-3"><a class="hlink link-app.request(url-requestbody)" href="#app.request(url-requestbody)">app.request(url, requestBody)</a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li class="menu-item -level-2"><a class="link title  link-apiintegration" href="../API/Integration.html">Integration</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+      <div class="body page-apiclient">
+        <div class="header-nav">
+          <div class="right"><a class="iconlink" href="https://github.com/heineiuo/seashell" data-title="heineiuo/seashell">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><h1 id="client-api">Client API</h1>
+<h2 id="app">App</h2>
+<p><em>App extends from Router</em></p>
+<pre><code class="lang-javascript"><span class="pl-k">const</span> app = <span class="pl-k">new</span> App()
+</code></pre>
+<h2 id="router">Router</h2>
+<pre><code class="lang-javascript"><span class="pl-k">const</span> router = <span class="pl-k">new</span> Router()
+</code></pre>
+<h2 id="router.use(path-middleware)">router.use([path,] middleware)</h2>
+<h3 id="router.use(path-(req-res-next)greater)">router.use(path, (req, res, next)=&gt;{})</h3>
+<pre><code class="lang-javascript">router.use(<span class="pl-s">&apos;/&apos;</span>, (req, res, next) =&gt; {
+    <span class="pl-c1">console</span>.log(req.body)
+    next() <span class="pl-c">// will run next middleware</span>
+})
+
+router.use(<span class="pl-s">&apos;/&apos;</span>, (req, res, next) =&gt; {)
+    res.body = {<span class="hljs-attr">hello</span>: <span class="pl-s">&apos;world&apos;</span>} <span class="pl-c">// res.body will sending to request client</span>
+    res.end() <span class="pl-c">// tell app to stop middleware and send response data</span>
+}
+</code></pre>
+<h3 id="router.use(path-router)">router.use([path, ]router)</h3>
+<pre><code class="lang-javascript"><span class="pl-k">const</span> router = <span class="pl-k">new</span> Router()
+router.use(<span class="pl-s">&apos;abc&apos;</span>, (req, res, next)=&gt;{
+    res.body = {<span class="hljs-attr">success</span>: <span class="hljs-number">1</span>}
+    res.end()
+})
+
+<span class="pl-k">const</span> router2 = <span class="pl-k">new</span> Router()
+
+router2.use(<span class="pl-s">&apos;test&apos;</span>, router)
+
+
+<span class="pl-c">// now , clients can request &apos;SERVICENAME/test/abc&apos; and</span>
+got response <span class="pl-s">&apos;{&quot;success&quot;: 1}&apos;</span>
+
+</code></pre>
+<h3 id="app.use(path-router)">app.use([path, ] router)</h3>
+<p>just like <code>router.use</code></p>
+<h3 id="app.connect(options)">app.connect(options)</h3>
+<pre><code class="lang-javascript">app.connect({
+    <span class="pl-c">// options here</span>
+})
+</code></pre>
+<h3 id="app.request(url-requestbody)">app.request(url, requestBody)</h3>
+<pre><code class="lang-javascript">
+<span class="pl-c">// write in async/await</span>
+<span class="pl-k">const</span> response = app.request(<span class="pl-s">&apos;/account/profile&apos;</span>, {<span class="hljs-attr">userId</span>: <span class="hljs-number">1</span>})
+<span class="pl-c1">console</span>.log(response.body) <span class="pl-c">// {profile: {name: &apos;hansel&apos;, gender: &apos;man&apos;}}</span>
+
+<span class="pl-c">// write in Promise</span>
+app.request(<span class="pl-s">&apos;/account/profile&apos;</span>, {<span class="hljs-attr">userId</span>: <span class="hljs-number">1</span>})
+    .then(<span class="hljs-function">(<span class="hljs-params">response</span>)=&gt;</span>{
+        <span class="pl-c1">console</span>.log(response.body)
+    })
+
+<span class="pl-c">// account means app&apos;s appName, defined in key. sea demo/data/service</span>
+<span class="pl-c">// /profile means app&apos;s router, defined in app</span>
+
+</code></pre>
+
+        </div>
+        <div class="footer-nav">
+          <div class="left"><a href="../API/Server.html"><span class="title">Server</span></a></div>
+          <div class="right"><a href="../API/Integration.html"><span class="label">Next: </span><span class="title">Integration</span></a></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

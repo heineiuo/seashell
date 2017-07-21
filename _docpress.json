@@ -1,0 +1,257 @@
+{
+  "toc": {
+    "sections": [
+      {
+        "title": "Introduction",
+        "source": "README.md",
+        "url": "index.html",
+        "slug": "index",
+        "headings": [
+          {
+            "title": "Document",
+            "depth": 2,
+            "id": "document"
+          },
+          {
+            "title": "Examples",
+            "depth": 2,
+            "id": "examples"
+          },
+          {
+            "title": "Command Line Tool",
+            "depth": 2,
+            "id": "command-line-tool"
+          },
+          {
+            "title": "Road Map",
+            "depth": 2,
+            "id": "road-map"
+          },
+          {
+            "title": "Community",
+            "depth": 2,
+            "id": "community"
+          },
+          {
+            "title": "LICENSE",
+            "depth": 2,
+            "id": "license"
+          }
+        ]
+      },
+      {
+        "title": "API Reference",
+        "sections": [
+          {
+            "title": "Server",
+            "source": "docs/API/Server.md",
+            "url": "API/Server.html",
+            "slug": "apiserver",
+            "headings": [
+              {
+                "title": "Server API",
+                "depth": 2,
+                "id": "server-api",
+                "headings": [
+                  {
+                    "title": "Seashell",
+                    "depth": 3,
+                    "id": "seashell"
+                  },
+                  {
+                    "title": "hub.start()",
+                    "depth": 3,
+                    "id": "hub.start()"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Client",
+            "source": "docs/API/Client.md",
+            "url": "API/Client.html",
+            "slug": "apiclient",
+            "headings": [
+              {
+                "title": "App",
+                "depth": 2,
+                "id": "app"
+              },
+              {
+                "title": "Router",
+                "depth": 2,
+                "id": "router"
+              },
+              {
+                "title": "router.use([path,] middleware)",
+                "depth": 2,
+                "id": "router.use(path-middleware)",
+                "headings": [
+                  {
+                    "title": "router.use(path, (req, res, next)=>{})",
+                    "depth": 3,
+                    "id": "router.use(path-(req-res-next)greater)"
+                  },
+                  {
+                    "title": "router.use([path, ]router)",
+                    "depth": 3,
+                    "id": "router.use(path-router)"
+                  },
+                  {
+                    "title": "app.use([path, ] router)",
+                    "depth": 3,
+                    "id": "app.use(path-router)"
+                  },
+                  {
+                    "title": "app.connect(options)",
+                    "depth": 3,
+                    "id": "app.connect(options)"
+                  },
+                  {
+                    "title": "app.request(url, requestBody)",
+                    "depth": 3,
+                    "id": "app.request(url-requestbody)"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Integration",
+            "source": "docs/API/Integration.md",
+            "url": "API/Integration.html",
+            "slug": "apiintegration"
+          }
+        ]
+      }
+    ]
+  },
+  "index": {
+    "index.html": {
+      "source": "README.md",
+      "title": "Introduction",
+      "pageTitle": "Introduction",
+      "slug": "index",
+      "headings": [
+        {
+          "title": "Document",
+          "depth": 2,
+          "id": "document"
+        },
+        {
+          "title": "Examples",
+          "depth": 2,
+          "id": "examples"
+        },
+        {
+          "title": "Command Line Tool",
+          "depth": 2,
+          "id": "command-line-tool"
+        },
+        {
+          "title": "Road Map",
+          "depth": 2,
+          "id": "road-map"
+        },
+        {
+          "title": "Community",
+          "depth": 2,
+          "id": "community"
+        },
+        {
+          "title": "LICENSE",
+          "depth": 2,
+          "id": "license"
+        }
+      ]
+    },
+    "API/Server.html": {
+      "source": "docs/API/Server.md",
+      "title": "Server - Introduction",
+      "pageTitle": "Server",
+      "slug": "apiserver",
+      "headings": [
+        {
+          "title": "Server API",
+          "depth": 2,
+          "id": "server-api",
+          "headings": [
+            {
+              "title": "Seashell",
+              "depth": 3,
+              "id": "seashell"
+            },
+            {
+              "title": "hub.start()",
+              "depth": 3,
+              "id": "hub.start()"
+            }
+          ]
+        }
+      ]
+    },
+    "API/Client.html": {
+      "source": "docs/API/Client.md",
+      "title": "Client - Introduction",
+      "pageTitle": "Client",
+      "slug": "apiclient",
+      "headings": [
+        {
+          "title": "App",
+          "depth": 2,
+          "id": "app"
+        },
+        {
+          "title": "Router",
+          "depth": 2,
+          "id": "router"
+        },
+        {
+          "title": "router.use([path,] middleware)",
+          "depth": 2,
+          "id": "router.use(path-middleware)",
+          "headings": [
+            {
+              "title": "router.use(path, (req, res, next)=>{})",
+              "depth": 3,
+              "id": "router.use(path-(req-res-next)greater)"
+            },
+            {
+              "title": "router.use([path, ]router)",
+              "depth": 3,
+              "id": "router.use(path-router)"
+            },
+            {
+              "title": "app.use([path, ] router)",
+              "depth": 3,
+              "id": "app.use(path-router)"
+            },
+            {
+              "title": "app.connect(options)",
+              "depth": 3,
+              "id": "app.connect(options)"
+            },
+            {
+              "title": "app.request(url, requestBody)",
+              "depth": 3,
+              "id": "app.request(url-requestbody)"
+            }
+          ]
+        }
+      ]
+    },
+    "API/Integration.html": {
+      "source": "docs/API/Integration.md",
+      "title": "Integration - Introduction",
+      "pageTitle": "Integration",
+      "slug": "apiintegration"
+    }
+  },
+  "sources": {
+    "README.md": "index.html",
+    "docs/API/Server.md": "API/Server.html",
+    "docs/API/Client.md": "API/Client.html",
+    "docs/API/Integration.md": "API/Integration.html"
+  }
+}
