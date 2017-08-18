@@ -24,10 +24,23 @@ class Seashell extends App {
 
   constructor (opts) {
     super();
-    const options = Object.assign({}, opts);
-    if (options.server) delete options.port;
-    this.server = new WebSocket.Server(options);
+    this.__options = Object.assign({}, opts);
+  }
+
+  attach = (server) => {
+    if (this.__start) return new Error('Seashell has started')
+    delete this.__options.port
+    this.__options.server = server
+    this.server = new WebSocket.Server(this.__options);
     this.server.on('connection', this.onChildConnection);
+    this.__start = true
+  }
+  
+  start = () => {
+    if (this.__start) return new Error('Seashell has started')
+    this.server = new WebSocket.Server(this.__options);
+    this.server.on('connection', this.onChildConnection);
+    this.__start = true
   }
 
   __SEASHELL_NAME = 'seashell';
