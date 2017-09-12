@@ -1,5 +1,6 @@
-// socket emit types
+## Emit types
 
+```javascript
 /**
  * service has handled request from another, transfer data back to that.
  */
@@ -32,3 +33,5 @@ export const RESPONSE = 'RESPONSE';
 // ctx emit types
 export const end = 'end';
 export const error = 'error';
+
+```

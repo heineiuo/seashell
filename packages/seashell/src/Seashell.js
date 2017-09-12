@@ -1,10 +1,8 @@
 import WebSocket from 'ws'
 import Emitter from 'events'
 import uuid from 'uuid'
-import {Context} from './Context'
-import {I_HAVE_HANDLE_THIS_REQUEST, I_HAVE_A_REQUEST} from './emit-types'
-import {clearUnsafeHeaders, parseBuffer} from './clearUnsafeHeaders'
-import {splitUrl} from './splitUrl'
+import { Context } from './Context'
+import { clearUnsafeHeaders, parseBuffer, splitUrl } from './util'
 import Router from './Router'
 
 
@@ -17,7 +15,12 @@ import Router from './Router'
  *  * 处理自己对自己的请求等功能
  * 等功能
  */
-class App extends Router {
+class Seashell extends Emitter {
+
+  constructor(requestListener) {
+    super()
+    this.requestListener = requestListener
+  }
 
   appState = 0;
   importEmitterStack = {};
@@ -33,8 +36,9 @@ class App extends Router {
     try {
       console.info(`[Seashell] handle request: ${req.headers.originUrl}`);
       const ctx = new Context(this.socket, req);
-      this.handleLoop(ctx);
-    } catch(e){
+      this.requestListener(ctx)
+      // this.handleLoop(ctx);
+    } catch (e) {
       console.info(`[Seashell] ${e.message}`)
     }
   };
@@ -44,7 +48,7 @@ class App extends Router {
    * @param {object} Response
    */
   onResponse = (res) => {
-    const {callbackId} = res.headers;
+    const { callbackId } = res.headers;
     this.importEmitterStack[callbackId].emit('RESPONSE', res);
   };
 
@@ -63,7 +67,7 @@ class App extends Router {
         const ctx = new Context({
           send: (res) => {
             const data = parseBuffer(res)
-            if (data.headers.type === I_HAVE_HANDLE_THIS_REQUEST) {
+            if (data.headers.type === 'I_HAVE_HANDLE_THIS_REQUEST') {
               state = 1;
               resolve(data)
             } else {
@@ -77,7 +81,7 @@ class App extends Router {
           process.nextTick(() => {
             if (!ctx.state.isHandled) {
               console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
-              ctx.response.body = {error: 'NOT_FOUND'};
+              ctx.response.body = { error: 'NOT_FOUND' };
               ctx.response.end();
               resolve(ctx.response)
             }
@@ -85,7 +89,7 @@ class App extends Router {
         });
 
         this.handleLoop(ctx);
-      } catch(e){
+      } catch (e) {
         reject(e)
       }
     });
@@ -118,10 +122,10 @@ class App extends Router {
    * push a event callback to importEmitterStack every request
    * listening on `RESPONSE` event and return data
    */
-  request = (url, data={}, options={needCallback: true}) => {
+  request = (url, data = {}, options = { needCallback: true }) => {
     if (typeof data !== 'object') throw `request data must be an object.`;
     const needCallback = options.needCallback || true;
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         if (this.appState !== 3) return reject("YOUR_SERVICE_IS_OFFLINE");
         /**
@@ -136,7 +140,7 @@ class App extends Router {
           }, splitUrl(url))
         };
 
-        if (needCallback){
+        if (needCallback) {
           const callbackId = uuid.v4();
           req.headers.callbackId = callbackId;
           this.importEmitterStack[callbackId] = new Emitter();
@@ -151,8 +155,8 @@ class App extends Router {
 
         req.headers.type = 'I_HAVE_A_REQUEST'
         this.socket.send(clearUnsafeHeaders(req))
-      } catch(e) {
-        console.info(`[Seashell] REQUEST_ERROR ${e.message||e}`);
+      } catch (e) {
+        console.info(`[Seashell] REQUEST_ERROR ${e.message || e}`);
         reject(e)
       }
     })
@@ -167,7 +171,7 @@ class App extends Router {
 
     this.socket.on('message', (e) => {
       const data = parseBuffer(e)
-      if (data.headers.type ===  'YOUR_REGISTER_HAS_RESPONSE') {
+      if (data.headers.type === 'YOUR_REGISTER_HAS_RESPONSE') {
         console.info(`[Seashell] registered`);
         this.appState = 3;
       } else if (data.headers.type === 'YOUR_REQUEST_HAS_RESPONSE') {
@@ -201,7 +205,7 @@ class App extends Router {
    * @param opts
    * @returns {boolean}
    */
-  connect = (opts={}) => {
+  connect = (opts = {}) => {
     if (this.appState > 0) return false;
     console.info(`[Seashell] connecting ${opts.url}`);
     this.socket = new WebSocket(opts.url)
@@ -222,4 +226,4 @@ class App extends Router {
   }
 }
 
-export default App
+export default Seashell
