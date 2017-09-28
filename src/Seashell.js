@@ -22,11 +22,11 @@ class Seashell extends Emitter {
     this.requestListener = requestListener
   }
 
-  appState = 0;
-  importEmitterStack = {};
+  appState = 0
+  importEmitterStack = {}
 
-  __SEASHELL_RECONNECT_TIMEOUT = 1000;
-  __SEASHELL_REQUEST_TIMEOUT = 300000;
+  __SEASHELL_RECONNECT_TIMEOUT = 1000
+  __SEASHELL_REQUEST_TIMEOUT = 300000
 
   /**
    * receive & handle message from hub
@@ -34,23 +34,23 @@ class Seashell extends Emitter {
    */
   onRequest = async (req) => {
     try {
-      console.info(`[Seashell] handle request: ${req.headers.originUrl}`);
-      const ctx = new Context(this.socket, req);
+      console.info(`[Seashell] handle request: ${req.headers.originUrl}`)
+      const ctx = new Context(this.socket, req)
       this.requestListener(ctx)
-      // this.handleLoop(ctx);
+      // this.handleLoop(ctx)
     } catch (e) {
       console.info(`[Seashell] ${e.message}`)
     }
-  };
+  }
 
   /**
    * 当发送的请求收到响应结果时，处理响应结果
    * @param {object} Response
    */
   onResponse = (res) => {
-    const { callbackId } = res.headers;
-    this.importEmitterStack[callbackId].emit('RESPONSE', res);
-  };
+    const { callbackId } = res.headers
+    this.importEmitterStack[callbackId].emit('RESPONSE', res)
+  }
 
   /**
    * 向自己发送请求
@@ -60,7 +60,7 @@ class Seashell extends Emitter {
    * 其实相当于构造一个ctx，再直接调用router.handleLoop
    */
   requestSelf = (req) => {
-    let state = 0; // 0 initial 1 success 2 error
+    let state = 0 // 0 initial 1 success 2 error
 
     return new Promise(async (resolve, reject) => {
       try {
@@ -68,32 +68,32 @@ class Seashell extends Emitter {
           send: (res) => {
             const data = parseBuffer(res)
             if (data.headers.type === 'I_HAVE_HANDLE_THIS_REQUEST') {
-              state = 1;
+              state = 1
               resolve(data)
             } else {
-              state = 2;
+              state = 2
               reject(new Error('Unknown type of response header.'))
             }
           }
-        }, req);
+        }, req)
 
         ctx.on('end', () => {
           process.nextTick(() => {
             if (!ctx.state.isHandled) {
-              console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`);
-              ctx.response.body = { error: 'NOT_FOUND' };
-              ctx.response.end();
+              console.log(`[Seashell] A no response request happened, please check ${req.headers.originUrl}.`)
+              ctx.response.body = { error: 'NOT_FOUND' }
+              ctx.response.end()
               resolve(ctx.response)
             }
           })
-        });
+        })
 
-        this.handleLoop(ctx);
+        this.handleLoop(ctx)
       } catch (e) {
         reject(e)
       }
-    });
-  };
+    })
+  }
 
   /**
    * 1. 或许创建请求的方式有问题？
@@ -123,11 +123,11 @@ class Seashell extends Emitter {
    * listening on `RESPONSE` event and return data
    */
   request = (url, data = {}, options = { needCallback: true }) => {
-    if (typeof data !== 'object') throw `request data must be an object.`;
-    const needCallback = options.needCallback || true;
+    if (typeof data !== 'object') throw `request data must be an object.`
+    const needCallback = options.needCallback || true
     return new Promise((resolve, reject) => {
       try {
-        if (this.appState !== 3) return reject("YOUR_SERVICE_IS_OFFLINE");
+        if (this.appState !== 3) return reject("YOUR_SERVICE_IS_OFFLINE")
         /**
          * parse url, create req object
          */
@@ -138,17 +138,17 @@ class Seashell extends Emitter {
             appName: this.appOptions.appName,
             appId: this.appOptions.appId,
           }, splitUrl(url))
-        };
+        }
 
         if (needCallback) {
-          const callbackId = uuid.v4();
-          req.headers.callbackId = callbackId;
-          this.importEmitterStack[callbackId] = new Emitter();
+          const callbackId = uuid.v4()
+          req.headers.callbackId = callbackId
+          this.importEmitterStack[callbackId] = new Emitter()
           this.importEmitterStack[callbackId].on('RESPONSE', (res) => {
-            resolve(res);
-            delete this.importEmitterStack[callbackId];
+            resolve(res)
+            delete this.importEmitterStack[callbackId]
             return null
-          });
+          })
         } else {
           resolve()
         }
@@ -156,24 +156,24 @@ class Seashell extends Emitter {
         req.headers.type = 'I_HAVE_A_REQUEST'
         this.socket.send(clearUnsafeHeaders(req))
       } catch (e) {
-        console.info(`[Seashell] REQUEST_ERROR ${e.message || e}`);
+        console.info(`[Seashell] REQUEST_ERROR ${e.message || e}`)
         reject(e)
       }
     })
-  };
+  }
 
 
   bindEventHandlers = () => {
     this.socket.on('open', () => {
-      console.info(`[Seashell] connected`);
-      this.appState = 2;
-    });
+      console.info(`[Seashell] connected`)
+      this.appState = 2
+    })
 
     this.socket.on('message', (e) => {
       const data = parseBuffer(e)
       if (data.headers.type === 'YOUR_REGISTER_HAS_RESPONSE') {
-        console.info(`[Seashell] registered`);
-        this.appState = 3;
+        console.info(`[Seashell] registered`)
+        this.appState = 3
       } else if (data.headers.type === 'YOUR_REQUEST_HAS_RESPONSE') {
         this.onResponse(data)
       } else if (data.headers.type === 'PLEASE_HANDLE_THIS_REQUEST') {
@@ -182,7 +182,7 @@ class Seashell extends Emitter {
         console.log('Unknown message: ')
         console.log(data)
       }
-    });
+    })
 
     this.socket.on('error', (err) => {
       console.error(err)
@@ -192,13 +192,13 @@ class Seashell extends Emitter {
      * listing disconnect event
      */
     this.socket.on('close', () => {
-      console.info(`[Seashell] lost connection`);
-      this.appState = 0;
+      console.info(`[Seashell] lost connection`)
+      this.appState = 0
       this.reconnectTimeout = setTimeout(() => {
         this.connect(this.appOptions)
       }, __SEASHELL_RECONNECT_TIMEOUT)
-    });
-  };
+    })
+  }
 
   /**
    * connect to MQ hub.
@@ -206,13 +206,13 @@ class Seashell extends Emitter {
    * @returns {boolean}
    */
   connect = (opts = {}) => {
-    if (this.appState > 0) return false;
-    console.info(`[Seashell] connecting ${opts.url}`);
+    if (this.appState > 0) return false
+    console.info(`[Seashell] connecting ${opts.url}`)
     this.socket = new WebSocket(opts.url)
-    this.appState = 1;
-    this.appOptions = opts;
+    this.appState = 1
+    this.appOptions = opts
     this.bindEventHandlers()
-  };
+  }
 
   /**
    * disconnect with server

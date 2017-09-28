@@ -19,7 +19,6 @@ const splitUrl = (url) => {
   } catch (e) {
     throw e
   }
-
 }
 
 
