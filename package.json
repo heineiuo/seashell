@@ -6,7 +6,7 @@
   "browser": "./dist/seashell-client.js",
   "description": "A message framework for node.js and javascript.",
   "scripts": {
-    "build": "babel ./src -d packages/seashell --ignore ./src/cli/",
+    "build": "babel ./packages/seashell/src -d packages/seashell/lib",
     "build-cli": "babel ./src/cli -d packages/seashell-cli/cli --ignore test.js",
     "build-inline": "babel --no-babelrc ./src -d packages/seashell --ignore __tests__ --ignore .test.js --presets=es2015,stage-0 --plugins=transform-class-properties,transform-runtime",
     "build-client": "react-sh --build --compress",
@@ -46,12 +46,13 @@
     "express": "^4.15.2",
     "formidable": "^1.1.1",
     "http-proxy": "^1.16.2",
-    "isomorphic-ws": "^2.3.1",
+    "isomorphic-ws": "^3.2.0",
     "jest": "^19.0.2",
-    "joi": "^10.4.1",
+    "joi": "^10.6.0",
     "lodash": "^4.17.4",
     "mitt": "^1.1.0",
     "morgan": "^1.8.1",
+    "mz": "^2.6.0",
     "nedb-promise": "^2.0.1",
     "path-to-regexp": "^1.7.0",
     "prettyjson": "^1.2.1",
@@ -61,11 +62,13 @@
     "uuid": "~2.0.2",
     "webpack": "^2.4.1",
     "webpack-node-externals": "^1.5.4",
-    "ws": "^2.3.1",
-    "yargs": "^7.1.0",
-    "mz": "^2.6.0"
+    "ws": "^3.2.0",
+    "yargs": "^7.1.0"
   },
   "dependencies": {
+    "bson": "^1.0.4",
+    "dotenv": "^4.0.0",
+    "jsonwebtoken": "^8.0.1",
     "lolla": "^0.4.1"
   }
 }
