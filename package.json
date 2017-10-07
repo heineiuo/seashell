@@ -28,7 +28,6 @@
     "github": "heineiuo/seashell"
   },
   "devDependencies": {
-    "action-creator": "^0.4.0",
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-plugin-add-module-exports": "~0.2.1",
@@ -49,7 +48,6 @@
     "jest": "^19.0.2",
     "joi": "^10.6.0",
     "lodash": "^4.17.4",
-    "mitt": "^1.1.0",
     "morgan": "^1.8.1",
     "mz": "^2.6.0",
     "nedb-promise": "^2.0.1",
@@ -61,7 +59,6 @@
     "uuid": "~2.0.2",
     "webpack": "^2.4.1",
     "webpack-node-externals": "^1.5.4",
-    "ws": "^3.2.0",
     "yargs": "^7.1.0"
   },
   "files": [
