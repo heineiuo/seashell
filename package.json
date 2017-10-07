@@ -1,7 +1,6 @@
 {
-  "name": "seashell-project",
-  "private": true,
-  "version": "0.12.0",
+  "name": "seashell",
+  "version": "0.14.0",
   "main": "./lib/index.js",
   "browser": "./dist/seashell-client.js",
   "description": "A message framework for node.js and javascript.",
@@ -65,10 +64,15 @@
     "ws": "^3.2.0",
     "yargs": "^7.1.0"
   },
+  "files": [
+    "lib",
+    "dist",
+    "index.d.ts"
+  ],
   "dependencies": {
+    "babel-runtime": "^6.23.0",
+    "isomorphic-ws": "^3.2.0",
     "bson": "^1.0.4",
-    "dotenv": "^4.0.0",
-    "jsonwebtoken": "^8.0.1",
-    "lolla": "^0.4.1"
+    "joi": "^10.6.0"
   }
 }
