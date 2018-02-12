@@ -8,18 +8,6 @@ import errors from './errors'
 export const bson = new BSON()
 export const validate = promisify(Joi.validate)
 export const noop = () => { }
-export const isObjectId = (str) => {
-  if (!str) return false
-  if (str instanceof ObjectId) return true
-  if (!(typeof str === 'string')) return false
-  if (!(str.length === 24)) return false
-  try {
-    ObjectId(str)
-    return true
-  } catch (e) {
-    return false
-  }
-}
 
 class SeashellClient extends EventEmitter {
 
@@ -167,7 +155,7 @@ class SeashellClient extends EventEmitter {
       url,
       guard: 'request-chunk'
     }
-    if (isObjectId(hostname)) headers.socketId = hostname
+    if (ObjectId.isValid(hostname)) headers.socketId = hostname
 
     const _write = (chunk, writeOptions = {}) => {
       const json = {

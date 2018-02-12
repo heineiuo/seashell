@@ -44,7 +44,7 @@
     "express": "^4.15.2",
     "formidable": "^1.1.1",
     "http-proxy": "^1.16.2",
-    "isomorphic-ws": "^3.2.0",
+    "isomorphic-ws": "^4.0.0",
     "jest": "^19.0.2",
     "joi": "^10.6.0",
     "lodash": "^4.17.4",
@@ -68,8 +68,8 @@
   ],
   "dependencies": {
     "babel-runtime": "^6.23.0",
-    "isomorphic-ws": "^3.2.0",
     "bson": "^1.0.4",
-    "joi": "^10.6.0"
+    "joi": "^10.6.0",
+    "ws": "^4.0.0"
   }
 }
