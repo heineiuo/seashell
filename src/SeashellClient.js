@@ -134,6 +134,10 @@ class SeashellClient extends EventEmitter {
             console.log('first data')
             req.emit('data', body)
           }
+          if (guard === 'request') {
+            this.emitters[connectionId].emit('end')
+            delete this.emitters[connectionId]
+          }
 
         } else {
           // 已经接收过请求
