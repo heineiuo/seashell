@@ -1,5 +1,5 @@
 import WebSocket from 'isomorphic-ws'
-import { BSON, ObjectId } from 'bson'
+import { BSON, ObjectId, Binary } from 'bson'
 import Joi from 'joi'
 import { promisify } from 'util'
 import EventEmitter from 'events'
@@ -14,44 +14,45 @@ class SeashellClient extends EventEmitter {
   emitters = {}
   ws = null
   createServer = (handleRequest, options) => {
-    const connect = () => {
-      if (this.ws) {
-        this.ws.removeAllListeners()
-        this.ws = null
-      }
-      try {
-        this.ws = new WebSocket(options.serverAddress)
+    this._handleRequest = handleRequest
+    this._options = options
+    this._connect()
+  }
 
-        this.ws.on('open', () => {
-          console.log(`[${new Date()}] ws open`)
-        })
-
-        this.ws.on('message', (raw) => {
-          const rawType = typeof raw
-          if (rawType === 'string') {
-            this.handleMessage(raw, handleRequest)
-          } else if (rawType === 'object' && raw instanceof Buffer) {
-            this.handleMessage(bson.deserialize(raw), handleRequest)
-          } else {
-            console.log(`[${new Date()}] ws unknown message type`)
-          }
-        })
-
-        this.ws.on('error', () => {
-          connect()
-        })
-
-        this.ws.on('close', () => {
-          console.log(`[${new Date}] ws close`)
-          connect()
-        })
-      } catch (e) {
-        console.log(e)
-        setTimeout(connect, 3000)
-      }
+  _connect = () => {
+    if (this._connecting) return false
+    this._connecting = true
+    if (this.ws) {
+      this.ws.removeAllListeners()
+      this.ws = null
     }
+    this.ws = new WebSocket(this._options.serverAddress)
 
-    connect()
+    this.ws.on('open', () => {
+      this._connecting = false
+      console.log(`[${new Date()}] ws open`)
+    })
+
+    this.ws.on('message', (raw) => {
+      const rawType = typeof raw
+      if (rawType === 'string') {
+        this.handleMessage(raw, this._handleRequest)
+      } else if (rawType === 'object' && raw instanceof Buffer) {
+        this.handleMessage(bson.deserialize(raw), this._handleRequest)
+      } else {
+        console.log(`[${new Date()}] ws unknown message type`)
+      }
+    })
+
+    this.ws.on('error', (e) => {
+      console.log(e)
+    })
+
+    this.ws.on('close', () => {
+      console.log(`[${new Date}] ws close`)
+      this._connecting = false
+      setTimeout(this._connect, 3000)
+    })
   }
 
   _send = (json) => {
@@ -62,18 +63,20 @@ class SeashellClient extends EventEmitter {
 
   /**
    * 处理请求
-   * @param {*} raw 
+   * @param {*} json 
    */
-  handleMessage = async (raw, handleRequest) => {
-    // console.log(raw)
+  handleMessage = async (json, handleRequest) => {
+    // console.log(json)
     try {
-      const { headers, body } = await validate(raw, Joi.object().keys({
+      const { headers } = await validate(json, Joi.object().keys({
         headers: Joi.object().keys({
           guard: Joi.string().required(),
           url: Joi.string(),
           hostname: Joi.string(),
           sourceSocketId: Joi.string(),
           socketId: Joi.string(),
+          httpMethod: Joi.string(),
+          httpHeaders: Joi.object(),
           connectionId: Joi.string().required()
         }).required(),
         body: Joi.any()
@@ -81,6 +84,7 @@ class SeashellClient extends EventEmitter {
       const { guard, connectionId, sourceSocketId } = headers
       const isRequest = guard === 'request-chunk' || guard === 'request'
       const isConnectionIdExist = this.emitters.hasOwnProperty(connectionId)
+      const body = json.body instanceof Binary ? json.body.buffer : json.body
 
       if (!isRequest) {
         const { connectionId, guard } = headers
@@ -94,7 +98,7 @@ class SeashellClient extends EventEmitter {
         }
       } else {
         if (!isConnectionIdExist) {
-          const req = new EventEmitter()
+          const req = this.emitters[connectionId] = new EventEmitter()
           req.body = body
           req.headers = headers
           const _write = (chunk = null, options = {}) => {
@@ -106,7 +110,9 @@ class SeashellClient extends EventEmitter {
               },
               body: chunk
             }
-            const chunkMessage = chunk instanceof Buffer ? bson.serialize(json) : JSON.stringify(json)
+            const chunkMessage = chunk instanceof Buffer ?
+              bson.serialize(json) :
+              JSON.stringify(json)
             this.ws.send(chunkMessage)
           }
 
@@ -121,12 +127,22 @@ class SeashellClient extends EventEmitter {
             },
           }
 
+          req.res = res
+          req.response = res
           handleRequest(req, res)
+          if (!!body) {
+            console.log('first data')
+            req.emit('data', body)
+          }
 
         } else {
-          this.emitters[connectionId].emit('data', body)
-          if (guard === 'response') {
+          // 已经接收过请求
+          if (!!body) {
+            this.emitters[connectionId].emit('data', body)
+          }
+          if (guard === 'request') {
             this.emitters[connectionId].emit('end')
+            delete this.emitters[connectionId]
           }
         }
       }
@@ -149,21 +165,19 @@ class SeashellClient extends EventEmitter {
     const firstSlash = originUrl.indexOf('/')
     const url = firstSlash === -1 ? '/' : originUrl.substr(firstSlash)
     const hostname = firstSlash === -1 ? originUrl : originUrl.substring(0, firstSlash)
-    const headers = {
+    const headers = Object.assign({}, requestOptions.headers, {
       hostname,
       connectionId,
       url,
       guard: 'request-chunk'
-    }
-    if (ObjectId.isValid(hostname)) headers.socketId = hostname
+    })
 
-    const _write = (chunk, writeOptions = {}) => {
+    const _write = (chunk, extHeaders = {}) => {
       const json = {
-        headers: Object.assign({}, headers, { guard: writeOptions.guard }),
+        headers: Object.assign({}, headers, extHeaders),
         body: chunk
       }
-      const chunkMessage = chunk instanceof Buffer ? bson.serialize(json) : json
-      this._send(chunkMessage)
+      this._send(json)
     }
 
     const response = this.emitters[connectionId] = new EventEmitter()

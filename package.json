@@ -5,7 +5,7 @@
   "browser": "./dist/seashell-client.js",
   "description": "A message framework for node.js and javascript.",
   "scripts": {
-    "build": "babel ./packages/seashell/src -d packages/seashell/lib",
+    "build": "babel ./src -d lib",
     "build-cli": "babel ./src/cli -d packages/seashell-cli/cli --ignore test.js",
     "build-inline": "babel --no-babelrc ./src -d packages/seashell --ignore __tests__ --ignore .test.js --presets=es2015,stage-0 --plugins=transform-class-properties,transform-runtime",
     "build-client": "react-sh --build --compress",

@@ -7,24 +7,35 @@ import Url from 'url'
 import errors from './errors'
 import SeashellClient, { validate, bson, noop } from './SeashellClient'
 
+const defaultConnectionHandler = (socket, req) => {
+  const id = ObjectId().toString()
+  const url = Url.parse(socket.upgradeReq.url, { parseQueryString: true })
+  // todo: verify connection
+  console.log(`[${new Date}] new connection: ${socket.id}`)
+  return {
+    id
+  }
+}
 
 class SeashellGateway extends SeashellClient {
   clientMap = {}
 
-  createGatewayServer = (internalRequestHandler, options) => {
+  createGatewayServer = (internalRequestHandler, connectionHandler = defaultConnectionHandler, options) => {
     const server = new WebSocket.Server({ server: options.server })
-    server.on('connection', (socket, handleRequest = noop) => {
-      socket.id = ObjectId().toString()
-      const url = Url.parse(socket.upgradeReq.url, { parseQueryString: true })
-      // todo: verify connection
-      console.log(`[${new Date}] new connection: ${socket.id}`)
-      this.clientMap[socket.id] = socket
-      socket.on('message', (msg) => this.handleGatewayMessage(msg, socket))
-      socket.on('close', () => {
-        delete this.clientMap[socket.id]
-      })
+    server.on('connection', async (socket, req) => {
+      try {
+        const { id } = await connectionHandler(socket, req)
+        socket.id = id
+        this.clientMap[id] = socket
+        socket.on('message', (msg) => this.handleGatewayMessage(msg, socket))
+        socket.on('close', () => {
+          delete this.clientMap[id]
+        })
+      } catch(e){
+        console.log(e)
+        socket.terminate()
+      }
     })
-    console.log(`[${new Date()}] ws listening on port ${process.env.HTTP_PORT}`)
     this.replaceInternalSocket(internalRequestHandler)
     return server
   }
@@ -33,7 +44,6 @@ class SeashellGateway extends SeashellClient {
     const rawType = typeof raw
     let json = null
     let error = null
-    let isInternalData = false
     if (rawType === 'string') {
       try {
         json = JSON.parse(raw)
@@ -43,7 +53,7 @@ class SeashellGateway extends SeashellClient {
     } else if (rawType === 'object' && raw instanceof Buffer) {
       json = bson.deserialize(raw)
     } else if (rawType === 'object') {
-      isInternalData = true
+      // from internal 
       json = raw
     } else {
       error = new Error('Unsupport message type')
@@ -60,8 +70,9 @@ class SeashellGateway extends SeashellClient {
           url: Joi.string(),
           hostname: Joi.string(),
           sourceSocketId: Joi.string(),
-          socketId: Joi.string(),
-          connectionId: Joi.string().required()
+          connectionId: Joi.string().required(),
+          httpMethod: Joi.string(),
+          httpHeaders: Joi.object(),
         }),
         body: Joi.any()
       }), { allowUnknown: false })
@@ -73,13 +84,13 @@ class SeashellGateway extends SeashellClient {
         if (!isConnectionIdExist) {
           return console.log(`[${new Date()}] drop a request message lost connectionId`)
         }
-        const target = Object.values(this.clientMap).find(item => {
-          return item.name === hostname || !item.hasOwnProperty('hostname')
-        })
+        // hostname就是连接gateway时使用的id
+        const target = this.clientMap[hostname] 
         if (!target) {
           return console.log(`[${new Date()}] drop a message`)
         }
 
+        // 如果是发起请求，则sourceSoceketId 必须是 socket.id
         json.headers.sourceSocketId = socket.id
 
         target.send(
@@ -124,7 +135,7 @@ class SeashellGateway extends SeashellClient {
 
 
   /**
-   * 构建一个内部虚拟socket
+   * 构建一个内部虚拟socket，用来请求自己:P
    */
   replaceInternalSocket = (requestHandler) => {
     const id = ObjectId().toString()
