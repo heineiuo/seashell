@@ -30,6 +30,9 @@ class SeashellClient extends EventEmitter {
 
     this.ws.on('open', () => {
       this._connecting = false
+      this._pingLoop = setInterval(() => {
+        this.ws.send('ping')
+      }, 60000)
       console.log(`[${new Date()}] ws open`)
     })
 
@@ -49,6 +52,7 @@ class SeashellClient extends EventEmitter {
     })
 
     this.ws.on('close', () => {
+      clearInterval(this._pingLoop)
       console.log(`[${new Date}] ws close`)
       this._connecting = false
       setTimeout(this._connect, 3000)
@@ -71,13 +75,13 @@ class SeashellClient extends EventEmitter {
       const { headers } = await validate(json, Joi.object().keys({
         headers: Joi.object().keys({
           guard: Joi.string().required(),
+          connectionId: Joi.string().required(),
+          sourceSocketId: Joi.string(),
           url: Joi.string(),
           hostname: Joi.string(),
-          sourceSocketId: Joi.string(),
           socketId: Joi.string(),
           httpMethod: Joi.string(),
           httpHeaders: Joi.object(),
-          connectionId: Joi.string().required()
         }).required(),
         body: Joi.any()
       }), { allowUnknown: false })
@@ -135,7 +139,7 @@ class SeashellClient extends EventEmitter {
         if (!!body) {
           this.emitters[connectionId].emit('data', body)
         }
-        
+
         if (guard === 'request') {
           this.emitters[connectionId].emit('end')
           delete this.emitters[connectionId]
