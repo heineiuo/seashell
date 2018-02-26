@@ -5,7 +5,12 @@ import { promisify } from 'util'
 import EventEmitter from 'events'
 import Url from 'url'
 import errors from './errors'
-import SeashellClient, { validate, bson, noop } from './SeashellClient'
+import SeashellClient, {
+  validate,
+  bson,
+  noop,
+  messageSchema
+} from './SeashellClient'
 
 const defaultConnectionHandler = (socket, req) => {
   const id = ObjectId().toString()
@@ -31,7 +36,7 @@ class SeashellGateway extends SeashellClient {
         socket.on('close', () => {
           delete this.clientMap[id]
         })
-      } catch(e){
+      } catch (e) {
         console.log(e)
         socket.terminate()
       }
@@ -60,23 +65,18 @@ class SeashellGateway extends SeashellClient {
     }
 
     if (error) {
-      return console.log(`[${new Date()}] drop a message`)
+      return console.log(`[${new Date()}] drop a message because ${error.name} ${error.message}`)
     }
 
     try {
-      const { headers, body } = await validate(json, Joi.object().keys({
-        headers: Joi.object().keys({
-          guard: Joi.string().required(),
-          url: Joi.string(),
-          hostname: Joi.string(),
-          sourceSocketId: Joi.string(),
-          connectionId: Joi.string().required(),
-          httpMethod: Joi.string(),
-          httpHeaders: Joi.object(),
-        }),
-        body: Joi.any()
-      }), { allowUnknown: false })
-      const { connectionId, guard, finish, url, sourceSocketId, hostname } = headers
+      const { headers, body } = await validate(json, messageSchema, { allowUnknown: true })
+
+      const connectionId = headers['x-seashell-connection-id']
+      const guard = headers['x-seashell-guard']
+      const finish = headers['x-seashell-finish']
+      const sourceSocketId = headers['x-seashell-source-socket-id']
+      const hostname = headers['x-seashell-hostname']
+
       const isConnectionIdExist = this.emitters.hasOwnProperty(connectionId)
       const isRequest = guard === 'request' || guard === 'request-chunk'
 
@@ -85,13 +85,13 @@ class SeashellGateway extends SeashellClient {
           return console.log(`[${new Date()}] drop a request message lost connectionId`)
         }
         // hostname就是连接gateway时使用的id
-        const target = this.clientMap[hostname] 
+        const target = this.clientMap[hostname]
         if (!target) {
-          return console.log(`[${new Date()}] drop a message`)
+          return console.log(`[${new Date()}] drop a message because could not found target client`)
         }
 
         // 如果是发起请求，则sourceSoceketId 必须是 socket.id
-        json.headers.sourceSocketId = socket.id
+        json.headers['x-seashell-source-socket-id'] = socket.id
 
         target.send(
           json.body instanceof Buffer ? bson.serialize(json) : JSON.stringify(json)
@@ -115,6 +115,10 @@ class SeashellGateway extends SeashellClient {
 
         if (sourceSocket._internal) {
           const data = body instanceof Binary ? body.buffer : body
+          if (!this.emitters[connectionId].headers) {
+            this.emitters[connectionId].headers = headers
+            this.emitters[connectionId].emit('headers')
+          }
           if (!!data) this.emitters[connectionId].emit('data', data)
           if (guard === 'response') {
             this.emitters[connectionId].emit('end')
@@ -128,14 +132,13 @@ class SeashellGateway extends SeashellClient {
       }
 
     } catch (e) {
-      console.log(`[${new Date()}] drop a message`)
-      console.log(e)
+      console.log(`[${new Date()}] drop a message because ${e.name} ${e.message}`)
     }
   }
 
 
   /**
-   * 构建一个内部虚拟socket，用来请求自己:P
+   * 构建一个内部虚拟socket，用来请求自己:P 以及从自己请求连接的socket
    */
   replaceInternalSocket = (requestHandler) => {
     const id = ObjectId().toString()
@@ -143,6 +146,8 @@ class SeashellGateway extends SeashellClient {
       id,
       _internal: true,
       hostname: 'seashell',
+
+      // TODO 
       send: (raw) => {
         const req = {}
         const res = {}
