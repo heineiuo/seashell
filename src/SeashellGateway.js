@@ -113,9 +113,14 @@ class SeashellGateway extends SeashellClient {
           return false
         }
 
+        /**
+         * sourceSocket._internal === true: 发起请求的是Gateway自己
+         * 否则：发起请求的是客户端，发送响应给客户端
+         */
         if (sourceSocket._internal) {
           const data = body instanceof Binary ? body.buffer : body
           if (!this.emitters[connectionId].headers) {
+            this.emitters[connectionId].statusCode = headers['x-seashell-status-code']
             this.emitters[connectionId].headers = headers
             this.emitters[connectionId].emit('headers')
           }
@@ -123,12 +128,11 @@ class SeashellGateway extends SeashellClient {
           if (guard === 'response') {
             this.emitters[connectionId].emit('end')
           }
-          return false
+        } else {
+          sourceSocket.send(
+            json.body instanceof Buffer ? bson.serialize(json) : JSON.stringify(json)
+          )
         }
-
-        sourceSocket.send(
-          json.body instanceof Buffer ? bson.serialize(json) : JSON.stringify(json)
-        )
       }
 
     } catch (e) {

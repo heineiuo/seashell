@@ -16,6 +16,7 @@ export const messageSchema = Joi.object().keys({
     'x-seashell-source-socket-id': Joi.string(),
     'x-seashell-method': Joi.string(),
     'x-seashell-url': Joi.string(),
+    'x-seashell-status-code': Joi.number(),
     'x-seashell-hostname': Joi.string(),
     'x-seashell-socket-id': Joi.string(),
   }).required(),
@@ -109,12 +110,13 @@ class SeashellClient extends EventEmitter {
               headers: {
                 'x-seashell-source-socket-id': sourceSocketId,
                 'x-seashell-connection-id': connectionId,
-                'x-seashell-guard': options['x-seashell-guard'] || 'response-chunk'
+                'x-seashell-guard': options['x-seashell-guard'] || 'response-chunk',
               },
               body: chunk
             }
             if (!res.headerSent) {
               res.headerSent = true
+              json.headers['x-seashell-status-code'] = options.statusCode || 200
               json.headers = Object.assign({}, options.headers, json.headers)
             }
             const chunkMessage = chunk instanceof Buffer ?
@@ -160,6 +162,7 @@ class SeashellClient extends EventEmitter {
           console.log(`[${new Date}] ws drop response message, connectionId: ${connectionId}`)
         } else {
           if (!this.emitters[connectionId].headers) {
+            this.emitters[connectionId].statusCode = headers['x-seashell-status-code']
             this.emitters[connectionId].headers = headers
             this.emitters[connectionId].emit('headers', headers)
           }
