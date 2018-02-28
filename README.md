@@ -5,56 +5,42 @@
 [![NPM Status](http://img.shields.io/npm/dm/seashell.svg?style=flat-square)](https://www.npmjs.org/package/seashell)
 [![Build Status](http://img.shields.io/travis/heineiuo/seashell/master.svg?style=flat-square)](https://travis-ci.org/heineiuo/seashell)
 
-A message framework, a high-level communication protocol for node.js and javascript.
+Implement HTTP protocol over WebSocket. Used for NAT, proxy server and others. 
 
-The master branch is in a fast iteration state, please use branch [v0.6.x](https://github.com/heineiuo/seashell/tree/v0.6.x) for stable usage.
 
 ---
 
 ## Document
 
-## Examples
+#### SeashellGateway
 
-We have some examples in examples directory.
+```js
+import { SeashellGateway } from 'seashell'
 
-```javascript
-$ npm install seashell --save
-
-// server
-import Seashell from 'seashell'
-
-const seashell = new Seashell();
-
-seashell.use('/api', ctx => {
-  ctx.response.body = {...};
-  ctx.response.end()
+const gateway = new SeashellGateway(( req, res ) => {
+  res.write('Hello World from gateway server')
+  res.end()
 })
 
-seashell.listen(3333);
-
-// client
-import {App, Router} from 'seashell/lib/client'
-
-app.connect('ws://127.0.0.1:3333?appId=APPID&appName=APPNAME&appSecret=APPSECRET');
-
-app.request('/seashell/api');
-
+gateway.listen(3333)
 ```
 
-## Command Line Tool
+#### SeashellClient
 
-```shell
-$ npm install seashell-cli -g
-$ seashell proxy src/index.js # Start a http server to proxy seashell app.
+```js
+import { SeashellClient } from 'seashell'
+
+const client = new SeashellClient(( req, res ) => {
+  res.write('Hello World from client')
+  res.end()
+}, {
+  serverAddress: 'ws://127.0.0.1:3333?appId=APPID&appName=APPNAME&appSecret=APPSECRET'
+})
 ```
 
 
-## Road Map
 
-* Streaming support.
-
-
-## Community
+## Contact
 
 QQ Group: 310433696
 
