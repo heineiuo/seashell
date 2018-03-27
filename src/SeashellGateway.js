@@ -25,8 +25,16 @@ const defaultConnectionHandler = (socket, req) => {
 class SeashellGateway extends SeashellClient {
   clientMap = {}
 
-  createGatewayServer = (internalRequestHandler, connectionHandler = defaultConnectionHandler, options) => {
-    const server = new WebSocket.Server({ server: options.server })
+  createGatewayServer = (internalRequestHandler, connectionHandler = defaultConnectionHandler, options = { }) => {
+    const serverOption = {}
+    if ('port' in options) {
+      serverOption.port = options.port
+    } else if ('server' in options)  {
+      serverOption.server = options.server
+    } else if ('noServer' in options) {
+      serverOption.noServer = options.noServer
+    }
+    const server = new WebSocket.Server(serverOption)
     server.on('connection', async (socket, req) => {
       try {
         const { id } = await connectionHandler(socket, req)
